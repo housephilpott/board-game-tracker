@@ -231,6 +231,26 @@
   }
 
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Recent plays table */
+  .recent-row td {
+    padding: 8px 4px;
+    font-size: 13px;
+    border-bottom: 1px solid #0f3460;
+    vertical-align: middle;
+  }
+  .recent-row:last-child td { border-bottom: none; }
+  .recent-header td {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #e94560;
+    padding: 0 4px 8px;
+  }
+  .recent-date { color: #7090b0; }
+  .recent-winner { color: #e0e0e0; font-weight: 600; }
+  .recent-score { color: #a0b0d0; text-align: right; }
 </style>
 </head>
 <body>
@@ -323,6 +343,15 @@
 
   <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Session</button>
 
+  <!-- Recent Plays -->
+  <div class="section" id="recentSection" style="margin-top:12px;display:none">
+    <div class="section-title">Recent Plays</div>
+    <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
+    <div id="loadMoreWrap" style="text-align:center;margin-top:10px;display:none">
+      <a href="#" id="loadMoreLink" onclick="loadMore(event)" style="color:#e94560;font-size:13px;text-decoration:none">Load more…</a>
+    </div>
+  </div>
+
 </div>
 
 <!-- Multi-select overlay -->
@@ -357,6 +386,7 @@ async function loadFromSheet() {
     allGames = data.games;
     allPlayers = data.players;
     populateGameDropdown();
+    loadRecentPlays();
   } catch(e) {
     showStatus('Could not load data from sheet. Check your Apps Script deployment.', true);
   }
@@ -574,7 +604,7 @@ async function submitForm() {
   try {
     const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const result = await res.json();
-    if (result.status === 'success') { showStatus('✅ Session saved!', false, true); resetForm(); }
+    if (result.status === 'success') { showStatus('✅ Session saved!', false, true); resetForm(); allSessions=[]; shownCount=0; loadRecentPlays(); }
     else throw new Error(result.message);
   } catch(e) {
     showStatus(`Error: ${e.message}`, true);
@@ -601,6 +631,90 @@ function showStatus(msg, isError = false, isSuccess = false) {
   el.className = 'status-banner visible' + (isError ? ' error' : '') + (isSuccess ? ' success' : '');
   if (!isError) setTimeout(() => el.classList.remove('visible'), 4000);
 }
+
+// ─── RECENT PLAYS ────────────────────────────────────────
+let allSessions = [];
+let shownCount = 0;
+const PAGE_SIZE = 5;
+
+async function loadRecentPlays() {
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getSessions`);
+    const data = await res.json();
+    // Sort newest first
+    allSessions = data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    shownCount = 0;
+    renderRecentPlays();
+  } catch(e) {
+    // Silently fail — don't block the main form
+  }
+}
+
+function renderRecentPlays() {
+  const section = document.getElementById('recentSection');
+  const table = document.getElementById('recentTable');
+  const loadMoreWrap = document.getElementById('loadMoreWrap');
+
+  if (allSessions.length === 0) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  const toShow = allSessions.slice(0, shownCount + PAGE_SIZE);
+  shownCount = toShow.length;
+
+  table.innerHTML = '';
+
+  // Header
+  const header = document.createElement('tr');
+  header.className = 'recent-header';
+  header.innerHTML = '<td>Date</td><td>Game</td><td>Winner</td><td class="recent-score">Score</td>';
+  table.appendChild(header);
+
+  toShow.forEach(s => {
+    const row = document.createElement('tr');
+    row.className = 'recent-row';
+    const date = s.date ? formatDate(s.date) : '—';
+    const game = s.game ? shortenGame(s.game) : '—';
+    const winner = s.winner || '—';
+    const score = getWinnerScore(s) || '—';
+    row.innerHTML = `
+      <td class="recent-date">${date}</td>
+      <td class="recent-date">${game}</td>
+      <td class="recent-winner">${winner}</td>
+      <td class="recent-score">${score}</td>
+    `;
+    table.appendChild(row);
+  });
+
+  loadMoreWrap.style.display = shownCount < allSessions.length ? 'block' : 'none';
+}
+
+function loadMore(e) {
+  e.preventDefault();
+  renderRecentPlays();
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+function shortenGame(name) {
+  if (name.startsWith('SETI')) return 'SETI';
+  if (name.length > 14) return name.substring(0, 13) + '…';
+  return name;
+}
+
+function getWinnerScore(session) {
+  if (!session.scores || !session.winner) return '';
+  if (session.winner.startsWith('TIE!') || session.winner === 'N/A') return '';
+  try {
+    const scores = JSON.parse(session.scores);
+    const val = scores[session.winner];
+    return val !== undefined ? val : '';
+  } catch(e) { return ''; }
+}
+
 </script>
 </body>
 </html>
