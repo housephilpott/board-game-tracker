@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Board Game Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #16213e, #0f3460);
+    padding: 20px 16px 16px;
+    text-align: center;
+    border-bottom: 2px solid #e94560;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: #a0a0c0;
+    margin-top: 2px;
+  }
+
+  .form-body {
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .section {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #0f3460;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #e94560;
+    margin-bottom: 12px;
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #a0b0d0;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    width: 100%;
+    background: #0f3460;
+    border: 1px solid #1a4a80;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 15px;
+    padding: 10px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: #e94560;
+  }
+
+  input[readonly] {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .auto-field {
+    display: flex;
+    gap: 8px;
+  }
+
+  .auto-field .stat-box {
+    flex: 1;
+    background: #0f3460;
+    border: 1px solid #1a4a80;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .stat-box .stat-label {
+    font-size: 10px;
+    color: #7090b0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-box .stat-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-top: 2px;
+  }
+
+  .stat-box.loading .stat-value {
+    color: #506080;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  /* Multi-select chips */
+  .chip-container {
+    background: #0f3460;
+    border: 1px solid #1a4a80;
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .chip-container.active {
+    border-color: #e94560;
+  }
+
+  .chip {
+    background: #e94560;
+    color: #fff;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .chip .remove {
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+
+  .chip-placeholder {
+    color: #506080;
+    font-size: 14px;
+    padding: 2px 4px;
+  }
+
+  /* Dropdown overlay */
+  .dropdown-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: flex-end;
+  }
+
+  .dropdown-overlay.open {
+    display: flex;
+  }
+
+  .dropdown-sheet {
+    background: #16213e;
+    border-radius: 16px 16px 0 0;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 16px;
+    border-top: 2px solid #e94560;
+  }
+
+  .dropdown-sheet h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .dropdown-option {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #e0e0e0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dropdown-option:active {
+    background: #0f3460;
+  }
+
+  .dropdown-option.selected {
+    background: #1a3a60;
+    color: #e94560;
+    font-weight: 600;
+  }
+
+  .dropdown-option .check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #506080;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  .dropdown-option.selected .check {
+    background: #e94560;
+    border-color: #e94560;
+    color: white;
+  }
+
+  .dropdown-done {
+    margin-top: 12px;
+    width: 100%;
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Player scores */
+  .player-score-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .player-score-row:last-child { margin-bottom: 0; }
+
+  .player-score-name {
+    flex: 1;
+    font-size: 14px;
+    color: #c0d0e0;
+  }
+
+  .player-score-input {
+    width: 80px !important;
+    text-align: center;
+  }
+
+  /* Game-specific section */
+  .game-specific {
+    display: none;
+  }
+
+  .game-specific.visible {
+    display: block;
+  }
+
+  /* Status banner */
+  .status-banner {
+    display: none;
+    background: #0f3460;
+    border: 1px solid #1a4a80;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #a0c0e0;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .status-banner.error {
+    background: #3a0f1e;
+    border-color: #e94560;
+    color: #ff8080;
+  }
+
+  .status-banner.success {
+    background: #0f3a1e;
+    border-color: #40e094;
+    color: #80ffb0;
+  }
+
+  .status-banner.visible {
+    display: block;
+  }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #e94560, #c03050);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .config-note {
+    text-align: center;
+    font-size: 11px;
+    color: #506080;
+    margin-top: 12px;
+  }
+
+  .config-note a {
+    color: #e94560;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎲 Board Game Tracker</h1>
+  <p>Log your session</p>
+</div>
+
+<div class="form-body">
+
+  <!-- Status -->
+  <div class="status-banner" id="statusBanner"></div>
+
+  <!-- Session Info -->
+  <div class="section">
+    <div class="section-title">Session</div>
+
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="fieldDate" readonly>
+    </div>
+
+    <div class="field">
+      <label>Board Game</label>
+      <select id="fieldGame" onchange="onGameChange()">
+        <option value="">Loading games…</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Game Stats (auto-populated) -->
+  <div class="section" id="sectionStats" style="display:none">
+    <div class="section-title">Game History</div>
+    <div class="auto-field">
+      <div class="stat-box loading" id="statLastPlayed">
+        <div class="stat-label">Last Played</div>
+        <div class="stat-value" id="valLastPlayed">—</div>
+      </div>
+      <div class="stat-box loading" id="statTotalPlays">
+        <div class="stat-label">Total Plays</div>
+        <div class="stat-value" id="valTotalPlays">—</div>
+      </div>
+      <div class="stat-box loading" id="statTopWinner">
+        <div class="stat-label">Top Winner</div>
+        <div class="stat-value" id="valTopWinner">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game-specific: SETI -->
+  <div class="section game-specific" id="section-SETI">
+    <div class="section-title">SETI Details</div>
+    <div class="field">
+      <label>Expansion</label>
+      <select id="seti-expansion">
+        <option value="">Select…</option>
+        <option>Space Agencies</option>
+        <option>None</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Revealed Aliens</label>
+      <div class="chip-container" id="setiAliensContainer" onclick="openMultiSelect('setiAliens')">
+        <span class="chip-placeholder" id="setiAliensPlaceholder">Select aliens…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game-specific: Dorfromantik -->
+  <div class="section game-specific" id="section-Dorfromantik">
+    <div class="section-title">Dorfromantik Details</div>
+    <div class="field">
+      <label>Version</label>
+      <select id="dorf-version">
+        <option value="">Select…</option>
+        <option>Original</option>
+        <option>Sakura</option>
+        <option>The Duel</option>
+        <option>Light Luggage</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Players -->
+  <div class="section">
+    <div class="section-title">Players</div>
+    <div class="field">
+      <label>Players</label>
+      <div class="chip-container" id="playersContainer" onclick="openMultiSelect('players')">
+        <span class="chip-placeholder" id="playersPlaceholder">Select players…</span>
+      </div>
+    </div>
+
+    <div class="field" id="scoresSection" style="display:none">
+      <label>Scores <span style="font-weight:400;color:#506080">(optional)</span></label>
+      <div id="scoresContainer"></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="section">
+    <div class="section-title">Result</div>
+    <div class="field">
+      <label>Version / Edition <span style="font-weight:400;color:#506080">(optional)</span></label>
+      <input type="text" id="fieldVersion" placeholder="e.g. Deluxe, 2nd Ed…">
+    </div>
+    <div class="field">
+      <label>Winner</label>
+      <select id="fieldWinner">
+        <option value="">Select winner…</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Session</button>
+
+  <p class="config-note">Paste your Apps Script URL in the <a href="#" onclick="showConfig()">settings</a></p>
+
+</div>
+
+<!-- Multi-select overlay -->
+<div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
+  <div class="dropdown-sheet" id="dropdownSheet">
+    <h3 id="dropdownTitle"></h3>
+    <div id="dropdownOptions"></div>
+    <button class="dropdown-done" onclick="closeMultiSelect()">Done</button>
+  </div>
+</div>
+
+<!-- Config overlay -->
+<div class="dropdown-overlay" id="configOverlay">
+  <div class="dropdown-sheet">
+    <h3>Apps Script URL</h3>
+    <p style="font-size:12px;color:#7090b0;margin-bottom:10px;text-align:center">Paste the URL from your deployed Google Apps Script</p>
+    <input type="text" id="configUrl" placeholder="https://script.google.com/macros/s/…/exec" style="margin-bottom:10px">
+    <button class="dropdown-done" onclick="saveConfig()">Save</button>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+let APPS_SCRIPT_URL = localStorage.getItem('appsScriptUrl') || '';
+
+// ─── STATE ────────────────────────────────────────────────
+let allPlayers = [];
+let allGames = [];
+let selectedPlayers = [];
+let selectedAliens = [];
+let currentDropdown = null;
+let currentGameData = null;
+
+const ALIEN_OPTIONS = ["Anomalies", "'Omuamua", "Exertians", "Mascamites", "Centaurians"];
+
+// ─── INIT ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  document.getElementById('fieldDate').value = `${yyyy}-${mm}-${dd}`;
+
+  loadFromSheet();
+});
+
+async function loadFromSheet() {
+  if (!APPS_SCRIPT_URL) {
+    // Use demo data
+    allGames = [
+      { name: 'SETI: Search for Extra Terrestrial Life', coop: false },
+      { name: 'Dorfromantik', coop: true },
+      { name: 'Catan', coop: false },
+      { name: 'Ticket to Ride', coop: false },
+    ];
+    allPlayers = ['Alice', 'Bob', 'Charlie', 'Dana', 'Eve'];
+    populateGameDropdown();
+    populateWinnerDropdown();
+    showStatus('Demo mode — configure your Apps Script URL to connect to Google Sheets', false, true);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getConfig`);
+    const data = await res.json();
+    allGames = data.games;
+    allPlayers = data.players;
+    populateGameDropdown();
+    populateWinnerDropdown();
+  } catch(e) {
+    showStatus('Could not load data from sheet. Check your Apps Script URL.', true);
+    // Fallback demo
+    allGames = [
+      { name: 'SETI: Search for Extra Terrestrial Life', coop: false },
+      { name: 'Dorfromantik', coop: true },
+    ];
+    allPlayers = ['Player 1', 'Player 2', 'Player 3'];
+    populateGameDropdown();
+    populateWinnerDropdown();
+  }
+}
+
+function populateGameDropdown() {
+  const sel = document.getElementById('fieldGame');
+  sel.innerHTML = '<option value="">Select a game…</option>';
+  allGames.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.name;
+    opt.textContent = g.name;
+    sel.appendChild(opt);
+  });
+}
+
+function populateWinnerDropdown(coop = false) {
+  const sel = document.getElementById('fieldWinner');
+  sel.innerHTML = '<option value="">Select winner…</option>';
+  if (coop) {
+    const na = document.createElement('option');
+    na.value = 'N/A';
+    na.textContent = 'N/A (Co-op)';
+    sel.appendChild(na);
+  }
+  // Show selected players first, then all
+  const list = selectedPlayers.length > 0 ? selectedPlayers : allPlayers;
+  list.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p;
+    sel.appendChild(opt);
+  });
+}
+
+// ─── GAME CHANGE ──────────────────────────────────────────
+async function onGameChange() {
+  const gameName = document.getElementById('fieldGame').value;
+
+  // Hide all game-specific sections
+  document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
+
+  if (!gameName) {
+    document.getElementById('sectionStats').style.display = 'none';
+    return;
+  }
+
+  // Find game config
+  const game = allGames.find(g => g.name === gameName);
+  currentGameData = game;
+
+  // Show co-op N/A in winner if needed
+  populateWinnerDropdown(game?.coop || false);
+
+  // Show game-specific section
+  const gameKey = getGameKey(gameName);
+  const specificSection = document.getElementById(`section-${gameKey}`);
+  if (specificSection) specificSection.classList.add('visible');
+
+  // Show stats section and load
+  document.getElementById('sectionStats').style.display = 'block';
+  document.getElementById('valLastPlayed').textContent = '…';
+  document.getElementById('valTotalPlays').textContent = '…';
+  document.getElementById('valTopWinner').textContent = '…';
+
+  if (!APPS_SCRIPT_URL) {
+    // Demo stats
+    setTimeout(() => {
+      document.getElementById('valLastPlayed').textContent = '12 Apr';
+      document.getElementById('valTotalPlays').textContent = '7';
+      document.getElementById('valTopWinner').textContent = 'Alice';
+    }, 600);
+    return;
+  }
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getStats&game=${encodeURIComponent(gameName)}`);
+    const stats = await res.json();
+    document.getElementById('valLastPlayed').textContent = stats.lastPlayed || '—';
+    document.getElementById('valTotalPlays').textContent = stats.totalPlays ?? '0';
+    document.getElementById('valTopWinner').textContent = stats.topWinner || '—';
+  } catch(e) {
+    document.getElementById('valLastPlayed').textContent = 'Err';
+    document.getElementById('valTotalPlays').textContent = 'Err';
+    document.getElementById('valTopWinner').textContent = 'Err';
+  }
+}
+
+function getGameKey(name) {
+  if (name.startsWith('SETI')) return 'SETI';
+  if (name === 'Dorfromantik') return 'Dorfromantik';
+  return name.replace(/[^a-zA-Z0-9]/g,'');
+}
+
+// ─── MULTI-SELECT ─────────────────────────────────────────
+function openMultiSelect(type) {
+  currentDropdown = type;
+  const overlay = document.getElementById('dropdownOverlay');
+  const title = document.getElementById('dropdownTitle');
+  const options = document.getElementById('dropdownOptions');
+
+  let items, selected;
+  if (type === 'players') {
+    title.textContent = 'Select Players';
+    items = allPlayers;
+    selected = selectedPlayers;
+  } else if (type === 'setiAliens') {
+    title.textContent = 'Revealed Aliens';
+    items = ALIEN_OPTIONS;
+    selected = selectedAliens;
+  }
+
+  options.innerHTML = '';
+  items.forEach(item => {
+    const isSelected = selected.includes(item);
+    const div = document.createElement('div');
+    div.className = 'dropdown-option' + (isSelected ? ' selected' : '');
+    div.innerHTML = `<div class="check">${isSelected ? '✓' : ''}</div><span>${item}</span>`;
+    div.onclick = () => toggleOption(div, item, type);
+    options.appendChild(div);
+  });
+
+  overlay.classList.add('open');
+}
+
+function toggleOption(el, value, type) {
+  let arr = type === 'players' ? selectedPlayers : selectedAliens;
+  const idx = arr.indexOf(value);
+  if (idx > -1) {
+    arr.splice(idx, 1);
+    el.classList.remove('selected');
+    el.querySelector('.check').textContent = '';
+  } else {
+    arr.push(value);
+    el.classList.add('selected');
+    el.querySelector('.check').textContent = '✓';
+  }
+}
+
+function closeMultiSelect() {
+  document.getElementById('dropdownOverlay').classList.remove('open');
+  if (currentDropdown === 'players') {
+    renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
+    updateScores();
+    populateWinnerDropdown(currentGameData?.coop || false);
+  } else if (currentDropdown === 'setiAliens') {
+    renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
+  }
+  currentDropdown = null;
+}
+
+function closeDropdownIfOutside(e) {
+  if (e.target === document.getElementById('dropdownOverlay')) closeMultiSelect();
+}
+
+function renderChips(containerId, placeholderId, arr, type) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  if (arr.length === 0) {
+    const ph = document.createElement('span');
+    ph.className = 'chip-placeholder';
+    ph.id = placeholderId;
+    ph.textContent = type === 'players' ? 'Select players…' : 'Select aliens…';
+    container.appendChild(ph);
+    return;
+  }
+  arr.forEach(item => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `${item}<span class="remove" onclick="removeChip(event,'${item}','${type}')">×</span>`;
+    container.appendChild(chip);
+  });
+}
+
+function removeChip(e, value, type) {
+  e.stopPropagation();
+  if (type === 'players') {
+    selectedPlayers = selectedPlayers.filter(p => p !== value);
+    renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
+    updateScores();
+    populateWinnerDropdown(currentGameData?.coop || false);
+  } else {
+    selectedAliens = selectedAliens.filter(a => a !== value);
+    renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
+  }
+}
+
+// ─── SCORES ───────────────────────────────────────────────
+function updateScores() {
+  const container = document.getElementById('scoresContainer');
+  const section = document.getElementById('scoresSection');
+
+  if (selectedPlayers.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  container.innerHTML = '';
+  selectedPlayers.forEach(player => {
+    const row = document.createElement('div');
+    row.className = 'player-score-row';
+    row.innerHTML = `
+      <span class="player-score-name">${player}</span>
+      <input type="number" class="player-score-input" id="score-${player.replace(/\s/g,'_')}" placeholder="—">
+    `;
+    container.appendChild(row);
+  });
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────
+async function submitForm() {
+  const game = document.getElementById('fieldGame').value;
+  if (!game) { showStatus('Please select a game.', true); return; }
+  if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
+
+  const winner = document.getElementById('fieldWinner').value;
+  if (!winner) { showStatus('Please select a winner.', true); return; }
+
+  // Collect scores
+  const scores = {};
+  selectedPlayers.forEach(p => {
+    const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
+    if (val) scores[p] = val;
+  });
+
+  const payload = {
+    date: document.getElementById('fieldDate').value,
+    game,
+    version: document.getElementById('fieldVersion').value,
+    players: selectedPlayers.join(', '),
+    scores: JSON.stringify(scores),
+    winner,
+    lastPlayed: document.getElementById('valLastPlayed').textContent,
+    totalPlays: document.getElementById('valTotalPlays').textContent,
+    topWinner: document.getElementById('valTopWinner').textContent,
+  };
+
+  // Game-specific
+  const gameKey = getGameKey(game);
+  if (gameKey === 'SETI') {
+    payload.expansion = document.getElementById('seti-expansion').value;
+    payload.revealedAliens = selectedAliens.join(', ');
+  }
+  if (gameKey === 'Dorfromantik') {
+    payload.dorfVersion = document.getElementById('dorf-version').value;
+  }
+
+  if (!APPS_SCRIPT_URL) {
+    console.log('Would submit:', payload);
+    showStatus('Demo mode: data logged to console (no URL configured)', false, true);
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showStatus('✅ Session saved!', false, false, true);
+      resetForm();
+    } else {
+      throw new Error(result.message);
+    }
+  } catch(e) {
+    showStatus(`Error: ${e.message}`, true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Submit Session';
+  }
+}
+
+function resetForm() {
+  document.getElementById('fieldGame').value = '';
+  document.getElementById('fieldVersion').value = '';
+  document.getElementById('fieldWinner').value = '';
+  selectedPlayers = [];
+  selectedAliens = [];
+  renderChips('playersContainer', 'playersPlaceholder', [], 'players');
+  renderChips('setiAliensContainer', 'setiAliensPlaceholder', [], 'setiAliens');
+  document.getElementById('scoresSection').style.display = 'none';
+  document.getElementById('sectionStats').style.display = 'none';
+  document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
+}
+
+// ─── STATUS ───────────────────────────────────────────────
+function showStatus(msg, isError = false, isInfo = false, isSuccess = false) {
+  const el = document.getElementById('statusBanner');
+  el.textContent = msg;
+  el.className = 'status-banner visible';
+  if (isError) el.classList.add('error');
+  if (isSuccess) el.classList.add('success');
+  if (!isError && !isSuccess) setTimeout(() => el.classList.remove('visible'), 5000);
+}
+
+// ─── CONFIG ───────────────────────────────────────────────
+function showConfig() {
+  document.getElementById('configUrl').value = APPS_SCRIPT_URL;
+  document.getElementById('configOverlay').classList.add('open');
+}
+
+function saveConfig() {
+  APPS_SCRIPT_URL = document.getElementById('configUrl').value.trim();
+  localStorage.setItem('appsScriptUrl', APPS_SCRIPT_URL);
+  document.getElementById('configOverlay').classList.remove('open');
+  loadFromSheet();
+}
+</script>
+</body>
+</html>
