@@ -386,7 +386,6 @@ async function loadFromSheet() {
     allGames = data.games;
     allPlayers = data.players;
     populateGameDropdown();
-    loadRecentPlays();
   } catch(e) {
     showStatus('Could not load data from sheet. Check your Apps Script deployment.', true);
   }
@@ -405,7 +404,7 @@ function populateGameDropdown() {
 async function onGameChange() {
   const gameName = document.getElementById('fieldGame').value;
   document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
-  if (!gameName) { document.getElementById('sectionStats').style.display = 'none'; return; }
+  if (!gameName) { document.getElementById('sectionStats').style.display = 'none'; document.getElementById('recentSection').style.display = 'none'; return; }
 
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
@@ -425,6 +424,8 @@ async function onGameChange() {
   } catch(e) {
     ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '—');
   }
+
+  allSessions = []; shownCount = 0; loadRecentPlays();
 
   // Refresh scores if players already selected
   if (selectedPlayers.length > 0) updateScores();
@@ -638,8 +639,10 @@ let shownCount = 0;
 const PAGE_SIZE = 5;
 
 async function loadRecentPlays() {
+  const gameName = document.getElementById('fieldGame').value;
+  if (!gameName) { document.getElementById('recentSection').style.display = 'none'; return; }
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=getSessions`);
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
     const data = await res.json();
     // Sort newest first
     allSessions = data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -658,6 +661,7 @@ function renderRecentPlays() {
   if (allSessions.length === 0) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
+  section.querySelector('.section-title').textContent = `Previous Plays — ${shortenGame(document.getElementById('fieldGame').value)}`;
   const toShow = allSessions.slice(0, shownCount + PAGE_SIZE);
   shownCount = toShow.length;
 
