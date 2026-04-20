@@ -274,10 +274,6 @@
   <div class="section">
     <div class="section-title">Result</div>
     <div class="field">
-      <label>Version / Edition <span style="font-weight:400;color:#506080">(optional)</span></label>
-      <input type="text" id="fieldVersion" placeholder="e.g. Deluxe, 2nd Ed…">
-    </div>
-    <div class="field">
       <label>Winner</label>
       <select id="fieldWinner"><option value="">Select winner…</option></select>
     </div>
@@ -484,7 +480,7 @@ async function submitForm() {
   const payload = {
     date: document.getElementById('fieldDate').value,
     game,
-    version: document.getElementById('fieldVersion').value,
+
     players: selectedPlayers.join(', '),
     scores: JSON.stringify(scores),
     winner,
@@ -514,7 +510,6 @@ async function submitForm() {
 
 function resetForm() {
   document.getElementById('fieldGame').value = '';
-  document.getElementById('fieldVersion').value = '';
   document.getElementById('fieldWinner').value = '';
   selectedPlayers = []; selectedAliens = [];
   renderChips('playersContainer', 'playersPlaceholder', [], 'players');
