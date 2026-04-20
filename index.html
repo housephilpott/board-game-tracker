@@ -62,7 +62,7 @@
   }
 
   input:focus, select:focus { outline: none; border-color: #e94560; }
-  input[readonly] { opacity: 0.6; cursor: default; }
+  input[readonly] { opacity: 0.7; cursor: default; }
 
   .auto-field { display: flex; gap: 8px; }
 
@@ -104,6 +104,53 @@
 
   .chip .remove { font-size: 16px; line-height: 1; opacity: 0.8; cursor: pointer; }
   .chip-placeholder { color: #506080; font-size: 14px; padding: 2px 4px; }
+
+  /* Two-column score grid */
+  .scores-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .score-cell {
+    background: #0f3460;
+    border: 1px solid #1a4a80;
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .score-cell-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a0b0d0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+  }
+
+  .score-cell input {
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #1a4a80 !important;
+    border-radius: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    color: #e0e0e0 !important;
+  }
+
+  .score-cell input:focus { outline: none; border-bottom-color: #e94560 !important; }
+  .score-cell input[readonly] { color: #506080 !important; opacity: 1 !important; }
 
   .dropdown-overlay {
     display: none;
@@ -159,11 +206,6 @@
     padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
   }
 
-  .player-score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .player-score-row:last-child { margin-bottom: 0; }
-  .player-score-name { flex: 1; font-size: 14px; color: #c0d0e0; }
-  .player-score-input { width: 80px !important; text-align: center; }
-
   .game-specific { display: none; }
   .game-specific.visible { display: block; }
 
@@ -202,6 +244,7 @@
 
   <div class="status-banner" id="statusBanner"></div>
 
+  <!-- Session -->
   <div class="section">
     <div class="section-title">Session</div>
     <div class="field">
@@ -216,6 +259,7 @@
     </div>
   </div>
 
+  <!-- Game History -->
   <div class="section" id="sectionStats" style="display:none">
     <div class="section-title">Game History</div>
     <div class="auto-field">
@@ -225,6 +269,7 @@
     </div>
   </div>
 
+  <!-- SETI specific -->
   <div class="section game-specific" id="section-SETI">
     <div class="section-title">SETI Details</div>
     <div class="field">
@@ -243,6 +288,7 @@
     </div>
   </div>
 
+  <!-- Dorfromantik specific -->
   <div class="section game-specific" id="section-Dorfromantik">
     <div class="section-title">Dorfromantik Details</div>
     <div class="field">
@@ -257,25 +303,21 @@
     </div>
   </div>
 
+  <!-- Players -->
   <div class="section">
     <div class="section-title">Players</div>
-    <div class="field">
-      <label>Players</label>
-      <div class="chip-container" id="playersContainer" onclick="openMultiSelect('players')">
-        <span class="chip-placeholder" id="playersPlaceholder">Select players…</span>
-      </div>
-    </div>
-    <div class="field" id="scoresSection" style="display:none">
-      <label>Scores <span style="font-weight:400;color:#506080">(optional)</span></label>
-      <div id="scoresContainer"></div>
+    <div class="chip-container" id="playersContainer" onclick="openMultiSelect('players')">
+      <span class="chip-placeholder" id="playersPlaceholder">Select players…</span>
     </div>
   </div>
 
-  <div class="section">
+  <!-- Result -->
+  <div class="section" id="resultSection" style="display:none">
     <div class="section-title">Result</div>
+    <div class="scores-grid" id="scoresContainer"></div>
     <div class="field">
       <label>Winner</label>
-      <select id="fieldWinner"><option value="">Select winner…</option></select>
+      <input type="text" id="fieldWinner" readonly placeholder="Auto-filled from scores…">
     </div>
   </div>
 
@@ -283,6 +325,7 @@
 
 </div>
 
+<!-- Multi-select overlay -->
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
   <div class="dropdown-sheet">
     <h3 id="dropdownTitle"></h3>
@@ -314,7 +357,6 @@ async function loadFromSheet() {
     allGames = data.games;
     allPlayers = data.players;
     populateGameDropdown();
-    populateWinnerDropdown();
   } catch(e) {
     showStatus('Could not load data from sheet. Check your Apps Script deployment.', true);
   }
@@ -330,22 +372,6 @@ function populateGameDropdown() {
   });
 }
 
-function populateWinnerDropdown(coop = false) {
-  const sel = document.getElementById('fieldWinner');
-  sel.innerHTML = '<option value="">Select winner…</option>';
-  if (coop) {
-    const na = document.createElement('option');
-    na.value = 'N/A'; na.textContent = 'N/A (Co-op)';
-    sel.appendChild(na);
-  }
-  const list = selectedPlayers.length > 0 ? selectedPlayers : allPlayers;
-  list.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p; opt.textContent = p;
-    sel.appendChild(opt);
-  });
-}
-
 async function onGameChange() {
   const gameName = document.getElementById('fieldGame').value;
   document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
@@ -353,7 +379,6 @@ async function onGameChange() {
 
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
-  populateWinnerDropdown(game?.coop || false);
 
   const specificSection = document.getElementById(`section-${getGameKey(gameName)}`);
   if (specificSection) specificSection.classList.add('visible');
@@ -370,6 +395,9 @@ async function onGameChange() {
   } catch(e) {
     ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '—');
   }
+
+  // Refresh scores if players already selected
+  if (selectedPlayers.length > 0) updateScores();
 }
 
 function getGameKey(name) {
@@ -408,7 +436,6 @@ function closeMultiSelect() {
   if (currentDropdown === 'players') {
     renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
     updateScores();
-    populateWinnerDropdown(currentGameData?.coop || false);
   } else {
     renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
   }
@@ -443,7 +470,6 @@ function removeChip(e, value, type) {
     selectedPlayers = selectedPlayers.filter(p => p !== value);
     renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
     updateScores();
-    populateWinnerDropdown(currentGameData?.coop || false);
   } else {
     selectedAliens = selectedAliens.filter(a => a !== value);
     renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
@@ -451,25 +477,70 @@ function removeChip(e, value, type) {
 }
 
 function updateScores() {
-  const section = document.getElementById('scoresSection');
+  const resultSection = document.getElementById('resultSection');
   const container = document.getElementById('scoresContainer');
-  if (selectedPlayers.length === 0) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
+
+  if (selectedPlayers.length === 0) {
+    resultSection.style.display = 'none';
+    return;
+  }
+
+  resultSection.style.display = 'block';
+  const isCoop = currentGameData?.coop || false;
   container.innerHTML = '';
+
   selectedPlayers.forEach(player => {
-    const row = document.createElement('div');
-    row.className = 'player-score-row';
-    row.innerHTML = `<span class="player-score-name">${player}</span><input type="number" class="player-score-input" id="score-${player.replace(/\s/g,'_')}" placeholder="—">`;
-    container.appendChild(row);
+    const cell = document.createElement('div');
+    cell.className = 'score-cell';
+    const safeId = `score-${player.replace(/\s/g,'_')}`;
+    cell.innerHTML = `
+      <div class="score-cell-name">${player}</div>
+      <input type="${isCoop ? 'text' : 'number'}"
+             id="${safeId}"
+             ${isCoop ? 'readonly value="N/A"' : 'placeholder="—"'}
+             oninput="autoWinner()">
+    `;
+    container.appendChild(cell);
   });
+
+  // Set winner field
+  if (isCoop) {
+    document.getElementById('fieldWinner').value = 'N/A';
+  } else {
+    document.getElementById('fieldWinner').value = '';
+    document.getElementById('fieldWinner').placeholder = 'Auto-filled from scores…';
+  }
+}
+
+function autoWinner() {
+  if (currentGameData?.coop) return;
+
+  const scores = {};
+  selectedPlayers.forEach(p => {
+    const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
+    if (val !== '' && val !== undefined) scores[p] = parseFloat(val);
+  });
+
+  const filled = Object.entries(scores).filter(([,v]) => !isNaN(v));
+  if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
+
+  const maxScore = Math.max(...filled.map(([,v]) => v));
+  const winners = filled.filter(([,v]) => v === maxScore).map(([p]) => p);
+
+  if (winners.length === 1) {
+    document.getElementById('fieldWinner').value = winners[0];
+  } else {
+    document.getElementById('fieldWinner').value = `TIE! ${winners.join(', ')}`;
+  }
 }
 
 async function submitForm() {
   const game = document.getElementById('fieldGame').value;
   if (!game) { showStatus('Please select a game.', true); return; }
   if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
+
   const winner = document.getElementById('fieldWinner').value;
-  if (!winner) { showStatus('Please select a winner.', true); return; }
+  if (!winner) { showStatus('Please enter scores to determine a winner.', true); return; }
 
   const scores = {};
   selectedPlayers.forEach(p => {
@@ -480,7 +551,6 @@ async function submitForm() {
   const payload = {
     date: document.getElementById('fieldDate').value,
     game,
-
     players: selectedPlayers.join(', '),
     scores: JSON.stringify(scores),
     winner,
@@ -490,8 +560,13 @@ async function submitForm() {
   };
 
   const gameKey = getGameKey(game);
-  if (gameKey === 'SETI') { payload.expansion = document.getElementById('seti-expansion').value; payload.revealedAliens = selectedAliens.join(', '); }
-  if (gameKey === 'Dorfromantik') { payload.dorfVersion = document.getElementById('dorf-version').value; }
+  if (gameKey === 'SETI') {
+    payload.expansion = document.getElementById('seti-expansion').value;
+    payload.revealedAliens = selectedAliens.join(', ');
+  }
+  if (gameKey === 'Dorfromantik') {
+    payload.dorfVersion = document.getElementById('dorf-version').value;
+  }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
@@ -514,9 +589,10 @@ function resetForm() {
   selectedPlayers = []; selectedAliens = [];
   renderChips('playersContainer', 'playersPlaceholder', [], 'players');
   renderChips('setiAliensContainer', 'setiAliensPlaceholder', [], 'setiAliens');
-  document.getElementById('scoresSection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
   document.getElementById('sectionStats').style.display = 'none';
   document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
+  currentGameData = null;
 }
 
 function showStatus(msg, isError = false, isSuccess = false) {
