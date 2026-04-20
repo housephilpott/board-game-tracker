@@ -21,7 +21,6 @@
     text-align: center;
     border-bottom: 2px solid #e94560;
   }
-
   .header h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
   .header p  { font-size: 12px; color: #a0a0c0; margin-top: 2px; }
 
@@ -34,14 +33,10 @@
     margin-bottom: 12px;
     border: 1px solid #0f3460;
   }
-
   .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #e94560;
-    margin-bottom: 12px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: #e94560; margin-bottom: 12px;
   }
 
   .field { margin-bottom: 14px; }
@@ -51,202 +46,117 @@
 
   input[type="text"], input[type="number"], input[type="date"], select {
     width: 100%;
-    background: #0f3460;
-    border: 1px solid #1a4a80;
-    border-radius: 8px;
-    color: #e0e0e0;
-    font-size: 15px;
-    padding: 10px 12px;
-    appearance: none;
-    -webkit-appearance: none;
+    background: #0f3460; border: 1px solid #1a4a80;
+    border-radius: 8px; color: #e0e0e0;
+    font-size: 15px; padding: 10px 12px;
+    appearance: none; -webkit-appearance: none;
   }
-
   input:focus, select:focus { outline: none; border-color: #e94560; }
   input[readonly] { opacity: 0.7; cursor: default; }
 
   .auto-field { display: flex; gap: 8px; }
-
   .stat-box {
-    flex: 1;
-    background: #0f3460;
-    border: 1px solid #1a4a80;
-    border-radius: 8px;
-    padding: 8px 10px;
-    text-align: center;
+    flex: 1; background: #0f3460; border: 1px solid #1a4a80;
+    border-radius: 8px; padding: 8px 10px; text-align: center;
   }
-
   .stat-label { font-size: 10px; color: #7090b0; text-transform: uppercase; letter-spacing: 0.5px; }
   .stat-value { font-size: 15px; font-weight: 700; color: #e0e0e0; margin-top: 2px; }
 
+  /* Chips */
   .chip-container {
-    background: #0f3460;
-    border: 1px solid #1a4a80;
-    border-radius: 8px;
-    padding: 8px;
-    min-height: 44px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    cursor: pointer;
+    background: #0f3460; border: 1px solid #1a4a80;
+    border-radius: 8px; padding: 8px; min-height: 44px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    align-items: center; cursor: pointer;
   }
-
   .chip {
-    background: #e94560;
-    color: #fff;
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    background: #e94560; color: #fff; border-radius: 20px;
+    padding: 3px 10px; font-size: 13px;
+    display: flex; align-items: center; gap: 5px;
   }
-
   .chip .remove { font-size: 16px; line-height: 1; opacity: 0.8; cursor: pointer; }
   .chip-placeholder { color: #506080; font-size: 14px; padding: 2px 4px; }
 
-  /* Two-column score grid */
+  /* Score grid */
   .scores-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 14px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
   }
-
   .score-cell {
-    background: #0f3460;
-    border: 1px solid #1a4a80;
-    border-radius: 8px;
-    padding: 8px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    background: #0f3460; border: 1px solid #1a4a80;
+    border-radius: 8px; padding: 8px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
   }
-
   .score-cell-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: #a0b0d0;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    text-align: center;
+    font-size: 12px; font-weight: 600; color: #a0b0d0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%; text-align: center;
   }
-
   .score-cell input {
-    width: 100% !important;
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid #1a4a80 !important;
-    border-radius: 0 !important;
-    padding: 4px 6px !important;
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    text-align: center !important;
-    color: #e0e0e0 !important;
+    width: 100% !important; background: transparent !important;
+    border: none !important; border-bottom: 1px solid #1a4a80 !important;
+    border-radius: 0 !important; padding: 4px 6px !important;
+    font-size: 18px !important; font-weight: 700 !important;
+    text-align: center !important; color: #e0e0e0 !important;
   }
-
   .score-cell input:focus { outline: none; border-bottom-color: #e94560 !important; }
   .score-cell input[readonly] { color: #506080 !important; opacity: 1 !important; }
 
+  /* Dropdown overlay */
   .dropdown-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 100;
-    align-items: flex-end;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 100; align-items: flex-end;
   }
-
   .dropdown-overlay.open { display: flex; }
-
   .dropdown-sheet {
-    background: #16213e;
-    border-radius: 16px 16px 0 0;
-    width: 100%;
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: 16px;
-    border-top: 2px solid #e94560;
+    background: #16213e; border-radius: 16px 16px 0 0;
+    width: 100%; max-height: 70vh; overflow-y: auto;
+    padding: 16px; border-top: 2px solid #e94560;
   }
-
   .dropdown-sheet h3 { font-size: 14px; font-weight: 700; color: #e0e0e0; margin-bottom: 12px; text-align: center; }
-
   .dropdown-option {
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 15px;
-    color: #e0e0e0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 12px; border-radius: 8px; font-size: 15px;
+    color: #e0e0e0; cursor: pointer; display: flex; align-items: center; gap: 10px;
   }
-
   .dropdown-option:active { background: #0f3460; }
   .dropdown-option.selected { background: #1a3a60; color: #e94560; font-weight: 600; }
-
   .dropdown-option .check {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    border: 2px solid #506080;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; font-size: 11px;
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid #506080; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; font-size: 11px;
   }
-
   .dropdown-option.selected .check { background: #e94560; border-color: #e94560; color: white; }
-
   .dropdown-done {
-    margin-top: 12px; width: 100%;
-    background: #e94560; color: white;
-    border: none; border-radius: 8px;
-    padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
+    margin-top: 12px; width: 100%; background: #e94560; color: white;
+    border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
   }
 
-  .game-specific { display: none; }
-  .game-specific.visible { display: block; }
-
+  /* Status */
   .status-banner {
-    display: none;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-    margin-bottom: 12px;
-    text-align: center;
+    display: none; border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; margin-bottom: 12px; text-align: center;
   }
-
   .status-banner.visible { display: block; background: #0f3460; border: 1px solid #1a4a80; color: #a0c0e0; }
   .status-banner.error   { background: #3a0f1e !important; border-color: #e94560 !important; color: #ff8080 !important; }
   .status-banner.success { background: #0f3a1e !important; border-color: #40e094 !important; color: #80ffb0 !important; }
 
   .submit-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #e94560, #c03050);
+    width: 100%; background: linear-gradient(135deg, #e94560, #c03050);
     color: white; border: none; border-radius: 12px;
     padding: 16px; font-size: 17px; font-weight: 700;
     letter-spacing: 0.5px; cursor: pointer; margin-top: 4px;
   }
-
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* Recent plays table */
+  /* Recent plays */
   .recent-row td {
-    padding: 8px 4px;
-    font-size: 13px;
-    border-bottom: 1px solid #0f3460;
-    vertical-align: middle;
+    padding: 8px 4px; font-size: 13px;
+    border-bottom: 1px solid #0f3460; vertical-align: middle;
   }
   .recent-row:last-child td { border-bottom: none; }
   .recent-header td {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #e94560;
-    padding: 0 4px 8px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: #e94560; padding: 0 4px 8px;
   }
   .recent-date { color: #7090b0; }
   .recent-winner { color: #e0e0e0; font-weight: 600; }
@@ -289,38 +199,10 @@
     </div>
   </div>
 
-  <!-- SETI specific -->
-  <div class="section game-specific" id="section-SETI">
-    <div class="section-title">SETI Details</div>
-    <div class="field">
-      <label>Expansion</label>
-      <select id="seti-expansion">
-        <option value="">Select…</option>
-        <option>Space Agencies</option>
-        <option>None</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Revealed Aliens</label>
-      <div class="chip-container" id="setiAliensContainer" onclick="openMultiSelect('setiAliens')">
-        <span class="chip-placeholder" id="setiAliensPlaceholder">Select aliens…</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dorfromantik specific -->
-  <div class="section game-specific" id="section-Dorfromantik">
-    <div class="section-title">Dorfromantik Details</div>
-    <div class="field">
-      <label>Version</label>
-      <select id="dorf-version">
-        <option value="">Select…</option>
-        <option>Original</option>
-        <option>Sakura</option>
-        <option>The Duel</option>
-        <option>Light Luggage</option>
-      </select>
-    </div>
+  <!-- Dynamic game-specific fields -->
+  <div class="section" id="sectionExtra" style="display:none">
+    <div class="section-title" id="extraTitle">Game Details</div>
+    <div id="extraFields"></div>
   </div>
 
   <!-- Players -->
@@ -345,16 +227,16 @@
 
   <!-- Recent Plays -->
   <div class="section" id="recentSection" style="margin-top:12px;display:none">
-    <div class="section-title">Recent Plays</div>
+    <div class="section-title" id="recentTitle">Recent Plays</div>
     <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
     <div id="loadMoreWrap" style="text-align:center;margin-top:10px;display:none">
-      <a href="#" id="loadMoreLink" onclick="loadMore(event)" style="color:#e94560;font-size:13px;text-decoration:none">Load more…</a>
+      <a href="#" onclick="loadMore(event)" style="color:#e94560;font-size:13px;text-decoration:none">Load more…</a>
     </div>
   </div>
 
 </div>
 
-<!-- Multi-select overlay -->
+<!-- Multi-select / dropdown overlay -->
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
   <div class="dropdown-sheet">
     <h3 id="dropdownTitle"></h3>
@@ -365,11 +247,14 @@
 
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8RVFQaQxiozN4t5LAjYOgoh_m2AlP3R7yzUOS0Msmn_KxVD-_2V4l/exec';
-const ALIEN_OPTIONS = ["Anomalies", "'Omuamua", "Exertians", "Mascamites", "Centaurians"];
 
-let allPlayers = [], allGames = [], selectedPlayers = [], selectedAliens = [];
-let currentDropdown = null, currentGameData = null;
+let allPlayers = [], allGames = [], selectedPlayers = [];
+let currentDropdown = null, currentDropdownField = null;
+let currentGameData = null;
+// Holds selected values for dynamic multiselect fields: { fieldLabel: [values] }
+let extraMultiSelects = {};
 
+// ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -401,20 +286,27 @@ function populateGameDropdown() {
   });
 }
 
+// ─── GAME CHANGE ──────────────────────────────────────────
 async function onGameChange() {
   const gameName = document.getElementById('fieldGame').value;
-  document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
-  if (!gameName) { document.getElementById('sectionStats').style.display = 'none'; document.getElementById('recentSection').style.display = 'none'; return; }
+
+  // Hide dependent sections
+  document.getElementById('sectionStats').style.display = 'none';
+  document.getElementById('sectionExtra').style.display = 'none';
+  document.getElementById('recentSection').style.display = 'none';
+  extraMultiSelects = {};
+
+  if (!gameName) return;
 
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
 
-  const specificSection = document.getElementById(`section-${getGameKey(gameName)}`);
-  if (specificSection) specificSection.classList.add('visible');
+  // Build extra fields
+  buildExtraFields(game);
 
+  // Load stats
   document.getElementById('sectionStats').style.display = 'block';
   ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '…');
-
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=getStats&game=${encodeURIComponent(gameName)}`);
     const stats = await res.json();
@@ -425,96 +317,170 @@ async function onGameChange() {
     ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '—');
   }
 
-  allSessions = []; shownCount = 0; loadRecentPlays();
-
-  // Refresh scores if players already selected
+  // Refresh scores and recent plays
   if (selectedPlayers.length > 0) updateScores();
+  allSessions = []; shownCount = 0; loadRecentPlays();
 }
 
-function getGameKey(name) {
-  if (name.startsWith('SETI')) return 'SETI';
-  if (name === 'Dorfromantik') return 'Dorfromantik';
-  return name.replace(/[^a-zA-Z0-9]/g,'');
+// ─── DYNAMIC EXTRA FIELDS ─────────────────────────────────
+function buildExtraFields(game) {
+  const fields = game?.extraFields || [];
+  if (fields.length === 0) return;
+
+  const section = document.getElementById('sectionExtra');
+  const container = document.getElementById('extraFields');
+  const title = document.getElementById('extraTitle');
+
+  title.textContent = `${shortenGame(game.name)} Details`;
+  container.innerHTML = '';
+  extraMultiSelects = {};
+
+  fields.forEach((field, idx) => {
+    const safeKey = fieldKey(field.label);
+    const div = document.createElement('div');
+    div.className = 'field';
+
+    if (field.type === 'dropdown') {
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <select id="extra-${safeKey}">
+          <option value="">Select…</option>
+          ${field.options.map(o => `<option>${o}</option>`).join('')}
+        </select>`;
+
+    } else if (field.type === 'multiselect') {
+      extraMultiSelects[safeKey] = [];
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <div class="chip-container" id="extra-chips-${safeKey}"
+             onclick="openExtraMultiSelect('${safeKey}', '${field.label}', ${idx})">
+          <span class="chip-placeholder" id="extra-ph-${safeKey}">Select…</span>
+        </div>`;
+
+    } else if (field.type === 'text') {
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <input type="text" id="extra-${safeKey}" placeholder="">`;
+
+    } else if (field.type === 'number') {
+      div.innerHTML = `
+        <label>${field.label}</label>
+        <input type="number" id="extra-${safeKey}" placeholder="">`;
+    }
+
+    container.appendChild(div);
+  });
+
+  section.style.display = 'block';
 }
 
+function fieldKey(label) {
+  return label.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+}
+
+// ─── MULTI-SELECT (players + dynamic extra fields) ─────────
 function openMultiSelect(type) {
   currentDropdown = type;
-  const items = type === 'players' ? allPlayers : ALIEN_OPTIONS;
-  const selected = type === 'players' ? selectedPlayers : selectedAliens;
-  document.getElementById('dropdownTitle').textContent = type === 'players' ? 'Select Players' : 'Revealed Aliens';
-  const options = document.getElementById('dropdownOptions');
-  options.innerHTML = '';
+  currentDropdownField = null;
+  const title = document.getElementById('dropdownTitle');
+  title.textContent = 'Select Players';
+  renderDropdownOptions(allPlayers, selectedPlayers);
+  document.getElementById('dropdownOverlay').classList.add('open');
+}
+
+function openExtraMultiSelect(safeKey, label, fieldIdx) {
+  currentDropdown = 'extra';
+  currentDropdownField = safeKey;
+  document.getElementById('dropdownTitle').textContent = label;
+  const field = currentGameData.extraFields[fieldIdx];
+  renderDropdownOptions(field.options, extraMultiSelects[safeKey] || []);
+  document.getElementById('dropdownOverlay').classList.add('open');
+}
+
+function renderDropdownOptions(items, selected) {
+  const container = document.getElementById('dropdownOptions');
+  container.innerHTML = '';
   items.forEach(item => {
     const isSelected = selected.includes(item);
     const div = document.createElement('div');
     div.className = 'dropdown-option' + (isSelected ? ' selected' : '');
     div.innerHTML = `<div class="check">${isSelected ? '✓' : ''}</div><span>${item}</span>`;
-    div.onclick = () => toggleOption(div, item, type);
-    options.appendChild(div);
+    div.onclick = () => {
+      const arr = currentDropdown === 'players' ? selectedPlayers : extraMultiSelects[currentDropdownField];
+      const idx = arr.indexOf(item);
+      if (idx > -1) { arr.splice(idx, 1); div.classList.remove('selected'); div.querySelector('.check').textContent = ''; }
+      else { arr.push(item); div.classList.add('selected'); div.querySelector('.check').textContent = '✓'; }
+    };
+    container.appendChild(div);
   });
-  document.getElementById('dropdownOverlay').classList.add('open');
-}
-
-function toggleOption(el, value, type) {
-  const arr = type === 'players' ? selectedPlayers : selectedAliens;
-  const idx = arr.indexOf(value);
-  if (idx > -1) { arr.splice(idx, 1); el.classList.remove('selected'); el.querySelector('.check').textContent = ''; }
-  else { arr.push(value); el.classList.add('selected'); el.querySelector('.check').textContent = '✓'; }
 }
 
 function closeMultiSelect() {
   document.getElementById('dropdownOverlay').classList.remove('open');
   if (currentDropdown === 'players') {
-    renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
+    renderPlayerChips();
     updateScores();
-  } else {
-    renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
+  } else if (currentDropdown === 'extra' && currentDropdownField) {
+    renderExtraChips(currentDropdownField);
   }
   currentDropdown = null;
+  currentDropdownField = null;
 }
 
 function closeDropdownIfOutside(e) {
   if (e.target === document.getElementById('dropdownOverlay')) closeMultiSelect();
 }
 
-function renderChips(containerId, placeholderId, arr, type) {
-  const container = document.getElementById(containerId);
+function renderPlayerChips() {
+  const container = document.getElementById('playersContainer');
+  container.innerHTML = '';
+  if (selectedPlayers.length === 0) {
+    container.innerHTML = '<span class="chip-placeholder" id="playersPlaceholder">Select players…</span>';
+    return;
+  }
+  selectedPlayers.forEach(item => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `${item}<span class="remove" onclick="removePlayer(event,'${item}')">×</span>`;
+    container.appendChild(chip);
+  });
+}
+
+function renderExtraChips(safeKey) {
+  const arr = extraMultiSelects[safeKey] || [];
+  const container = document.getElementById(`extra-chips-${safeKey}`);
+  if (!container) return;
   container.innerHTML = '';
   if (arr.length === 0) {
-    const ph = document.createElement('span');
-    ph.className = 'chip-placeholder'; ph.id = placeholderId;
-    ph.textContent = type === 'players' ? 'Select players…' : 'Select aliens…';
-    container.appendChild(ph);
+    container.innerHTML = `<span class="chip-placeholder" id="extra-ph-${safeKey}">Select…</span>`;
     return;
   }
   arr.forEach(item => {
     const chip = document.createElement('div');
     chip.className = 'chip';
-    chip.innerHTML = `${item}<span class="remove" onclick="removeChip(event,'${item}','${type}')">×</span>`;
+    chip.innerHTML = `${item}<span class="remove" onclick="removeExtraChip(event,'${safeKey}','${item}')">×</span>`;
     container.appendChild(chip);
   });
 }
 
-function removeChip(e, value, type) {
+function removePlayer(e, value) {
   e.stopPropagation();
-  if (type === 'players') {
-    selectedPlayers = selectedPlayers.filter(p => p !== value);
-    renderChips('playersContainer', 'playersPlaceholder', selectedPlayers, 'players');
-    updateScores();
-  } else {
-    selectedAliens = selectedAliens.filter(a => a !== value);
-    renderChips('setiAliensContainer', 'setiAliensPlaceholder', selectedAliens, 'setiAliens');
-  }
+  selectedPlayers = selectedPlayers.filter(p => p !== value);
+  renderPlayerChips();
+  updateScores();
 }
 
+function removeExtraChip(e, safeKey, value) {
+  e.stopPropagation();
+  extraMultiSelects[safeKey] = (extraMultiSelects[safeKey] || []).filter(v => v !== value);
+  renderExtraChips(safeKey);
+}
+
+// ─── SCORES ───────────────────────────────────────────────
 function updateScores() {
   const resultSection = document.getElementById('resultSection');
   const container = document.getElementById('scoresContainer');
-
-  if (selectedPlayers.length === 0) {
-    resultSection.style.display = 'none';
-    return;
-  }
+  if (selectedPlayers.length === 0) { resultSection.style.display = 'none'; return; }
 
   resultSection.style.display = 'block';
   const isCoop = currentGameData?.coop || false;
@@ -529,12 +495,10 @@ function updateScores() {
       <input type="${isCoop ? 'text' : 'number'}"
              id="${safeId}"
              ${isCoop ? 'readonly value="N/A"' : 'placeholder="—"'}
-             oninput="autoWinner()">
-    `;
+             oninput="autoWinner()">`;
     container.appendChild(cell);
   });
 
-  // Set winner field
   if (isCoop) {
     document.getElementById('fieldWinner').value = 'N/A';
   } else {
@@ -545,31 +509,25 @@ function updateScores() {
 
 function autoWinner() {
   if (currentGameData?.coop) return;
-
   const scores = {};
   selectedPlayers.forEach(p => {
     const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
     if (val !== '' && val !== undefined) scores[p] = parseFloat(val);
   });
-
   const filled = Object.entries(scores).filter(([,v]) => !isNaN(v));
   if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
-
   const maxScore = Math.max(...filled.map(([,v]) => v));
   const winners = filled.filter(([,v]) => v === maxScore).map(([p]) => p);
-
-  if (winners.length === 1) {
-    document.getElementById('fieldWinner').value = winners[0];
-  } else {
-    document.getElementById('fieldWinner').value = `TIE! ${winners.join(', ')}`;
-  }
+  document.getElementById('fieldWinner').value = winners.length === 1
+    ? winners[0]
+    : `TIE! ${winners.join(', ')}`;
 }
 
+// ─── SUBMIT ───────────────────────────────────────────────
 async function submitForm() {
   const game = document.getElementById('fieldGame').value;
   if (!game) { showStatus('Please select a game.', true); return; }
   if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
-
   const winner = document.getElementById('fieldWinner').value;
   if (!winner) { showStatus('Please enter scores to determine a winner.', true); return; }
 
@@ -579,25 +537,30 @@ async function submitForm() {
     if (val) scores[p] = val;
   });
 
+  // Collect extra fields
+  const extras = {};
+  const fields = currentGameData?.extraFields || [];
+  fields.forEach(field => {
+    const safeKey = fieldKey(field.label);
+    if (field.type === 'multiselect') {
+      extras[field.label] = (extraMultiSelects[safeKey] || []).join(', ');
+    } else {
+      const el = document.getElementById(`extra-${safeKey}`);
+      extras[field.label] = el ? el.value : '';
+    }
+  });
+
   const payload = {
     date: document.getElementById('fieldDate').value,
     game,
     players: selectedPlayers.join(', '),
     scores: JSON.stringify(scores),
     winner,
+    extras: JSON.stringify(extras),
     lastPlayed: document.getElementById('valLastPlayed').textContent,
     totalPlays: document.getElementById('valTotalPlays').textContent,
     topWinner: document.getElementById('valTopWinner').textContent,
   };
-
-  const gameKey = getGameKey(game);
-  if (gameKey === 'SETI') {
-    payload.expansion = document.getElementById('seti-expansion').value;
-    payload.revealedAliens = selectedAliens.join(', ');
-  }
-  if (gameKey === 'Dorfromantik') {
-    payload.dorfVersion = document.getElementById('dorf-version').value;
-  }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
@@ -605,8 +568,10 @@ async function submitForm() {
   try {
     const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
     const result = await res.json();
-    if (result.status === 'success') { showStatus('✅ Session saved!', false, true); resetForm(); allSessions=[]; shownCount=0; loadRecentPlays(); }
-    else throw new Error(result.message);
+    if (result.status === 'success') {
+      showStatus('✅ Session saved!', false, true);
+      resetForm();
+    } else throw new Error(result.message);
   } catch(e) {
     showStatus(`Error: ${e.message}`, true);
   } finally {
@@ -617,15 +582,16 @@ async function submitForm() {
 function resetForm() {
   document.getElementById('fieldGame').value = '';
   document.getElementById('fieldWinner').value = '';
-  selectedPlayers = []; selectedAliens = [];
-  renderChips('playersContainer', 'playersPlaceholder', [], 'players');
-  renderChips('setiAliensContainer', 'setiAliensPlaceholder', [], 'setiAliens');
+  selectedPlayers = []; extraMultiSelects = {};
+  renderPlayerChips();
   document.getElementById('resultSection').style.display = 'none';
   document.getElementById('sectionStats').style.display = 'none';
-  document.querySelectorAll('.game-specific').forEach(el => el.classList.remove('visible'));
+  document.getElementById('sectionExtra').style.display = 'none';
+  document.getElementById('recentSection').style.display = 'none';
   currentGameData = null;
 }
 
+// ─── STATUS ───────────────────────────────────────────────
 function showStatus(msg, isError = false, isSuccess = false) {
   const el = document.getElementById('statusBanner');
   el.textContent = msg;
@@ -633,9 +599,8 @@ function showStatus(msg, isError = false, isSuccess = false) {
   if (!isError) setTimeout(() => el.classList.remove('visible'), 4000);
 }
 
-// ─── RECENT PLAYS ────────────────────────────────────────
-let allSessions = [];
-let shownCount = 0;
+// ─── RECENT PLAYS ─────────────────────────────────────────
+let allSessions = [], shownCount = 0;
 const PAGE_SIZE = 5;
 
 async function loadRecentPlays() {
@@ -644,13 +609,10 @@ async function loadRecentPlays() {
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
     const data = await res.json();
-    // Sort newest first
     allSessions = data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
     shownCount = 0;
     renderRecentPlays();
-  } catch(e) {
-    // Silently fail — don't block the main form
-  }
+  } catch(e) { /* silently fail */ }
 }
 
 function renderRecentPlays() {
@@ -661,41 +623,32 @@ function renderRecentPlays() {
   if (allSessions.length === 0) { section.style.display = 'none'; return; }
 
   section.style.display = 'block';
-  section.querySelector('.section-title').textContent = `Previous Plays — ${shortenGame(document.getElementById('fieldGame').value)}`;
+  document.getElementById('recentTitle').textContent =
+    `Previous Plays — ${shortenGame(document.getElementById('fieldGame').value)}`;
+
   const toShow = allSessions.slice(0, shownCount + PAGE_SIZE);
   shownCount = toShow.length;
-
   table.innerHTML = '';
 
-  // Header
   const header = document.createElement('tr');
   header.className = 'recent-header';
-  header.innerHTML = '<td>Date</td><td>Game</td><td>Winner</td><td class="recent-score">Score</td>';
+  header.innerHTML = '<td>Date</td><td>Winner</td><td class="recent-score">Score</td>';
   table.appendChild(header);
 
   toShow.forEach(s => {
     const row = document.createElement('tr');
     row.className = 'recent-row';
-    const date = s.date ? formatDate(s.date) : '—';
-    const game = s.game ? shortenGame(s.game) : '—';
-    const winner = s.winner || '—';
-    const score = getWinnerScore(s) || '—';
     row.innerHTML = `
-      <td class="recent-date">${date}</td>
-      <td class="recent-date">${game}</td>
-      <td class="recent-winner">${winner}</td>
-      <td class="recent-score">${score}</td>
-    `;
+      <td class="recent-date">${s.date ? formatDate(s.date) : '—'}</td>
+      <td class="recent-winner">${s.winner || '—'}</td>
+      <td class="recent-score">${getWinnerScore(s) || '—'}</td>`;
     table.appendChild(row);
   });
 
   loadMoreWrap.style.display = shownCount < allSessions.length ? 'block' : 'none';
 }
 
-function loadMore(e) {
-  e.preventDefault();
-  renderRecentPlays();
-}
+function loadMore(e) { e.preventDefault(); renderRecentPlays(); }
 
 function formatDate(dateStr) {
   const d = new Date(dateStr);
@@ -704,8 +657,9 @@ function formatDate(dateStr) {
 }
 
 function shortenGame(name) {
+  if (!name) return '';
   if (name.startsWith('SETI')) return 'SETI';
-  if (name.length > 14) return name.substring(0, 13) + '…';
+  if (name.length > 16) return name.substring(0, 15) + '…';
   return name;
 }
 
@@ -718,7 +672,6 @@ function getWinnerScore(session) {
     return val !== undefined ? val : '';
   } catch(e) { return ''; }
 }
-
 </script>
 </body>
 </html>
