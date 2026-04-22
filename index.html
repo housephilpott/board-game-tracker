@@ -171,6 +171,88 @@
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 
+
+  /* Scorepad table */
+  .scorepad-wrap {
+    overflow-x: auto;
+    margin-bottom: 14px;
+  }
+
+  .scorepad {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .scorepad th {
+    background: #0a2444;
+    color: #a0b0d0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 7px 8px;
+    text-align: center;
+    border-bottom: 2px solid #1a4a80;
+  }
+
+  .scorepad th.category-col {
+    text-align: left;
+    color: #e94560;
+  }
+
+  .scorepad td {
+    padding: 4px 4px;
+    border-bottom: 1px solid #0f3460;
+    text-align: center;
+  }
+
+  .scorepad td.category-label {
+    text-align: left;
+    color: #a0b0d0;
+    font-size: 12px;
+    font-weight: 600;
+    padding-left: 4px;
+    white-space: nowrap;
+  }
+
+  .scorepad td input {
+    width: 56px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #1a4a80;
+    border-radius: 0;
+    padding: 4px 2px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    color: #e0e0e0;
+  }
+
+  .scorepad td input:focus { outline: none; border-bottom-color: #e94560; }
+
+  .scorepad tr.total-row td {
+    background: #0a2444;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 4px;
+    border-top: 2px solid #1a4a80;
+    border-bottom: none;
+    color: #e0e0e0;
+  }
+
+  .scorepad tr.total-row td.category-label {
+    color: #e94560;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .scorepad tr.total-row td.total-val {
+    color: #fff;
+    font-size: 16px;
+  }
+
   /* Win/Lose toggle */
   .winlose-toggle {
     display: flex;
@@ -530,6 +612,13 @@ function removeExtraChip(e, safeKey, value) {
   renderExtraChips(safeKey);
 }
 
+
+function getScorepad() {
+  const fields = currentGameData?.extraFields || [];
+  const sp = fields.find(f => f.scorepad);
+  return sp ? sp.scorepad : null;
+}
+
 // ─── SCORES & WIN CONDITIONS ──────────────────────────────
 // winCondition: 'score' (default) | 'lowest' | 'winlose' | 'manual'
 function getWinCondition() {
@@ -579,17 +668,66 @@ function updateScores() {
     return; // skip the winner field below
 
   } else {
-    // score or lowest — render per-player score boxes
-    selectedPlayers.forEach(player => {
-      const cell = document.createElement('div');
-      cell.className = 'score-cell';
-      const safeId = `score-${player.replace(/\s/g,'_')}`;
-      cell.innerHTML = `
-        <div class="score-cell-name">${player}</div>
-        <input type="number" id="${safeId}" placeholder="—" oninput="autoWinner()">`;
-      container.appendChild(cell);
-    });
-    winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest score)…' : 'Auto-filled from scores…';
+    const scorepad = getScorepad();
+    if (scorepad) {
+      // Scorepad table — categories × players
+      container.style.display = 'block';
+      const wrap = document.createElement('div');
+      wrap.className = 'scorepad-wrap';
+      wrap.style.gridColumn = '1 / -1';
+
+      const table = document.createElement('table');
+      table.className = 'scorepad';
+      table.id = 'scorepadTable';
+
+      // Header row — player names
+      const thead = document.createElement('thead');
+      const hrow = document.createElement('tr');
+      hrow.innerHTML = `<th class="category-col">Category</th>` +
+        selectedPlayers.map(p => `<th>${p.split(' ')[0]}</th>`).join('');
+      thead.appendChild(hrow);
+      table.appendChild(thead);
+
+      // Category rows
+      const tbody = document.createElement('tbody');
+      scorepad.forEach(cat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="category-label">${cat}</td>` +
+          selectedPlayers.map(p => {
+            const safeId = `sp-${p.replace(/\s/g,'_')}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
+            return `<td><input type="number" id="${safeId}" placeholder="—" oninput="autoWinnerScorepad()"></td>`;
+          }).join('');
+        tbody.appendChild(tr);
+      });
+
+      // Total row
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'total-row';
+      totalRow.innerHTML = `<td class="category-label">Total</td>` +
+        selectedPlayers.map(p => {
+          const safeP = p.replace(/\s/g,'_');
+          return `<td class="total-val" id="sp-total-${safeP}">0</td>`;
+        }).join('');
+      tbody.appendChild(totalRow);
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      container.appendChild(wrap);
+      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest total)…' : 'Auto-filled from totals…';
+
+    } else {
+      // Standard per-player score boxes
+      selectedPlayers.forEach(player => {
+        const cell = document.createElement('div');
+        cell.className = 'score-cell';
+        const safeId = `score-${player.replace(/\s/g,'_')}`;
+        cell.innerHTML = `
+          <div class="score-cell-name">${player}</div>
+          <input type="number" id="${safeId}" placeholder="—" oninput="autoWinner()">`;
+        container.appendChild(cell);
+      });
+      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest score)…' : 'Auto-filled from scores…';
+    }
   }
 
   winnerField.style.display = '';
@@ -625,6 +763,37 @@ function autoWinner() {
     : `TIE! ${winners.join(', ')}`;
 }
 
+function autoWinnerScorepad() {
+  const wc = getWinCondition();
+  const scorepad = getScorepad();
+  if (!scorepad) return;
+
+  const totals = {};
+  selectedPlayers.forEach(p => {
+    const safeP = p.replace(/\s/g,'_');
+    let sum = 0;
+    scorepad.forEach(cat => {
+      const safeId = `sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
+      const val = parseFloat(document.getElementById(safeId)?.value || '0');
+      if (!isNaN(val)) sum += val;
+    });
+    totals[p] = sum;
+    const totalCell = document.getElementById(`sp-total-${safeP}`);
+    if (totalCell) totalCell.textContent = sum;
+  });
+
+  const filled = Object.entries(totals);
+  if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
+
+  const best = wc === 'lowest'
+    ? Math.min(...filled.map(([,v]) => v))
+    : Math.max(...filled.map(([,v]) => v));
+  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
+  document.getElementById('fieldWinner').value = winners.length === 1
+    ? winners[0]
+    : `TIE! ${winners.join(', ')}`;
+}
+
 // ─── SUBMIT ───────────────────────────────────────────────
 async function submitForm() {
   const game = document.getElementById('fieldGame').value;
@@ -640,7 +809,21 @@ async function submitForm() {
 
   const scores = {};
   const wcSubmit = getWinCondition();
-  if (wcSubmit === 'score' || wcSubmit === 'lowest') {
+  const scorepadCats = getScorepad();
+  if (scorepadCats) {
+    // Collect per-category scores and totals
+    selectedPlayers.forEach(p => {
+      const safeP = p.replace(/\s/g,'_');
+      const breakdown = {};
+      scorepadCats.forEach(cat => {
+        const safeId = `sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
+        const val = document.getElementById(safeId)?.value;
+        if (val) breakdown[cat] = val;
+      });
+      const total = document.getElementById(`sp-total-${safeP}`)?.textContent || '0';
+      scores[p] = JSON.stringify({ ...breakdown, Total: total });
+    });
+  } else if (wcSubmit === 'score' || wcSubmit === 'lowest') {
     selectedPlayers.forEach(p => {
       const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
       if (val) scores[p] = val;
