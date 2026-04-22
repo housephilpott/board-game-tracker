@@ -375,7 +375,8 @@ async function onGameChange() {
 // ─── DYNAMIC EXTRA FIELDS ─────────────────────────────────
 function buildExtraFields(game) {
   const fields = game?.extraFields || [];
-  if (fields.length === 0) return;
+  const renderableFields = fields.filter(f => !f.winCondition && f.label);
+  if (renderableFields.length === 0) return;
 
   const section = document.getElementById('sectionExtra');
   const container = document.getElementById('extraFields');
@@ -385,7 +386,8 @@ function buildExtraFields(game) {
   container.innerHTML = '';
   extraMultiSelects = {};
 
-  fields.forEach((field, idx) => {
+  // Use renderableFields with its own index so multiselect lookups work correctly
+  renderableFields.forEach((field, idx) => {
     const safeKey = fieldKey(field.label);
     const div = document.createElement('div');
     div.className = 'field';
@@ -442,7 +444,9 @@ function openExtraMultiSelect(safeKey, label, fieldIdx) {
   currentDropdown = 'extra';
   currentDropdownField = safeKey;
   document.getElementById('dropdownTitle').textContent = label;
-  const field = currentGameData.extraFields[fieldIdx];
+  // Use renderableFields so index matches what buildExtraFields used
+  const renderableFields = (currentGameData?.extraFields || []).filter(f => !f.winCondition && f.label);
+  const field = renderableFields[fieldIdx];
   renderDropdownOptions(field.options, extraMultiSelects[safeKey] || []);
   document.getElementById('dropdownOverlay').classList.add('open');
 }
@@ -647,6 +651,7 @@ async function submitForm() {
   const extras = {};
   const fields = currentGameData?.extraFields || [];
   fields.forEach(field => {
+    if (field.winCondition || !field.label) return;
     const safeKey = fieldKey(field.label);
     if (field.type === 'multiselect') {
       extras[field.label] = (extraMultiSelects[safeKey] || []).join(', ');
