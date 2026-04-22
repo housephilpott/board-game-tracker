@@ -170,6 +170,31 @@
   }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+
+  /* Win/Lose toggle */
+  .winlose-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .winlose-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid #1a4a80;
+    background: #0f3460;
+    color: #a0b0d0;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .winlose-btn.win.active  { background: #0f3a1e; border-color: #40e094; color: #80ffb0; }
+  .winlose-btn.lose.active { background: #3a0f1e; border-color: #e94560; color: #ff8080; }
+
   /* Recent plays */
   .recent-row td {
     padding: 8px 4px; font-size: 13px;
@@ -501,48 +526,96 @@ function removeExtraChip(e, safeKey, value) {
   renderExtraChips(safeKey);
 }
 
-// ─── SCORES ───────────────────────────────────────────────
+// ─── SCORES & WIN CONDITIONS ──────────────────────────────
+// winCondition: 'score' (default) | 'lowest' | 'winlose' | 'manual'
+function getWinCondition() {
+  const fields = currentGameData?.extraFields || [];
+  const wc = fields.find(f => f.winCondition);
+  if (wc) return wc.winCondition;
+  if (currentGameData?.coop) return 'winlose'; // coop default
+  return 'score';
+}
+
 function updateScores() {
   const resultSection = document.getElementById('resultSection');
   const container = document.getElementById('scoresContainer');
+  const winnerField = document.getElementById('fieldWinner');
+
   if (selectedPlayers.length === 0) { resultSection.style.display = 'none'; return; }
 
   resultSection.style.display = 'block';
-  const isCoop = currentGameData?.coop || false;
   container.innerHTML = '';
+  winnerField.value = '';
 
-  selectedPlayers.forEach(player => {
-    const cell = document.createElement('div');
-    cell.className = 'score-cell';
-    const safeId = `score-${player.replace(/\s/g,'_')}`;
-    cell.innerHTML = `
-      <div class="score-cell-name">${player}</div>
-      <input type="${isCoop ? 'text' : 'number'}"
-             id="${safeId}"
-             ${isCoop ? 'readonly value="N/A"' : 'placeholder="—"'}
-             oninput="autoWinner()">`;
-    container.appendChild(cell);
-  });
+  const wc = getWinCondition();
 
-  if (isCoop) {
-    document.getElementById('fieldWinner').value = 'N/A';
+  if (wc === 'winlose') {
+    // Win/Lose toggle — no scores, no individual winner
+    container.innerHTML = `
+      <div class="winlose-toggle" style="grid-column:1/-1">
+        <div class="winlose-btn win" id="btnWin" onclick="setWinLose('Win')">🏆 Win</div>
+        <div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Loss')">💀 Loss</div>
+      </div>`;
+    winnerField.placeholder = 'Select Win or Loss…';
+
+  } else if (wc === 'manual') {
+    // No scores — just pick winner from players
+    winnerField.readOnly = false;
+    winnerField.placeholder = '';
+    // Populate as a select... but fieldWinner is an input. Render a select instead.
+    container.innerHTML = `
+      <div class="field" style="grid-column:1/-1;margin-bottom:0">
+        <label>Winner</label>
+        <select id="manualWinner" onchange="document.getElementById('fieldWinner').value=this.value">
+          <option value="">Select winner…</option>
+          ${selectedPlayers.map(p => `<option>${p}</option>`).join('')}
+        </select>
+      </div>`;
+    winnerField.style.display = 'none';
+    return; // skip the winner field below
+
   } else {
-    document.getElementById('fieldWinner').value = '';
-    document.getElementById('fieldWinner').placeholder = 'Auto-filled from scores…';
+    // score or lowest — render per-player score boxes
+    selectedPlayers.forEach(player => {
+      const cell = document.createElement('div');
+      cell.className = 'score-cell';
+      const safeId = `score-${player.replace(/\s/g,'_')}`;
+      cell.innerHTML = `
+        <div class="score-cell-name">${player}</div>
+        <input type="number" id="${safeId}" placeholder="—" oninput="autoWinner()">`;
+      container.appendChild(cell);
+    });
+    winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest score)…' : 'Auto-filled from scores…';
   }
+
+  winnerField.style.display = '';
+  winnerField.readOnly = true;
+}
+
+function setWinLose(result) {
+  document.getElementById('btnWin').classList.toggle('active', result === 'Win');
+  document.getElementById('btnLose').classList.toggle('active', result === 'Loss');
+  document.getElementById('fieldWinner').value = result;
 }
 
 function autoWinner() {
-  if (currentGameData?.coop) return;
+  const wc = getWinCondition();
+  if (wc === 'winlose' || wc === 'manual') return;
+
   const scores = {};
   selectedPlayers.forEach(p => {
     const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
     if (val !== '' && val !== undefined) scores[p] = parseFloat(val);
   });
+
   const filled = Object.entries(scores).filter(([,v]) => !isNaN(v));
   if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
-  const maxScore = Math.max(...filled.map(([,v]) => v));
-  const winners = filled.filter(([,v]) => v === maxScore).map(([p]) => p);
+
+  const best = wc === 'lowest'
+    ? Math.min(...filled.map(([,v]) => v))
+    : Math.max(...filled.map(([,v]) => v));
+  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
+
   document.getElementById('fieldWinner').value = winners.length === 1
     ? winners[0]
     : `TIE! ${winners.join(', ')}`;
@@ -554,13 +627,21 @@ async function submitForm() {
   if (!game) { showStatus('Please select a game.', true); return; }
   if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
   const winner = document.getElementById('fieldWinner').value;
-  if (!winner) { showStatus('Please enter scores to determine a winner.', true); return; }
+  const wc = getWinCondition();
+  if (!winner) {
+    if (wc === 'winlose') { showStatus('Please select Win or Loss.', true); return; }
+    if (wc === 'manual')  { showStatus('Please select a winner.', true); return; }
+    showStatus('Please enter scores to determine a winner.', true); return;
+  }
 
   const scores = {};
-  selectedPlayers.forEach(p => {
-    const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
-    if (val) scores[p] = val;
-  });
+  const wcSubmit = getWinCondition();
+  if (wcSubmit === 'score' || wcSubmit === 'lowest') {
+    selectedPlayers.forEach(p => {
+      const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
+      if (val) scores[p] = val;
+    });
+  }
 
   // Collect extra fields
   const extras = {};
@@ -614,6 +695,8 @@ function resetForm() {
   document.getElementById('sectionExtra').style.display = 'none';
   document.getElementById('recentSection').style.display = 'none';
   currentGameData = null;
+  document.getElementById('fieldWinner').style.display = '';
+  document.getElementById('fieldWinner').readOnly = true;
   setBackgroundImage('');
 }
 
