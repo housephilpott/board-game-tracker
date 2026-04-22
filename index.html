@@ -966,7 +966,13 @@ function getWinnerScore(session) {
   try {
     const scores = JSON.parse(session.scores);
     const val = scores[session.winner];
-    return val !== undefined ? val : '';
+    if (val === undefined) return '';
+    // If the score is itself a JSON object (scorepad), return just the Total
+    if (typeof val === 'string' && val.startsWith('{')) {
+      const breakdown = JSON.parse(val);
+      return breakdown.Total !== undefined ? breakdown.Total : '';
+    }
+    return val;
   } catch(e) { return ''; }
 }
 // ─── BACKGROUND ART ───────────────────────────────────────
