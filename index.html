@@ -258,6 +258,105 @@
     font-size: 16px;
   }
 
+
+  /* Session detail expand */
+  .recent-row { cursor: pointer; }
+  .recent-row:active { background: #0f3060; }
+
+  .detail-row td {
+    padding: 0;
+    border-bottom: 1px solid #1a4a80;
+  }
+
+  .detail-inner {
+    padding: 10px 8px 12px;
+    background: #0d1f3a;
+    display: none;
+  }
+
+  .detail-inner.open { display: block; }
+
+  .detail-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #e94560;
+    margin: 10px 0 5px;
+  }
+
+  .detail-section-label:first-child { margin-top: 0; }
+
+  .detail-players {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 4px;
+  }
+
+  .detail-player-chip {
+    background: #1a3a60;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #c0d0e0;
+  }
+
+  .detail-player-chip.winner {
+    background: #e94560;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .detail-scorepad {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .detail-scorepad th {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #7090b0;
+    padding: 4px 6px;
+    text-align: right;
+    border-bottom: 1px solid #1a4a80;
+  }
+
+  .detail-scorepad th:first-child { text-align: left; }
+
+  .detail-scorepad td {
+    padding: 4px 6px;
+    color: #c0d0e0;
+    text-align: right;
+    border-bottom: 1px solid #0f3060;
+  }
+
+  .detail-scorepad td:first-child { text-align: left; color: #a0b0d0; }
+
+  .detail-scorepad tr.detail-total td {
+    font-weight: 700;
+    color: #e0e0e0;
+    border-top: 1px solid #1a4a80;
+    border-bottom: none;
+  }
+
+  .detail-scorepad tr.detail-total td:first-child { color: #e94560; }
+
+  .detail-extras {
+    font-size: 12px;
+    color: #c0d0e0;
+    line-height: 1.8;
+  }
+
+  .detail-extras span {
+    color: #7090b0;
+    margin-right: 4px;
+  }
+
   /* Win/Lose toggle */
   .winlose-toggle {
     display: flex;
@@ -937,17 +1036,135 @@ function renderRecentPlays() {
   header.innerHTML = '<td>Date</td><td>Winner</td><td class="recent-score">Score</td>';
   table.appendChild(header);
 
-  toShow.forEach(s => {
+  toShow.forEach((s, idx) => {
+    // Summary row
     const row = document.createElement('tr');
     row.className = 'recent-row';
     row.innerHTML = `
       <td class="recent-date">${s.date ? formatDate(s.date) : '—'}</td>
       <td class="recent-winner">${s.winner || '—'}</td>
       <td class="recent-score">${getWinnerScore(s) || '—'}</td>`;
+
+    // Detail row (hidden until tapped)
+    const detailRow = document.createElement('tr');
+    detailRow.className = 'detail-row';
+    const detailTd = document.createElement('td');
+    detailTd.colSpan = 3;
+    const detailInner = document.createElement('div');
+    detailInner.className = 'detail-inner';
+    detailInner.id = `detail-${idx}`;
+    detailInner.innerHTML = buildSessionDetail(s);
+    detailTd.appendChild(detailInner);
+    detailRow.appendChild(detailTd);
+
+    // Toggle on tap
+    row.onclick = () => {
+      const isOpen = detailInner.classList.contains('open');
+      // Close all others
+      document.querySelectorAll('.detail-inner.open').forEach(el => el.classList.remove('open'));
+      if (!isOpen) detailInner.classList.add('open');
+    };
+
     table.appendChild(row);
+    table.appendChild(detailRow);
   });
 
   loadMoreWrap.style.display = shownCount < allSessions.length ? 'block' : 'none';
+}
+
+function buildSessionDetail(s) {
+  const game = allGames.find(g => g.name === s.game);
+  const scorepad = (game?.extraFields || []).find(f => f.scorepad)?.scorepad || null;
+  const players = s.players ? s.players.split(', ') : [];
+  let html = '';
+
+  // Players with winner highlighted
+  if (players.length > 0) {
+    html += `<div class="detail-section-label">Players</div>
+    <div class="detail-players">
+      ${players.map(p => {
+        const isWinner = s.winner && !s.winner.startsWith('TIE!') && p === s.winner;
+        return `<span class="detail-player-chip${isWinner ? ' winner' : ''}">${p}${isWinner ? ' 🏆' : ''}</span>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // Scores
+  if (s.scores) {
+    try {
+      const scoresObj = JSON.parse(s.scores);
+
+      if (scorepad) {
+        // Scorepad table
+        html += `<div class="detail-section-label">Scores</div>
+        <table class="detail-scorepad">
+          <thead><tr>
+            <th>Category</th>
+            ${players.map(p => `<th>${p.split(' ')[0]}</th>`).join('')}
+          </tr></thead>
+          <tbody>`;
+
+        scorepad.forEach(cat => {
+          html += `<tr><td>${cat}</td>`;
+          players.forEach(p => {
+            let val = '—';
+            try {
+              const pScore = scoresObj[p];
+              const breakdown = typeof pScore === 'string' && pScore.startsWith('{')
+                ? JSON.parse(pScore) : pScore;
+              val = breakdown?.[cat] ?? '—';
+            } catch(e) {}
+            html += `<td>${val}</td>`;
+          });
+          html += `</tr>`;
+        });
+
+        // Total row
+        html += `<tr class="detail-total"><td>Total</td>`;
+        players.forEach(p => {
+          let total = '—';
+          try {
+            const pScore = scoresObj[p];
+            const breakdown = typeof pScore === 'string' && pScore.startsWith('{')
+              ? JSON.parse(pScore) : null;
+            total = breakdown?.Total ?? '—';
+          } catch(e) {}
+          html += `<td>${total}</td>`;
+        });
+        html += `</tr></tbody></table>`;
+
+      } else if (s.winner === 'Win' || s.winner === 'Loss') {
+        // Win/Lose — no scores to show
+      } else {
+        // Simple scores
+        html += `<div class="detail-section-label">Scores</div>
+        <div class="detail-extras">`;
+        players.forEach(p => {
+          const val = scoresObj[p] ?? '—';
+          html += `<div><span>${p}:</span>${val}</div>`;
+        });
+        html += `</div>`;
+      }
+    } catch(e) {}
+  }
+
+  // Extras (game-specific fields)
+  if (s.extras) {
+    try {
+      const extras = JSON.parse(s.extras);
+      const keys = Object.keys(extras).filter(k => extras[k]);
+      if (keys.length > 0) {
+        html += `<div class="detail-section-label">Details</div>
+        <div class="detail-extras">`;
+        keys.forEach(k => {
+          html += `<div><span>${k}:</span>${extras[k]}</div>`;
+        });
+        html += `</div>`;
+      }
+    } catch(e) {}
+  }
+
+  return html || '<div style="color:#506080;font-size:12px">No details recorded.</div>';
 }
 
 function loadMore(e) { e.preventDefault(); renderRecentPlays(); }
