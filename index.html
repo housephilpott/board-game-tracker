@@ -787,6 +787,8 @@ function applyTheme(primaryHex) {
   root.style.setProperty('--accent',      primaryHex);
   root.style.setProperty('--accent-dark', blend(primaryHex, 0.75));
 
+  const clampT = v => Math.min(255, Math.max(0, Math.round(v)));
+
   // Base backgrounds — very dark tint of the primary
   root.style.setProperty('--bg-base',    `rgb(${Math.round(r*0.10)},${Math.round(g*0.10)},${Math.round(b*0.10)})`);
   root.style.setProperty('--bg-section', `rgb(${Math.round(r*0.16)},${Math.round(g*0.16)},${Math.round(b*0.16)})`);
@@ -797,16 +799,15 @@ function applyTheme(primaryHex) {
   root.style.setProperty('--border-dark', `rgb(${Math.round(r*0.22)},${Math.round(g*0.22)},${Math.round(b*0.22)})`);
 
   // Subtle tints for labels
-  root.style.setProperty('--stat-label',  `rgb(${Math.round(r*0.55)},${Math.round(g*0.55)},${Math.round(b*0.55)})`);
+  root.style.setProperty('--stat-label',  `rgb(${clampT(120+r*0.18)},${clampT(145+g*0.18)},${clampT(145+b*0.18)})`);
   root.style.setProperty('--detail-bg',   `rgb(${Math.round(r*0.12)},${Math.round(g*0.12)},${Math.round(b*0.12)})`);
   root.style.setProperty('--scorepad-hd', `rgb(${Math.round(r*0.08)},${Math.round(g*0.08)},${Math.round(b*0.08)})`);
 
-  // Text colours — always light enough to read on dark backgrounds
-  // We mix white with a tiny tint of the primary colour for a cohesive feel
-  root.style.setProperty('--text-primary',   `rgb(${Math.round(220+r*0.04)},${Math.round(220+g*0.04)},${Math.round(220+b*0.04)})`);
-  root.style.setProperty('--text-secondary', `rgb(${Math.round(180+r*0.06)},${Math.round(190+g*0.06)},${Math.round(190+b*0.06)})`);
-  root.style.setProperty('--text-muted',     `rgb(${Math.round(140+r*0.10)},${Math.round(155+g*0.10)},${Math.round(155+b*0.10)})`);
-  root.style.setProperty('--text-faint',     `rgb(${Math.round(100+r*0.14)},${Math.round(120+g*0.14)},${Math.round(120+b*0.14)})`);
+  // Text colours — fixed light values, always readable on dark backgrounds
+  root.style.setProperty('--text-primary',   `rgb(${clampT(230)},${clampT(230)},${clampT(230)})`);
+  root.style.setProperty('--text-secondary', `rgb(${clampT(195+r*0.05)},${clampT(210+g*0.05)},${clampT(210+b*0.05)})`);
+  root.style.setProperty('--text-muted',     `rgb(${clampT(155+r*0.12)},${clampT(175+g*0.12)},${clampT(175+b*0.12)})`);
+  root.style.setProperty('--text-faint',     `rgb(${clampT(120+r*0.18)},${clampT(145+g*0.18)},${clampT(145+b*0.18)})`);
 }
 
 function getGameTheme(game) {
