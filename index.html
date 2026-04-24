@@ -810,16 +810,13 @@ function applyTheme(primaryHex) {
   const clamp      = v => Math.min(255, Math.max(0, Math.round(v)));
   const rgb        = (r,g,b) => `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
 
-  // ── Complementary accent colour (opposite on colour wheel) ──
-  const hsl        = rgbToHsl(r, g, b);
-  const compHsl    = complementaryHsl(hsl.h, hsl.s, Math.max(55, Math.min(70, hsl.l + 10)));
-  const comp       = hslToRgb(compHsl.h, compHsl.s, compHsl.l);
-  const compDark   = hslToRgb(compHsl.h, compHsl.s, Math.max(35, compHsl.l - 15));
-  const compBorder = hslToRgb(compHsl.h, compHsl.s * 0.7, Math.max(25, compHsl.l - 25));
+  // Accent — lightened version of the primary colour
+  const hsl      = rgbToHsl(r, g, b);
+  const accHsl   = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(80, Math.max(60, hsl.l + 20)));
+  const accDark  = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(65, Math.max(45, hsl.l + 5)));
 
-  // Accent = complementary colour
-  root.style.setProperty('--accent',      rgb(comp.r, comp.g, comp.b));
-  root.style.setProperty('--accent-dark', rgb(compDark.r, compDark.g, compDark.b));
+  root.style.setProperty('--accent',      rgb(accHsl.r, accHsl.g, accHsl.b));
+  root.style.setProperty('--accent-dark', rgb(accDark.r, accDark.g, accDark.b));
 
   // Backgrounds — very dark tint of primary
   root.style.setProperty('--bg-base',    rgb(r*0.10, g*0.10, b*0.10));
