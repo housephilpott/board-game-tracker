@@ -826,8 +826,8 @@ function applyTheme(primaryHex) {
   root.style.setProperty('--bg-section', rgb(r*0.16, g*0.16, b*0.16));
   root.style.setProperty('--bg-input',   rgb(r*0.22, g*0.22, b*0.22));
 
-  // Borders — complementary tinted, dark but visible
-  root.style.setProperty('--border',      rgb(compBorder.r*0.9, compBorder.g*0.9, compBorder.b*0.9));
+  // Borders — derived from primary colour only
+  root.style.setProperty('--border',      rgb(r*0.35, g*0.35, b*0.35));
   root.style.setProperty('--border-dark', rgb(r*0.22, g*0.22, b*0.22));
 
   // Supporting tones
