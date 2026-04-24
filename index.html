@@ -753,61 +753,93 @@ function hexToRgb(hex) {
   return {r, g, b};
 }
 
-function blend(hex, factor, darken = true) {
-  const {r,g,b} = hexToRgb(hex);
-  const f = darken ? factor : 1 + factor;
-  const clamp = v => Math.max(0, Math.min(255, Math.round(v * f)));
-  return `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max+min)/2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max) {
+      case r: h = ((g-b)/d + (g<b?6:0))/6; break;
+      case g: h = ((b-r)/d + 2)/6; break;
+      case b: h = ((r-g)/d + 4)/6; break;
+    }
+  }
+  return { h: h*360, s: s*100, l: l*100 };
+}
+
+function hslToRgb(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else {
+    const q = l < 0.5 ? l*(1+s) : l+s-l*s;
+    const p = 2*l-q;
+    const hue2rgb = (p,q,t) => {
+      if (t<0) t+=1; if (t>1) t-=1;
+      if (t<1/6) return p+(q-p)*6*t;
+      if (t<1/2) return q;
+      if (t<2/3) return p+(q-p)*(2/3-t)*6;
+      return p;
+    };
+    r = hue2rgb(p,q,h+1/3);
+    g = hue2rgb(p,q,h);
+    b = hue2rgb(p,q,h-1/3);
+  }
+  return { r: Math.round(r*255), g: Math.round(g*255), b: Math.round(b*255) };
+}
+
+function complementaryHsl(h, s, l) {
+  // Rotate hue 180°, boost saturation slightly, keep lightness similar
+  return { h: (h + 180) % 360, s: Math.min(100, s * 1.1), l };
 }
 
 function applyTheme(primaryHex) {
   const root = document.documentElement;
+  const VARS = ['--accent','--accent-dark','--bg-base','--bg-section','--bg-input',
+                '--border','--border-dark','--stat-label','--detail-bg','--scorepad-hd',
+                '--text-primary','--text-secondary','--text-muted','--text-faint'];
   if (!primaryHex) {
-    // Reset to defaults
-    root.style.removeProperty('--accent');
-    root.style.removeProperty('--accent-dark');
-    root.style.removeProperty('--bg-base');
-    root.style.removeProperty('--bg-section');
-    root.style.removeProperty('--bg-input');
-    root.style.removeProperty('--border');
-    root.style.removeProperty('--border-dark');
-    root.style.removeProperty('--stat-label');
-    root.style.removeProperty('--detail-bg');
-    root.style.removeProperty('--scorepad-hd');
-    root.style.removeProperty('--text-primary');
-    root.style.removeProperty('--text-secondary');
-    root.style.removeProperty('--text-muted');
-    root.style.removeProperty('--text-faint');
+    VARS.forEach(v => root.style.removeProperty(v));
     return;
   }
 
-  const {r,g,b} = hexToRgb(primaryHex);
+  const {r,g,b}   = hexToRgb(primaryHex);
+  const clamp      = v => Math.min(255, Math.max(0, Math.round(v)));
+  const rgb        = (r,g,b) => `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
 
-  // Derive a full palette from the primary colour
-  root.style.setProperty('--accent',      primaryHex);
-  root.style.setProperty('--accent-dark', blend(primaryHex, 0.75));
+  // ── Complementary accent colour (opposite on colour wheel) ──
+  const hsl        = rgbToHsl(r, g, b);
+  const compHsl    = complementaryHsl(hsl.h, hsl.s, Math.max(55, Math.min(70, hsl.l + 10)));
+  const comp       = hslToRgb(compHsl.h, compHsl.s, compHsl.l);
+  const compDark   = hslToRgb(compHsl.h, compHsl.s, Math.max(35, compHsl.l - 15));
+  const compBorder = hslToRgb(compHsl.h, compHsl.s * 0.7, Math.max(25, compHsl.l - 25));
 
-  const clampT = v => Math.min(255, Math.max(0, Math.round(v)));
+  // Accent = complementary colour
+  root.style.setProperty('--accent',      rgb(comp.r, comp.g, comp.b));
+  root.style.setProperty('--accent-dark', rgb(compDark.r, compDark.g, compDark.b));
 
-  // Base backgrounds — very dark tint of the primary
-  root.style.setProperty('--bg-base',    `rgb(${Math.round(r*0.10)},${Math.round(g*0.10)},${Math.round(b*0.10)})`);
-  root.style.setProperty('--bg-section', `rgb(${Math.round(r*0.16)},${Math.round(g*0.16)},${Math.round(b*0.16)})`);
-  root.style.setProperty('--bg-input',   `rgb(${Math.round(r*0.22)},${Math.round(g*0.22)},${Math.round(b*0.22)})`);
+  // Backgrounds — very dark tint of primary
+  root.style.setProperty('--bg-base',    rgb(r*0.10, g*0.10, b*0.10));
+  root.style.setProperty('--bg-section', rgb(r*0.16, g*0.16, b*0.16));
+  root.style.setProperty('--bg-input',   rgb(r*0.22, g*0.22, b*0.22));
 
-  // Borders — slightly lighter than bg-input
-  root.style.setProperty('--border',      `rgb(${Math.round(r*0.35)},${Math.round(g*0.35)},${Math.round(b*0.35)})`);
-  root.style.setProperty('--border-dark', `rgb(${Math.round(r*0.22)},${Math.round(g*0.22)},${Math.round(b*0.22)})`);
+  // Borders — complementary tinted, dark but visible
+  root.style.setProperty('--border',      rgb(compBorder.r*0.9, compBorder.g*0.9, compBorder.b*0.9));
+  root.style.setProperty('--border-dark', rgb(r*0.22, g*0.22, b*0.22));
 
-  // Subtle tints for labels
-  root.style.setProperty('--stat-label',  `rgb(${clampT(120+r*0.18)},${clampT(145+g*0.18)},${clampT(145+b*0.18)})`);
-  root.style.setProperty('--detail-bg',   `rgb(${Math.round(r*0.12)},${Math.round(g*0.12)},${Math.round(b*0.12)})`);
-  root.style.setProperty('--scorepad-hd', `rgb(${Math.round(r*0.08)},${Math.round(g*0.08)},${Math.round(b*0.08)})`);
+  // Supporting tones
+  root.style.setProperty('--stat-label',  rgb(clamp(120+r*0.18), clamp(145+g*0.18), clamp(145+b*0.18)));
+  root.style.setProperty('--detail-bg',   rgb(r*0.12, g*0.12, b*0.12));
+  root.style.setProperty('--scorepad-hd', rgb(r*0.08, g*0.08, b*0.08));
 
-  // Text colours — fixed light values, always readable on dark backgrounds
-  root.style.setProperty('--text-primary',   `rgb(${clampT(230)},${clampT(230)},${clampT(230)})`);
-  root.style.setProperty('--text-secondary', `rgb(${clampT(195+r*0.05)},${clampT(210+g*0.05)},${clampT(210+b*0.05)})`);
-  root.style.setProperty('--text-muted',     `rgb(${clampT(155+r*0.12)},${clampT(175+g*0.12)},${clampT(175+b*0.12)})`);
-  root.style.setProperty('--text-faint',     `rgb(${clampT(120+r*0.18)},${clampT(145+g*0.18)},${clampT(145+b*0.18)})`);
+  // Text — always light, safe to read
+  root.style.setProperty('--text-primary',   rgb(230, 230, 230));
+  root.style.setProperty('--text-secondary', rgb(clamp(195+r*0.05), clamp(210+g*0.05), clamp(210+b*0.05)));
+  root.style.setProperty('--text-muted',     rgb(clamp(155+r*0.12), clamp(175+g*0.12), clamp(175+b*0.12)));
+  root.style.setProperty('--text-faint',     rgb(clamp(120+r*0.18), clamp(145+g*0.18), clamp(145+b*0.18)));
 }
 
 function getGameTheme(game) {
