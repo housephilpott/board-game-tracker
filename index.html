@@ -10,15 +10,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Board Game Tracker</title>
 <style>
+  :root {
+    --accent:      #e94560;
+    --accent-dark: #c03050;
+    --bg-base:     #1a1a2e;
+    --bg-section:  #16213e;
+    --bg-input:    #0f3460;
+    --border:      #1a4a80;
+    --border-dark: #0f3460;
+    --stat-label:  #7090b0;
+    --label-color: #a0b0d0;
+    --detail-bg:   #0d1f3a;
+    --scorepad-hd: #0a2444;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #1a1a2e;
+    background: var(--bg-base);
     color: #e0e0e0;
     min-height: 100vh;
     padding-bottom: 40px;
-    transition: background-color 0.6s ease;
+    transition: background-color 0.5s ease;
   }
 
   .bg-art {
@@ -43,10 +57,10 @@
   .form-body, .dropdown-overlay { position: relative; z-index: 1; }
 
   .header {
-    background: linear-gradient(135deg, #16213e, #0f3460);
+    background: linear-gradient(135deg, var(--bg-section), var(--bg-input));
     padding: 20px 16px 16px;
     text-align: center;
-    border-bottom: 2px solid #e94560;
+    border-bottom: 2px solid var(--accent);
   }
   .header h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
   .header p  { font-size: 12px; color: #a0a0c0; margin-top: 2px; }
@@ -54,16 +68,17 @@
   .form-body { padding: 16px; max-width: 480px; margin: 0 auto; }
 
   .section {
-    background: #16213e;
+    background: var(--bg-section);
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
-    border: 1px solid #0f3460;
+    border: 1px solid var(--border-dark);
+    transition: background 0.5s ease, border-color 0.5s ease;
   }
   .section-title {
     font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 1px;
-    color: #e94560; margin-bottom: 12px;
+    color: var(--accent); margin-bottom: 12px;
   }
 
   .field { margin-bottom: 14px; }
@@ -73,31 +88,33 @@
 
   input[type="text"], input[type="number"], input[type="date"], select {
     width: 100%;
-    background: #0f3460; border: 1px solid #1a4a80;
+    background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; color: #e0e0e0;
     font-size: 15px; padding: 10px 12px;
     appearance: none; -webkit-appearance: none;
+    transition: background 0.5s ease, border-color 0.5s ease;
   }
-  input:focus, select:focus { outline: none; border-color: #e94560; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
   input[readonly] { opacity: 0.7; cursor: default; }
 
   .auto-field { display: flex; gap: 8px; }
   .stat-box {
-    flex: 1; background: #0f3460; border: 1px solid #1a4a80;
+    flex: 1; background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px 10px; text-align: center;
   }
-  .stat-label { font-size: 10px; color: #7090b0; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-label { font-size: 10px; color: var(--stat-label); text-transform: uppercase; letter-spacing: 0.5px; }
   .stat-value { font-size: 15px; font-weight: 700; color: #e0e0e0; margin-top: 2px; }
 
   /* Chips */
   .chip-container {
-    background: #0f3460; border: 1px solid #1a4a80;
+    background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px; min-height: 44px;
     display: flex; flex-wrap: wrap; gap: 6px;
     align-items: center; cursor: pointer;
+    transition: background 0.5s ease, border-color 0.5s ease;
   }
   .chip {
-    background: #e94560; color: #fff; border-radius: 20px;
+    background: var(--accent); color: #fff; border-radius: 20px;
     padding: 3px 10px; font-size: 13px;
     display: flex; align-items: center; gap: 5px;
   }
@@ -110,7 +127,7 @@
     gap: 8px; margin-bottom: 14px;
   }
   .score-cell {
-    background: #0f3460; border: 1px solid #1a4a80;
+    background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px 10px;
     display: flex; flex-direction: column; align-items: center; gap: 4px;
   }
@@ -126,19 +143,19 @@
     font-size: 18px !important; font-weight: 700 !important;
     text-align: center !important; color: #e0e0e0 !important;
   }
-  .score-cell input:focus { outline: none; border-bottom-color: #e94560 !important; }
+  .score-cell input:focus { outline: none; border-bottom-color: var(--accent) !important; }
   .score-cell input[readonly] { color: #506080 !important; opacity: 1 !important; }
 
   /* Dropdown overlay */
   .dropdown-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6); z-index: 100; align-items: flex-end;
+    background: rgba(0,0,0,0.65); z-index: 100; align-items: flex-end;
   }
   .dropdown-overlay.open { display: flex; }
   .dropdown-sheet {
-    background: #16213e; border-radius: 16px 16px 0 0;
+    background: var(--bg-section); border-radius: 16px 16px 0 0;
     width: 100%; max-height: 70vh; overflow-y: auto;
-    padding: 16px; border-top: 2px solid #e94560;
+    padding: 16px; border-top: 2px solid var(--accent);
   }
   .dropdown-sheet h3 { font-size: 14px; font-weight: 700; color: #e0e0e0; margin-bottom: 12px; text-align: center; }
   .dropdown-option {
@@ -146,15 +163,15 @@
     color: #e0e0e0; cursor: pointer; display: flex; align-items: center; gap: 10px;
   }
   .dropdown-option:active { background: #0f3460; }
-  .dropdown-option.selected { background: #1a3a60; color: #e94560; font-weight: 600; }
+  .dropdown-option.selected { background: var(--bg-input); color: var(--accent); font-weight: 600; }
   .dropdown-option .check {
     width: 20px; height: 20px; border-radius: 50%;
     border: 2px solid #506080; display: flex; align-items: center;
     justify-content: center; flex-shrink: 0; font-size: 11px;
   }
-  .dropdown-option.selected .check { background: #e94560; border-color: #e94560; color: white; }
+  .dropdown-option.selected .check { background: var(--accent); border-color: var(--accent); color: white; }
   .dropdown-done {
-    margin-top: 12px; width: 100%; background: #e94560; color: white;
+    margin-top: 12px; width: 100%; background: var(--accent); color: white;
     border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
   }
 
@@ -163,7 +180,7 @@
     display: none; border-radius: 8px; padding: 10px 14px;
     font-size: 13px; margin-bottom: 12px; text-align: center;
   }
-  .status-banner.visible { display: block; background: #0f3460; border: 1px solid #1a4a80; color: #a0c0e0; }
+  .status-banner.visible { display: block; background: var(--bg-input); border: 1px solid var(--border); color: #a0c0e0; }
   .status-banner.error   { background: #3a0f1e !important; border-color: #e94560 !important; color: #ff8080 !important; }
   .status-banner.success { background: #0f3a1e !important; border-color: #40e094 !important; color: #80ffb0 !important; }
 
@@ -190,7 +207,7 @@
   }
 
   .scorepad th {
-    background: #0a2444;
+    background: var(--scorepad-hd);
     color: #a0b0d0;
     font-size: 11px;
     font-weight: 700;
@@ -198,17 +215,17 @@
     letter-spacing: 0.5px;
     padding: 7px 8px;
     text-align: center;
-    border-bottom: 2px solid #1a4a80;
+    border-bottom: 2px solid var(--border);
   }
 
   .scorepad th.category-col {
     text-align: left;
-    color: #e94560;
+    color: var(--accent);
   }
 
   .scorepad td {
     padding: 4px 4px;
-    border-bottom: 1px solid #0f3460;
+    border-bottom: 1px solid var(--border-dark);
     text-align: center;
   }
 
@@ -225,7 +242,7 @@
     width: 56px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid #1a4a80;
+    border-bottom: 1px solid var(--border);
     border-radius: 0;
     padding: 4px 2px;
     font-size: 15px;
@@ -234,20 +251,20 @@
     color: #e0e0e0;
   }
 
-  .scorepad td input:focus { outline: none; border-bottom-color: #e94560; }
+  .scorepad td input:focus { outline: none; border-bottom-color: var(--accent); }
 
   .scorepad tr.total-row td {
-    background: #0a2444;
+    background: var(--scorepad-hd);
     font-weight: 700;
     font-size: 14px;
     padding: 8px 4px;
-    border-top: 2px solid #1a4a80;
+    border-top: 2px solid var(--border);
     border-bottom: none;
     color: #e0e0e0;
   }
 
   .scorepad tr.total-row td.category-label {
-    color: #e94560;
+    color: var(--accent);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -265,12 +282,12 @@
 
   .detail-row td {
     padding: 0;
-    border-bottom: 1px solid #1a4a80;
+    border-bottom: 1px solid var(--border);
   }
 
   .detail-inner {
     padding: 10px 8px 12px;
-    background: #0d1f3a;
+    background: var(--detail-bg);
     display: none;
   }
 
@@ -281,7 +298,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #e94560;
+    color: var(--accent);
     margin: 10px 0 5px;
   }
 
@@ -303,7 +320,7 @@
   }
 
   .detail-player-chip.winner {
-    background: #e94560;
+    background: var(--accent);
     color: #fff;
     font-weight: 700;
   }
@@ -323,7 +340,7 @@
     color: #7090b0;
     padding: 4px 6px;
     text-align: right;
-    border-bottom: 1px solid #1a4a80;
+    border-bottom: 1px solid var(--border);
   }
 
   .detail-scorepad th:first-child { text-align: left; }
@@ -332,7 +349,7 @@
     padding: 4px 6px;
     color: #c0d0e0;
     text-align: right;
-    border-bottom: 1px solid #0f3060;
+    border-bottom: 1px solid var(--border-dark);
   }
 
   .detail-scorepad td:first-child { text-align: left; color: #a0b0d0; }
@@ -340,11 +357,11 @@
   .detail-scorepad tr.detail-total td {
     font-weight: 700;
     color: #e0e0e0;
-    border-top: 1px solid #1a4a80;
+    border-top: 1px solid var(--border);
     border-bottom: none;
   }
 
-  .detail-scorepad tr.detail-total td:first-child { color: #e94560; }
+  .detail-scorepad tr.detail-total td:first-child { color: var(--accent); }
 
   .detail-extras {
     font-size: 12px;
@@ -368,8 +385,8 @@
     flex: 1;
     padding: 14px;
     border-radius: 10px;
-    border: 2px solid #1a4a80;
-    background: #0f3460;
+    border: 2px solid var(--border);
+    background: var(--bg-input);
     color: #a0b0d0;
     font-size: 16px;
     font-weight: 700;
@@ -384,12 +401,12 @@
   /* Recent plays */
   .recent-row td {
     padding: 8px 4px; font-size: 13px;
-    border-bottom: 1px solid #0f3460; vertical-align: middle;
+    border-bottom: 1px solid var(--border-dark); vertical-align: middle;
   }
   .recent-row:last-child td { border-bottom: none; }
   .recent-header td {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.8px; color: #e94560; padding: 0 4px 8px;
+    letter-spacing: 0.8px; color: var(--accent); padding: 0 4px 8px;
   }
   .recent-date { color: #7090b0; }
   .recent-winner { color: #e0e0e0; font-weight: 600; }
@@ -465,7 +482,7 @@
     <div class="section-title" id="recentTitle">Recent Plays</div>
     <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
     <div id="loadMoreWrap" style="text-align:center;margin-top:10px;display:none">
-      <a href="#" onclick="loadMore(event)" style="color:#e94560;font-size:13px;text-decoration:none">Load more…</a>
+      <a href="#" onclick="loadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more…</a>
     </div>
   </div>
 
@@ -531,10 +548,11 @@ async function onGameChange() {
   document.getElementById('recentSection').style.display = 'none';
   extraMultiSelects = {};
 
-  if (!gameName) return;
+  if (!gameName) { applyTheme(null); return; }
 
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
+  applyTheme(getGameTheme(game));
   setBackgroundImage(game?.imageUrl || '');
 
   // Build extra fields
@@ -722,6 +740,66 @@ function getScorepad() {
   const sp = fields.find(f => f.scorepad);
   return sp ? sp.scorepad : null;
 }
+
+// ─── THEME ────────────────────────────────────────────────
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return {r, g, b};
+}
+
+function blend(hex, factor, darken = true) {
+  const {r,g,b} = hexToRgb(hex);
+  const f = darken ? factor : 1 + factor;
+  const clamp = v => Math.max(0, Math.min(255, Math.round(v * f)));
+  return `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
+}
+
+function applyTheme(primaryHex) {
+  const root = document.documentElement;
+  if (!primaryHex) {
+    // Reset to defaults
+    root.style.removeProperty('--accent');
+    root.style.removeProperty('--accent-dark');
+    root.style.removeProperty('--bg-base');
+    root.style.removeProperty('--bg-section');
+    root.style.removeProperty('--bg-input');
+    root.style.removeProperty('--border');
+    root.style.removeProperty('--border-dark');
+    root.style.removeProperty('--stat-label');
+    root.style.removeProperty('--detail-bg');
+    root.style.removeProperty('--scorepad-hd');
+    return;
+  }
+
+  const {r,g,b} = hexToRgb(primaryHex);
+
+  // Derive a full palette from the primary colour
+  root.style.setProperty('--accent',      primaryHex);
+  root.style.setProperty('--accent-dark', blend(primaryHex, 0.75));
+
+  // Base backgrounds — very dark tint of the primary
+  root.style.setProperty('--bg-base',    `rgb(${Math.round(r*0.10)},${Math.round(g*0.10)},${Math.round(b*0.10)})`);
+  root.style.setProperty('--bg-section', `rgb(${Math.round(r*0.16)},${Math.round(g*0.16)},${Math.round(b*0.16)})`);
+  root.style.setProperty('--bg-input',   `rgb(${Math.round(r*0.22)},${Math.round(g*0.22)},${Math.round(b*0.22)})`);
+
+  // Borders — slightly lighter than bg-input
+  root.style.setProperty('--border',      `rgb(${Math.round(r*0.35)},${Math.round(g*0.35)},${Math.round(b*0.35)})`);
+  root.style.setProperty('--border-dark', `rgb(${Math.round(r*0.22)},${Math.round(g*0.22)},${Math.round(b*0.22)})`);
+
+  // Subtle tints for labels
+  root.style.setProperty('--stat-label',  `rgb(${Math.round(r*0.55)},${Math.round(g*0.55)},${Math.round(b*0.55)})`);
+  root.style.setProperty('--detail-bg',   `rgb(${Math.round(r*0.12)},${Math.round(g*0.12)},${Math.round(b*0.12)})`);
+  root.style.setProperty('--scorepad-hd', `rgb(${Math.round(r*0.08)},${Math.round(g*0.08)},${Math.round(b*0.08)})`);
+}
+
+function getGameTheme(game) {
+  const fields = game?.extraFields || [];
+  const t = fields.find(f => f.theme);
+  return t ? t.theme : null;
+}
+
 
 // ─── SCORES & WIN CONDITIONS ──────────────────────────────
 // winCondition: 'score' (default) | 'lowest' | 'winlose' | 'manual'
@@ -987,6 +1065,7 @@ function resetForm() {
   document.getElementById('sectionExtra').style.display = 'none';
   document.getElementById('recentSection').style.display = 'none';
   currentGameData = null;
+  applyTheme(null);
   document.getElementById('fieldWinner').style.display = '';
   document.getElementById('fieldWinner').readOnly = true;
   setBackgroundImage('');
