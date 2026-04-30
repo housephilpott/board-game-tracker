@@ -11,21 +11,21 @@
 <title>Board Game Tracker</title>
 <style>
   :root {
-    --accent:       #e94560;
-    --accent-dark:  #c03050;
-    --bg-base:      #1a1a2e;
-    --bg-section:   #16213e;
-    --bg-input:     #0f3460;
-    --border:       #1a4a80;
-    --border-dark:  #0f3460;
-    --stat-label:   #7090b0;
-    --label-color:  #a0b0d0;
-    --detail-bg:    #0d1f3a;
-    --scorepad-hd:  #0a2444;
-    --text-primary: #e0e0e0;
+    --accent:         #e94560;
+    --accent-dark:    #c03050;
+    --bg-base:        #1a1a2e;
+    --bg-section:     #16213e;
+    --bg-input:       #0f3460;
+    --border:         #1a4a80;
+    --border-dark:    #0f3460;
+    --stat-label:     #7090b0;
+    --label-color:    #a0b0d0;
+    --detail-bg:      #0d1f3a;
+    --scorepad-hd:    #0a2444;
+    --text-primary:   #e0e0e0;
     --text-secondary: #c0d0e0;
-    --text-muted:   #a0b0d0;
-    --text-faint:   #7090b0;
+    --text-muted:     #a0b0d0;
+    --text-faint:     #7090b0;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,56 +33,58 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-base);
-    color: #e0e0e0;
+    color: var(--text-primary);
     min-height: 100vh;
     padding-bottom: 40px;
     transition: background-color 0.5s ease;
   }
 
+  /* ── Background art ── */
   .bg-art {
-    position: fixed;
-    top: 62px; /* below header */
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: fixed; top: 62px; left: 0; right: 0; bottom: 0;
     z-index: 0;
-    background-size: cover;
-    background-position: center top;
+    background-size: cover; background-position: center top;
     filter: blur(6px) brightness(0.55) saturate(1.2);
-    transform: scale(1.04);
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    pointer-events: none;
+    transform: scale(1.04); opacity: 0;
+    transition: opacity 0.8s ease; pointer-events: none;
   }
-
   .bg-art.visible { opacity: 1; }
 
-  .header { position: relative; z-index: 2; }
-  .form-body, .dropdown-overlay { position: relative; z-index: 1; }
-
+  /* ── Header ── */
   .header {
+    position: relative; z-index: 2;
     background: linear-gradient(135deg, var(--bg-section), var(--bg-input));
-    padding: 20px 16px 16px;
-    text-align: center;
+    padding: 16px 16px 12px;
     border-bottom: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.5s ease, border-color 0.5s ease;
   }
-  .header h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
-  .header p  { font-size: 12px; color: #a0a0c0; margin-top: 2px; }
+  .header-center { flex: 1; text-align: center; }
+  .header h1 { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .header p  { font-size: 11px; color: #a0a0c0; margin-top: 1px; }
+  .header-back {
+    font-size: 22px; cursor: pointer; color: var(--accent);
+    padding: 4px 8px; min-width: 36px;
+    background: none; border: none;
+  }
+  .header-back.hidden { visibility: hidden; }
 
-  .form-body { padding: 16px; max-width: 480px; margin: 0 auto; }
+  /* ── Screens ── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
 
+  .page-body { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* ── Section ── */
   .section {
-    background: var(--bg-section);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
+    background: var(--bg-section); border-radius: 12px;
+    padding: 16px; margin-bottom: 12px;
     border: 1px solid var(--border-dark);
     transition: background 0.5s ease, border-color 0.5s ease;
   }
   .section-title {
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--accent); margin-bottom: 12px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--accent); margin-bottom: 12px;
   }
 
   .field { margin-bottom: 14px; }
@@ -90,17 +92,45 @@
 
   label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
 
-  input[type="text"], input[type="number"], input[type="date"], select {
+  input[type="text"], input[type="number"], input[type="date"],
+  input[type="url"], select, textarea {
     width: 100%;
     background: var(--bg-input); border: 1px solid var(--border);
-    border-radius: 8px; color: #e0e0e0;
+    border-radius: 8px; color: var(--text-primary);
     font-size: 15px; padding: 10px 12px;
     appearance: none; -webkit-appearance: none;
     transition: background 0.5s ease, border-color 0.5s ease;
+    font-family: inherit;
   }
-  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
   input[readonly] { opacity: 0.7; cursor: default; }
 
+  /* ── Home screen ── */
+  .home-hero {
+    text-align: center; padding: 32px 16px 24px;
+  }
+  .home-hero-icon { font-size: 64px; margin-bottom: 8px; }
+  .home-hero h2 { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+  .home-hero p  { font-size: 13px; color: var(--text-faint); margin-top: 4px; }
+
+  .home-buttons { padding: 0 16px; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+  .home-btn {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--bg-section); border: 1px solid var(--border-dark);
+    border-radius: 16px; padding: 18px 20px;
+    cursor: pointer; text-align: left;
+    transition: background 0.2s, border-color 0.2s;
+    width: 100%;
+  }
+  .home-btn:active { background: var(--bg-input); }
+  .home-btn-icon { font-size: 32px; flex-shrink: 0; }
+  .home-btn-label { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+  .home-btn-sub   { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+  .home-btn-arrow { margin-left: auto; font-size: 20px; color: var(--accent); }
+
+  /* ── Stat boxes ── */
   .auto-field { display: flex; gap: 8px; }
   .stat-box {
     flex: 1; background: var(--bg-input); border: 1px solid var(--border);
@@ -109,27 +139,22 @@
   .stat-label { font-size: 10px; color: var(--stat-label); text-transform: uppercase; letter-spacing: 0.5px; }
   .stat-value { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
 
-  /* Chips */
+  /* ── Chips ── */
   .chip-container {
     background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px; min-height: 44px;
-    display: flex; flex-wrap: wrap; gap: 6px;
-    align-items: center; cursor: pointer;
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; cursor: pointer;
     transition: background 0.5s ease, border-color 0.5s ease;
   }
   .chip {
     background: var(--accent); color: #fff; border-radius: 20px;
-    padding: 3px 10px; font-size: 13px;
-    display: flex; align-items: center; gap: 5px;
+    padding: 3px 10px; font-size: 13px; display: flex; align-items: center; gap: 5px;
   }
   .chip .remove { font-size: 16px; line-height: 1; opacity: 0.8; cursor: pointer; }
   .chip-placeholder { color: var(--text-faint); font-size: 14px; padding: 2px 4px; }
 
-  /* Score grid */
-  .scores-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-bottom: 14px;
-  }
+  /* ── Score grid ── */
+  .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   .score-cell {
     background: var(--bg-input); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px 10px;
@@ -142,18 +167,57 @@
   }
   .score-cell input {
     width: 100% !important; background: transparent !important;
-    border: none !important; border-bottom: 1px solid #1a4a80 !important;
+    border: none !important; border-bottom: 1px solid var(--border) !important;
     border-radius: 0 !important; padding: 4px 6px !important;
     font-size: 18px !important; font-weight: 700 !important;
-    text-align: center !important; color: #e0e0e0 !important;
+    text-align: center !important; color: var(--text-primary) !important;
   }
   .score-cell input:focus { outline: none; border-bottom-color: var(--accent) !important; }
-  .score-cell input[readonly] { color: #506080 !important; opacity: 1 !important; }
+  .score-cell input[readonly] { color: var(--text-faint) !important; opacity: 1 !important; }
 
-  /* Dropdown overlay */
+  /* ── Win/Lose toggle ── */
+  .winlose-toggle { display: flex; gap: 10px; margin-bottom: 14px; }
+  .winlose-btn {
+    flex: 1; padding: 14px; border-radius: 10px;
+    border: 2px solid var(--border); background: var(--bg-input);
+    color: var(--text-muted); font-size: 16px; font-weight: 700;
+    cursor: pointer; text-align: center; transition: all 0.2s;
+  }
+  .winlose-btn.win.active  { background: #0f3a1e; border-color: #40e094; color: #80ffb0; }
+  .winlose-btn.lose.active { background: #3a0f1e; border-color: #e94560; color: #ff8080; }
+
+  /* ── Scorepad ── */
+  .scorepad-wrap { overflow-x: auto; margin-bottom: 14px; }
+  .scorepad { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .scorepad th {
+    background: var(--scorepad-hd); color: var(--text-muted);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 7px 8px; text-align: center; border-bottom: 2px solid var(--border);
+  }
+  .scorepad th.category-col { text-align: left; color: var(--accent); }
+  .scorepad td { padding: 4px; border-bottom: 1px solid var(--border-dark); text-align: center; }
+  .scorepad td.category-label {
+    text-align: left; color: var(--text-muted); font-size: 12px;
+    font-weight: 600; padding-left: 4px; white-space: nowrap;
+  }
+  .scorepad td input {
+    width: 56px; background: transparent; border: none;
+    border-bottom: 1px solid var(--border); border-radius: 0;
+    padding: 4px 2px; font-size: 15px; font-weight: 700;
+    text-align: center; color: var(--text-primary);
+  }
+  .scorepad td input:focus { outline: none; border-bottom-color: var(--accent); }
+  .scorepad tr.total-row td {
+    background: var(--scorepad-hd); font-weight: 700; font-size: 14px;
+    padding: 8px 4px; border-top: 2px solid var(--border); border-bottom: none; color: var(--text-primary);
+  }
+  .scorepad tr.total-row td.category-label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .scorepad tr.total-row td.total-val { color: #fff; font-size: 16px; }
+
+  /* ── Dropdown overlay ── */
   .dropdown-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.65); z-index: 100; align-items: flex-end;
+    background: rgba(0,0,0,0.65); z-index: 200; align-items: flex-end;
   }
   .dropdown-overlay.open { display: flex; }
   .dropdown-sheet {
@@ -166,12 +230,10 @@
     padding: 12px; border-radius: 8px; font-size: 15px;
     color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px;
   }
-  .dropdown-option:active { background: #0f3460; }
   .dropdown-option.selected { background: var(--bg-input); color: var(--accent); font-weight: 600; }
   .dropdown-option .check {
-    width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid #506080; display: flex; align-items: center;
-    justify-content: center; flex-shrink: 0; font-size: 11px;
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--text-faint);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px;
   }
   .dropdown-option.selected .check { background: var(--accent); border-color: var(--accent); color: white; }
   .dropdown-done {
@@ -179,7 +241,7 @@
     border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer;
   }
 
-  /* Status */
+  /* ── Status banner ── */
   .status-banner {
     display: none; border-radius: 8px; padding: 10px 14px;
     font-size: 13px; margin-bottom: 12px; text-align: center;
@@ -188,311 +250,322 @@
   .status-banner.error   { background: #3a0f1e !important; border-color: #e94560 !important; color: #ff8080 !important; }
   .status-banner.success { background: #0f3a1e !important; border-color: #40e094 !important; color: #80ffb0 !important; }
 
+  /* ── Buttons ── */
   .submit-btn {
-    width: 100%; background: linear-gradient(135deg, #e94560, #c03050);
+    width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent-dark));
     color: white; border: none; border-radius: 12px;
     padding: 16px; font-size: 17px; font-weight: 700;
     letter-spacing: 0.5px; cursor: pointer; margin-top: 4px;
   }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-
-
-  /* Scorepad table */
-  .scorepad-wrap {
-    overflow-x: auto;
-    margin-bottom: 14px;
-  }
-
-  .scorepad {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  .scorepad th {
-    background: var(--scorepad-hd);
-    color: #a0b0d0;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 7px 8px;
-    text-align: center;
-    border-bottom: 2px solid var(--border);
-  }
-
-  .scorepad th.category-col {
-    text-align: left;
-    color: var(--accent);
-  }
-
-  .scorepad td {
-    padding: 4px 4px;
-    border-bottom: 1px solid var(--border-dark);
-    text-align: center;
-  }
-
-  .scorepad td.category-label {
-    text-align: left;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 600;
-    padding-left: 4px;
-    white-space: nowrap;
-  }
-
-  .scorepad td input {
-    width: 56px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-    padding: 4px 2px;
-    font-size: 15px;
-    font-weight: 700;
-    text-align: center;
-    color: #e0e0e0;
-  }
-
-  .scorepad td input:focus { outline: none; border-bottom-color: var(--accent); }
-
-  .scorepad tr.total-row td {
-    background: var(--scorepad-hd);
-    font-weight: 700;
-    font-size: 14px;
-    padding: 8px 4px;
-    border-top: 2px solid var(--border);
-    border-bottom: none;
-    color: #e0e0e0;
-  }
-
-  .scorepad tr.total-row td.category-label {
-    color: var(--accent);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .scorepad tr.total-row td.total-val {
-    color: #fff;
-    font-size: 16px;
-  }
-
-
-  /* Session detail expand */
+  /* ── Recent plays ── */
   .recent-row { cursor: pointer; }
-  .recent-row:active { background: #0f3060; }
-
-  .detail-row td {
-    padding: 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .detail-inner {
-    padding: 10px 8px 12px;
-    background: var(--detail-bg);
-    display: none;
-  }
-
-  .detail-inner.open { display: block; }
-
-  .detail-section-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--accent);
-    margin: 10px 0 5px;
-  }
-
-  .detail-section-label:first-child { margin-top: 0; }
-
-  .detail-players {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 4px;
-  }
-
-  .detail-player-chip {
-    background: var(--bg-input);
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-
-  .detail-player-chip.winner {
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-  }
-
-  .detail-scorepad {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin-top: 4px;
-  }
-
-  .detail-scorepad th {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #7090b0;
-    padding: 4px 6px;
-    text-align: right;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .detail-scorepad th:first-child { text-align: left; }
-
-  .detail-scorepad td {
-    padding: 4px 6px;
-    color: var(--text-secondary);
-    text-align: right;
-    border-bottom: 1px solid var(--border-dark);
-  }
-
-  .detail-scorepad td:first-child { text-align: left; color: var(--text-muted); }
-
-  .detail-scorepad tr.detail-total td {
-    font-weight: 700;
-    color: #e0e0e0;
-    border-top: 1px solid var(--border);
-    border-bottom: none;
-  }
-
-  .detail-scorepad tr.detail-total td:first-child { color: var(--accent); }
-
-  .detail-extras {
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.8;
-  }
-
-  .detail-extras span {
-    color: #7090b0;
-    margin-right: 4px;
-  }
-
-  /* Win/Lose toggle */
-  .winlose-toggle {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-
-  .winlose-btn {
-    flex: 1;
-    padding: 14px;
-    border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--bg-input);
-    color: var(--text-muted);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-  }
-
-  .winlose-btn.win.active  { background: #0f3a1e; border-color: #40e094; color: #80ffb0; }
-  .winlose-btn.lose.active { background: #3a0f1e; border-color: #e94560; color: #ff8080; }
-
-  /* Recent plays */
-  .recent-row td {
-    padding: 8px 4px; font-size: 13px;
-    border-bottom: 1px solid var(--border-dark); vertical-align: middle;
-  }
+  .recent-row:active { background: var(--bg-input); }
+  .recent-row td { padding: 8px 4px; font-size: 13px; border-bottom: 1px solid var(--border-dark); vertical-align: middle; }
   .recent-row:last-child td { border-bottom: none; }
-  .recent-header td {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.8px; color: var(--accent); padding: 0 4px 8px;
-  }
-  .recent-date { color: var(--text-faint); }
+  .recent-header td { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); padding: 0 4px 8px; }
+  .recent-date   { color: var(--text-faint); }
   .recent-winner { color: var(--text-primary); font-weight: 600; }
-  .recent-score { color: var(--text-muted); text-align: right; }
+  .recent-score  { color: var(--text-muted); text-align: right; }
+
+  .detail-row td { padding: 0; border-bottom: 1px solid var(--border); }
+  .detail-inner  { padding: 10px 8px 12px; background: var(--detail-bg); display: none; }
+  .detail-inner.open { display: block; }
+  .detail-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin: 10px 0 5px; }
+  .detail-section-label:first-child { margin-top: 0; }
+  .detail-players { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px; }
+  .detail-player-chip { background: var(--bg-input); border-radius: 20px; padding: 3px 10px; font-size: 12px; color: var(--text-secondary); }
+  .detail-player-chip.winner { background: var(--accent); color: #fff; font-weight: 700; }
+  .detail-scorepad { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  .detail-scorepad th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-faint); padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--border); }
+  .detail-scorepad th:first-child { text-align: left; }
+  .detail-scorepad td { padding: 4px 6px; color: var(--text-secondary); text-align: right; border-bottom: 1px solid var(--border-dark); }
+  .detail-scorepad td:first-child { text-align: left; color: var(--text-muted); }
+  .detail-scorepad tr.detail-total td { font-weight: 700; color: var(--text-primary); border-top: 1px solid var(--border); border-bottom: none; }
+  .detail-scorepad tr.detail-total td:first-child { color: var(--accent); }
+  .detail-extras { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+  .detail-extras span { color: var(--text-faint); margin-right: 4px; }
+
+  /* ── Library cards ── */
+  .library-filters {
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .filter-select {
+    flex: 1; min-width: 100px;
+    background: var(--bg-section); border: 1px solid var(--border-dark);
+    border-radius: 8px; color: var(--text-muted);
+    font-size: 13px; padding: 8px 10px;
+    appearance: none; -webkit-appearance: none;
+  }
+  .filter-select:focus { outline: none; border-color: var(--accent); }
+
+  .library-count {
+    font-size: 12px; color: var(--text-faint); margin-bottom: 10px; text-align: center;
+  }
+
+  .game-card {
+    background: var(--bg-section); border: 1px solid var(--border-dark);
+    border-radius: 14px; margin-bottom: 12px; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  .card-art {
+    width: 100%; height: 140px; object-fit: cover;
+    background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; color: var(--text-faint);
+    flex-shrink: 0;
+  }
+  .card-art img { width: 100%; height: 100%; object-fit: cover; }
+
+  .card-body { padding: 12px 14px 14px; }
+
+  .card-name {
+    font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;
+  }
+
+  .card-stats {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+
+  .card-stat {
+    background: var(--bg-input); border-radius: 20px;
+    padding: 3px 10px; font-size: 11px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .card-stat-accent { color: var(--accent); font-weight: 700; }
+
+  .complexity-dots { display: flex; gap: 2px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .dot.filled { background: var(--accent); }
+
+  .library-empty {
+    text-align: center; padding: 40px 20px; color: var(--text-faint); font-size: 14px;
+  }
+
+  /* ── Weight stars ── */
+  .weight-input { display: flex; gap: 8px; }
+  .weight-btn {
+    flex: 1; padding: 10px 4px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-input); color: var(--text-faint); font-size: 12px;
+    font-weight: 600; cursor: pointer; text-align: center;
+    transition: all 0.15s;
+  }
+  .weight-btn.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🎲 Board Game Tracker</h1>
-  <p>Log your session</p>
-</div>
-
 <div class="bg-art" id="bgArt"></div>
 
-<div class="form-body">
-
-  <div class="status-banner" id="statusBanner"></div>
-
-  <!-- Session -->
-  <div class="section">
-    <div class="section-title">Session</div>
-    <div class="field">
-      <label>Date</label>
-      <input type="date" id="fieldDate">
-    </div>
-    <div class="field">
-      <label>Board Game</label>
-      <select id="fieldGame" onchange="onGameChange()">
-        <option value="">Loading games…</option>
-      </select>
-    </div>
+<!-- ── HEADER ── -->
+<div class="header" id="appHeader">
+  <button class="header-back hidden" id="headerBack" onclick="goHome()">←</button>
+  <div class="header-center">
+    <h1 id="headerTitle">🎲 Board Game Tracker</h1>
+    <p id="headerSub">Your collection &amp; session log</p>
   </div>
-
-  <!-- Game History -->
-  <div class="section" id="sectionStats" style="display:none">
-    <div class="section-title">Game History</div>
-    <div class="auto-field">
-      <div class="stat-box"><div class="stat-label">Last Played</div><div class="stat-value" id="valLastPlayed">—</div></div>
-      <div class="stat-box"><div class="stat-label">Total Plays</div><div class="stat-value" id="valTotalPlays">—</div></div>
-      <div class="stat-box"><div class="stat-label">Top Winner</div><div class="stat-value" id="valTopWinner">—</div></div>
-    </div>
-  </div>
-
-  <!-- Dynamic game-specific fields -->
-  <div class="section" id="sectionExtra" style="display:none">
-    <div class="section-title" id="extraTitle">Game Details</div>
-    <div id="extraFields"></div>
-  </div>
-
-  <!-- Players -->
-  <div class="section">
-    <div class="section-title">Players</div>
-    <div class="chip-container" id="playersContainer" onclick="openMultiSelect('players')">
-      <span class="chip-placeholder" id="playersPlaceholder">Select players…</span>
-    </div>
-  </div>
-
-  <!-- Result -->
-  <div class="section" id="resultSection" style="display:none">
-    <div class="section-title">Result</div>
-    <div class="scores-grid" id="scoresContainer"></div>
-    <div class="field">
-      <label>Winner</label>
-      <input type="text" id="fieldWinner" readonly placeholder="Auto-filled from scores…">
-    </div>
-  </div>
-
-  <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Session</button>
-
-  <!-- Recent Plays -->
-  <div class="section" id="recentSection" style="margin-top:12px;display:none">
-    <div class="section-title" id="recentTitle">Recent Plays</div>
-    <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
-    <div id="loadMoreWrap" style="text-align:center;margin-top:10px;display:none">
-      <a href="#" onclick="loadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more…</a>
-    </div>
-  </div>
-
+  <div style="min-width:36px"></div>
 </div>
 
-<!-- Multi-select / dropdown overlay -->
+<!-- ════════════════════════════════════════════════
+     SCREEN: HOME
+════════════════════════════════════════════════ -->
+<div class="screen active" id="screenHome">
+  <div class="home-hero">
+    <div class="home-hero-icon">🎲</div>
+    <h2>Board Game Tracker</h2>
+    <p id="homeSubtitle">Loading your collection…</p>
+  </div>
+  <div class="home-buttons">
+    <button class="home-btn" onclick="showScreen('screenLog')">
+      <span class="home-btn-icon">📝</span>
+      <div>
+        <div class="home-btn-label">Log a Play</div>
+        <div class="home-btn-sub">Record a session and scores</div>
+      </div>
+      <span class="home-btn-arrow">›</span>
+    </button>
+    <button class="home-btn" onclick="showScreen('screenLibrary')">
+      <span class="home-btn-icon">📚</span>
+      <div>
+        <div class="home-btn-label">Library</div>
+        <div class="home-btn-sub">Browse and filter your collection</div>
+      </div>
+      <span class="home-btn-arrow">›</span>
+    </button>
+    <button class="home-btn" onclick="showScreen('screenAddGame')">
+      <span class="home-btn-icon">➕</span>
+      <div>
+        <div class="home-btn-label">Add a Game</div>
+        <div class="home-btn-sub">Add to your library and tracker</div>
+      </div>
+      <span class="home-btn-arrow">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: LOG A PLAY
+════════════════════════════════════════════════ -->
+<div class="screen" id="screenLog">
+  <div class="page-body">
+    <div class="status-banner" id="statusBanner"></div>
+
+    <div class="section">
+      <div class="section-title">Session</div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="fieldDate">
+      </div>
+      <div class="field">
+        <label>Board Game</label>
+        <select id="fieldGame" onchange="onGameChange()">
+          <option value="">Select a game…</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section" id="sectionStats" style="display:none">
+      <div class="section-title">Game History</div>
+      <div class="auto-field">
+        <div class="stat-box"><div class="stat-label">Last Played</div><div class="stat-value" id="valLastPlayed">—</div></div>
+        <div class="stat-box"><div class="stat-label">Total Plays</div><div class="stat-value" id="valTotalPlays">—</div></div>
+        <div class="stat-box"><div class="stat-label">Top Winner</div><div class="stat-value" id="valTopWinner">—</div></div>
+      </div>
+    </div>
+
+    <div class="section" id="sectionExtra" style="display:none">
+      <div class="section-title" id="extraTitle">Game Details</div>
+      <div id="extraFields"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Players</div>
+      <div class="chip-container" id="playersContainer" onclick="openMultiSelect('players')">
+        <span class="chip-placeholder" id="playersPlaceholder">Select players…</span>
+      </div>
+    </div>
+
+    <div class="section" id="resultSection" style="display:none">
+      <div class="section-title">Result</div>
+      <div class="scores-grid" id="scoresContainer"></div>
+      <div class="field">
+        <label>Winner</label>
+        <input type="text" id="fieldWinner" readonly placeholder="Auto-filled from scores…">
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Session</button>
+
+    <div class="section" id="recentSection" style="margin-top:12px;display:none">
+      <div class="section-title" id="recentTitle">Recent Plays</div>
+      <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
+      <div id="loadMoreWrap" style="text-align:center;margin-top:10px;display:none">
+        <a href="#" onclick="loadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more…</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: LIBRARY
+════════════════════════════════════════════════ -->
+<div class="screen" id="screenLibrary">
+  <div class="page-body">
+    <div class="library-filters">
+      <select class="filter-select" id="filterPlayers" onchange="applyLibraryFilters()">
+        <option value="">Any players</option>
+        <option value="1">1 player</option>
+        <option value="2">2 players</option>
+        <option value="3">3 players</option>
+        <option value="4">4 players</option>
+        <option value="5">5+ players</option>
+      </select>
+      <select class="filter-select" id="filterType" onchange="applyLibraryFilters()">
+        <option value="">Any type</option>
+      </select>
+      <select class="filter-select" id="filterComplexity" onchange="applyLibraryFilters()">
+        <option value="">Any weight</option>
+        <option value="1">Light (1–2)</option>
+        <option value="2">Medium (2–3)</option>
+        <option value="3">Heavy (3+)</option>
+      </select>
+    </div>
+    <div class="library-count" id="libraryCount"></div>
+    <div id="libraryCards"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SCREEN: ADD A GAME
+════════════════════════════════════════════════ -->
+<div class="screen" id="screenAddGame">
+  <div class="page-body">
+    <div class="status-banner" id="addGameStatus"></div>
+
+    <div class="section">
+      <div class="section-title">Game Info</div>
+      <div class="field">
+        <label>Name</label>
+        <input type="text" id="addName" placeholder="e.g. Wingspan">
+      </div>
+      <div class="field">
+        <label>Game Type</label>
+        <input type="text" id="addType" placeholder="e.g. Engine Builder, Co-op, Card Game…">
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="addDesc" placeholder="A short description of the game…"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Players &amp; Complexity</div>
+      <div class="field">
+        <label>Min Players</label>
+        <input type="number" id="addMinPlayers" min="1" max="20" placeholder="1">
+      </div>
+      <div class="field">
+        <label>Max Players</label>
+        <input type="number" id="addMaxPlayers" min="1" max="20" placeholder="4">
+      </div>
+      <div class="field">
+        <label>BGG Weight (1–5)</label>
+        <div class="weight-input" id="weightInput">
+          <button class="weight-btn" onclick="setWeight(1)">1<br><span style="font-size:9px;font-weight:400">Light</span></button>
+          <button class="weight-btn" onclick="setWeight(2)">2<br><span style="font-size:9px;font-weight:400">Easy</span></button>
+          <button class="weight-btn" onclick="setWeight(3)">3<br><span style="font-size:9px;font-weight:400">Medium</span></button>
+          <button class="weight-btn" onclick="setWeight(4)">4<br><span style="font-size:9px;font-weight:400">Heavy</span></button>
+          <button class="weight-btn" onclick="setWeight(5)">5<br><span style="font-size:9px;font-weight:400">Expert</span></button>
+        </div>
+        <input type="hidden" id="addComplexity" value="">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Art &amp; Tracking</div>
+      <div class="field">
+        <label>Image URL <span style="font-weight:400;color:var(--text-faint)">(optional)</span></label>
+        <input type="url" id="addImageUrl" placeholder="https://…">
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="addCoop" style="width:auto;padding:0;margin:0">
+        <label for="addCoop" style="margin:0;font-size:14px">Co-operative game</label>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="addGameBtn" onclick="submitAddGame()">Add to Library</button>
+  </div>
+</div>
+
+<!-- ── Dropdown overlay ── -->
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
   <div class="dropdown-sheet">
     <h3 id="dropdownTitle"></h3>
@@ -504,34 +577,81 @@
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8RVFQaQxiozN4t5LAjYOgoh_m2AlP3R7yzUOS0Msmn_KxVD-_2V4l/exec';
 
-let allPlayers = [], allGames = [], selectedPlayers = [];
+let allPlayers = [], allGames = [], allLibrary = [];
+let selectedPlayers = [];
 let currentDropdown = null, currentDropdownField = null;
 let currentGameData = null;
-// Holds selected values for dynamic multiselect fields: { fieldLabel: [values] }
 let extraMultiSelects = {};
+let selectedWeight = null;
 
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
   const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,'0');
-  const dd = String(today.getDate()).padStart(2,'0');
+  const mm   = String(today.getMonth()+1).padStart(2,'0');
+  const dd   = String(today.getDate()).padStart(2,'0');
   document.getElementById('fieldDate').value = `${yyyy}-${mm}-${dd}`;
   loadFromSheet();
 });
 
 async function loadFromSheet() {
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=getConfig`);
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getConfig`);
     const data = await res.json();
-    allGames = data.games;
+    allGames   = data.games;
     allPlayers = data.players;
+    allLibrary = data.library || [];
     populateGameDropdown();
+    updateHomeSubtitle();
+    populateTypeFilter();
   } catch(e) {
-    showStatus('Could not load data from sheet. Check your Apps Script deployment.', true);
+    document.getElementById('homeSubtitle').textContent = 'Could not load data — check your Apps Script.';
   }
 }
 
+function updateHomeSubtitle() {
+  const count = allLibrary.length || allGames.length;
+  document.getElementById('homeSubtitle').textContent =
+    count > 0 ? `${count} game${count !== 1 ? 's' : ''} in your collection` : 'Add your first game to get started';
+}
+
+// ─── SCREEN NAVIGATION ────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  const back = document.getElementById('headerBack');
+  const title = document.getElementById('headerTitle');
+  const sub   = document.getElementById('headerSub');
+
+  if (id === 'screenHome') {
+    back.classList.add('hidden');
+    title.textContent = '🎲 Board Game Tracker';
+    sub.textContent   = 'Your collection & session log';
+    applyTheme(null); setBackgroundImage('');
+  } else if (id === 'screenLog') {
+    back.classList.remove('hidden');
+    title.textContent = 'Log a Play';
+    sub.textContent   = 'Record your session';
+  } else if (id === 'screenLibrary') {
+    back.classList.remove('hidden');
+    title.textContent = '📚 Library';
+    sub.textContent   = `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''}`;
+    renderLibrary();
+  } else if (id === 'screenAddGame') {
+    back.classList.remove('hidden');
+    title.textContent = '➕ Add a Game';
+    sub.textContent   = 'Add to library & tracker';
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  showScreen('screenHome');
+}
+
+// ─── GAME DROPDOWN ────────────────────────────────────────
 function populateGameDropdown() {
   const sel = document.getElementById('fieldGame');
   sel.innerHTML = '<option value="">Select a game…</option>';
@@ -545,115 +665,89 @@ function populateGameDropdown() {
 // ─── GAME CHANGE ──────────────────────────────────────────
 async function onGameChange() {
   const gameName = document.getElementById('fieldGame').value;
-
-  // Hide dependent sections
   document.getElementById('sectionStats').style.display = 'none';
   document.getElementById('sectionExtra').style.display = 'none';
   document.getElementById('recentSection').style.display = 'none';
   extraMultiSelects = {};
 
-  if (!gameName) { applyTheme(null); return; }
+  if (!gameName) { applyTheme(null); setBackgroundImage(''); return; }
 
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
   applyTheme(getGameTheme(game));
   setBackgroundImage(game?.imageUrl || '');
-
-  // Build extra fields
   buildExtraFields(game);
 
-  // Load stats
   document.getElementById('sectionStats').style.display = 'block';
   ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '…');
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=getStats&game=${encodeURIComponent(gameName)}`);
+    const res   = await fetch(`${APPS_SCRIPT_URL}?action=getStats&game=${encodeURIComponent(gameName)}`);
     const stats = await res.json();
     document.getElementById('valLastPlayed').textContent = stats.lastPlayed || '—';
     document.getElementById('valTotalPlays').textContent = stats.totalPlays ?? '0';
-    document.getElementById('valTopWinner').textContent = stats.topWinner || '—';
+    document.getElementById('valTopWinner').textContent  = stats.topWinner  || '—';
   } catch(e) {
     ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '—');
   }
 
-  // Refresh scores and recent plays
   if (selectedPlayers.length > 0) updateScores();
   allSessions = []; shownCount = 0; loadRecentPlays();
 }
 
-// ─── DYNAMIC EXTRA FIELDS ─────────────────────────────────
+// ─── EXTRA FIELDS ─────────────────────────────────────────
 function buildExtraFields(game) {
   const fields = game?.extraFields || [];
-  const renderableFields = fields.filter(f => !f.winCondition && f.label);
+  const renderableFields = fields.filter(f => !f.winCondition && !f.scorepad && !f.theme && f.label);
   if (renderableFields.length === 0) return;
 
-  const section = document.getElementById('sectionExtra');
+  const section   = document.getElementById('sectionExtra');
   const container = document.getElementById('extraFields');
-  const title = document.getElementById('extraTitle');
-
-  title.textContent = `${shortenGame(game.name)} Details`;
+  document.getElementById('extraTitle').textContent = `${shortenGame(game.name)} Details`;
   container.innerHTML = '';
   extraMultiSelects = {};
 
-  // Use renderableFields with its own index so multiselect lookups work correctly
   renderableFields.forEach((field, idx) => {
     const safeKey = fieldKey(field.label);
     const div = document.createElement('div');
     div.className = 'field';
 
     if (field.type === 'dropdown') {
-      div.innerHTML = `
-        <label>${field.label}</label>
+      div.innerHTML = `<label>${field.label}</label>
         <select id="extra-${safeKey}">
           <option value="">Select…</option>
           ${field.options.map(o => `<option>${o}</option>`).join('')}
         </select>`;
-
     } else if (field.type === 'multiselect') {
       extraMultiSelects[safeKey] = [];
-      div.innerHTML = `
-        <label>${field.label}</label>
+      div.innerHTML = `<label>${field.label}</label>
         <div class="chip-container" id="extra-chips-${safeKey}"
              onclick="openExtraMultiSelect('${safeKey}', '${field.label}', ${idx})">
           <span class="chip-placeholder" id="extra-ph-${safeKey}">Select…</span>
         </div>`;
-
     } else if (field.type === 'text') {
-      div.innerHTML = `
-        <label>${field.label}</label>
-        <input type="text" id="extra-${safeKey}" placeholder="">`;
-
+      div.innerHTML = `<label>${field.label}</label><input type="text" id="extra-${safeKey}" placeholder="">`;
     } else if (field.type === 'number') {
-      div.innerHTML = `
-        <label>${field.label}</label>
-        <input type="number" id="extra-${safeKey}" placeholder="">`;
+      div.innerHTML = `<label>${field.label}</label><input type="number" id="extra-${safeKey}" placeholder="">`;
     }
-
     container.appendChild(div);
   });
-
   section.style.display = 'block';
 }
 
-function fieldKey(label) {
-  return label.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-}
+function fieldKey(label) { return label.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase(); }
 
-// ─── MULTI-SELECT (players + dynamic extra fields) ─────────
+// ─── MULTI-SELECT ─────────────────────────────────────────
 function openMultiSelect(type) {
-  currentDropdown = type;
-  currentDropdownField = null;
-  const title = document.getElementById('dropdownTitle');
-  title.textContent = 'Select Players';
+  currentDropdown = type; currentDropdownField = null;
+  document.getElementById('dropdownTitle').textContent = 'Select Players';
   renderDropdownOptions(allPlayers, selectedPlayers);
   document.getElementById('dropdownOverlay').classList.add('open');
 }
 
 function openExtraMultiSelect(safeKey, label, fieldIdx) {
-  currentDropdown = 'extra';
-  currentDropdownField = safeKey;
+  currentDropdown = 'extra'; currentDropdownField = safeKey;
   document.getElementById('dropdownTitle').textContent = label;
-  // Use renderableFields so index matches what buildExtraFields used
-  const renderableFields = (currentGameData?.extraFields || []).filter(f => !f.winCondition && f.label);
+  const renderableFields = (currentGameData?.extraFields || []).filter(f => !f.winCondition && !f.scorepad && !f.theme && f.label);
   const field = renderableFields[fieldIdx];
   renderDropdownOptions(field.options, extraMultiSelects[safeKey] || []);
   document.getElementById('dropdownOverlay').classList.add('open');
@@ -671,7 +765,7 @@ function renderDropdownOptions(items, selected) {
       const arr = currentDropdown === 'players' ? selectedPlayers : extraMultiSelects[currentDropdownField];
       const idx = arr.indexOf(item);
       if (idx > -1) { arr.splice(idx, 1); div.classList.remove('selected'); div.querySelector('.check').textContent = ''; }
-      else { arr.push(item); div.classList.add('selected'); div.querySelector('.check').textContent = '✓'; }
+      else           { arr.push(item);    div.classList.add('selected');    div.querySelector('.check').textContent = '✓'; }
     };
     container.appendChild(div);
   });
@@ -679,14 +773,9 @@ function renderDropdownOptions(items, selected) {
 
 function closeMultiSelect() {
   document.getElementById('dropdownOverlay').classList.remove('open');
-  if (currentDropdown === 'players') {
-    renderPlayerChips();
-    updateScores();
-  } else if (currentDropdown === 'extra' && currentDropdownField) {
-    renderExtraChips(currentDropdownField);
-  }
-  currentDropdown = null;
-  currentDropdownField = null;
+  if (currentDropdown === 'players') { renderPlayerChips(); updateScores(); }
+  else if (currentDropdown === 'extra' && currentDropdownField) renderExtraChips(currentDropdownField);
+  currentDropdown = null; currentDropdownField = null;
 }
 
 function closeDropdownIfOutside(e) {
@@ -728,8 +817,7 @@ function renderExtraChips(safeKey) {
 function removePlayer(e, value) {
   e.stopPropagation();
   selectedPlayers = selectedPlayers.filter(p => p !== value);
-  renderPlayerChips();
-  updateScores();
+  renderPlayerChips(); updateScores();
 }
 
 function removeExtraChip(e, safeKey, value) {
@@ -738,6 +826,14 @@ function removeExtraChip(e, safeKey, value) {
   renderExtraChips(safeKey);
 }
 
+// ─── WIN CONDITIONS ───────────────────────────────────────
+function getWinCondition() {
+  const fields = currentGameData?.extraFields || [];
+  const wc = fields.find(f => f.winCondition);
+  if (wc) return wc.winCondition;
+  if (currentGameData?.coop) return 'winlose';
+  return 'score';
+}
 
 function getScorepad() {
   const fields = currentGameData?.extraFields || [];
@@ -745,12 +841,568 @@ function getScorepad() {
   return sp ? sp.scorepad : null;
 }
 
+// ─── SCORES ───────────────────────────────────────────────
+function updateScores() {
+  const resultSection = document.getElementById('resultSection');
+  const container     = document.getElementById('scoresContainer');
+  const winnerField   = document.getElementById('fieldWinner');
+
+  if (selectedPlayers.length === 0) { resultSection.style.display = 'none'; return; }
+
+  resultSection.style.display = 'block';
+  container.innerHTML = '';
+  winnerField.value = '';
+  winnerField.style.display = '';
+  winnerField.readOnly = true;
+
+  const wc = getWinCondition();
+
+  if (wc === 'winlose') {
+    container.innerHTML = `
+      <div class="winlose-toggle" style="grid-column:1/-1">
+        <div class="winlose-btn win"  id="btnWin"  onclick="setWinLose('Win')">🏆 Win</div>
+        <div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Loss')">💀 Loss</div>
+      </div>`;
+    winnerField.placeholder = 'Select Win or Loss…';
+
+  } else if (wc === 'manual') {
+    container.innerHTML = `
+      <div class="field" style="grid-column:1/-1;margin-bottom:0">
+        <select id="manualWinner" onchange="document.getElementById('fieldWinner').value=this.value">
+          <option value="">Select winner…</option>
+          ${selectedPlayers.map(p => `<option>${p}</option>`).join('')}
+        </select>
+      </div>`;
+    winnerField.style.display = 'none';
+    return;
+
+  } else {
+    const scorepad = getScorepad();
+    if (scorepad) {
+      const wrap = document.createElement('div');
+      wrap.className = 'scorepad-wrap'; wrap.style.gridColumn = '1 / -1';
+      const table = document.createElement('table');
+      table.className = 'scorepad'; table.id = 'scorepadTable';
+      const thead = document.createElement('thead');
+      const hrow  = document.createElement('tr');
+      hrow.innerHTML = `<th class="category-col">Category</th>` +
+        selectedPlayers.map(p => `<th>${p.split(' ')[0]}</th>`).join('');
+      thead.appendChild(hrow); table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      scorepad.forEach(cat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="category-label">${cat}</td>` +
+          selectedPlayers.map(p => {
+            const sid = `sp-${p.replace(/\s/g,'_')}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
+            return `<td><input type="number" id="${sid}" placeholder="—" oninput="autoWinnerScorepad()"></td>`;
+          }).join('');
+        tbody.appendChild(tr);
+      });
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'total-row';
+      totalRow.innerHTML = `<td class="category-label">Total</td>` +
+        selectedPlayers.map(p => `<td class="total-val" id="sp-total-${p.replace(/\s/g,'_')}">0</td>`).join('');
+      tbody.appendChild(totalRow);
+      table.appendChild(tbody); wrap.appendChild(table); container.appendChild(wrap);
+      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest total)…' : 'Auto-filled from totals…';
+    } else {
+      selectedPlayers.forEach(player => {
+        const cell = document.createElement('div');
+        cell.className = 'score-cell';
+        const sid = `score-${player.replace(/\s/g,'_')}`;
+        cell.innerHTML = `
+          <div class="score-cell-name">${player}</div>
+          <input type="number" id="${sid}" placeholder="—" oninput="autoWinner()">`;
+        container.appendChild(cell);
+      });
+      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest score)…' : 'Auto-filled from scores…';
+    }
+  }
+}
+
+function setWinLose(result) {
+  document.getElementById('btnWin').classList.toggle('active',  result === 'Win');
+  document.getElementById('btnLose').classList.toggle('active', result === 'Loss');
+  document.getElementById('fieldWinner').value = result;
+}
+
+function autoWinner() {
+  const wc = getWinCondition();
+  if (wc === 'winlose' || wc === 'manual') return;
+  const scores = {};
+  selectedPlayers.forEach(p => {
+    const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
+    if (val !== '' && val !== undefined) scores[p] = parseFloat(val);
+  });
+  const filled = Object.entries(scores).filter(([,v]) => !isNaN(v));
+  if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
+  const best    = wc === 'lowest' ? Math.min(...filled.map(([,v]) => v)) : Math.max(...filled.map(([,v]) => v));
+  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
+  document.getElementById('fieldWinner').value = winners.length === 1 ? winners[0] : `TIE! ${winners.join(', ')}`;
+}
+
+function autoWinnerScorepad() {
+  const wc      = getWinCondition();
+  const scorepad = getScorepad();
+  if (!scorepad) return;
+  const totals = {};
+  selectedPlayers.forEach(p => {
+    const safeP = p.replace(/\s/g,'_');
+    let sum = 0;
+    scorepad.forEach(cat => {
+      const val = parseFloat(document.getElementById(`sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`)?.value || '0');
+      if (!isNaN(val)) sum += val;
+    });
+    totals[p] = sum;
+    const tc = document.getElementById(`sp-total-${safeP}`);
+    if (tc) tc.textContent = sum;
+  });
+  const filled  = Object.entries(totals);
+  const best    = wc === 'lowest' ? Math.min(...filled.map(([,v]) => v)) : Math.max(...filled.map(([,v]) => v));
+  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
+  document.getElementById('fieldWinner').value = winners.length === 1 ? winners[0] : `TIE! ${winners.join(', ')}`;
+}
+
+// ─── SUBMIT SESSION ───────────────────────────────────────
+async function submitForm() {
+  const game = document.getElementById('fieldGame').value;
+  if (!game) { showStatus('Please select a game.', true); return; }
+  if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
+  const winner = document.getElementById('fieldWinner').value;
+  const wc     = getWinCondition();
+  if (!winner) {
+    if (wc === 'winlose') { showStatus('Please select Win or Loss.', true); return; }
+    if (wc === 'manual')  { showStatus('Please select a winner.', true); return; }
+    showStatus('Please enter scores to determine a winner.', true); return;
+  }
+
+  const scores      = {};
+  const scorepadCats = getScorepad();
+  if (scorepadCats) {
+    selectedPlayers.forEach(p => {
+      const safeP = p.replace(/\s/g,'_');
+      const breakdown = {};
+      scorepadCats.forEach(cat => {
+        const val = document.getElementById(`sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`)?.value;
+        if (val) breakdown[cat] = val;
+      });
+      const total = document.getElementById(`sp-total-${safeP}`)?.textContent || '0';
+      scores[p] = JSON.stringify({ ...breakdown, Total: total });
+    });
+  } else if (wc === 'score' || wc === 'lowest') {
+    selectedPlayers.forEach(p => {
+      const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
+      if (val) scores[p] = val;
+    });
+  }
+
+  const extras = {};
+  const fields = currentGameData?.extraFields || [];
+  fields.forEach(field => {
+    if (!field.label) return;
+    const safeKey = fieldKey(field.label);
+    extras[field.label] = field.type === 'multiselect'
+      ? (extraMultiSelects[safeKey] || []).join(', ')
+      : (document.getElementById(`extra-${safeKey}`)?.value || '');
+  });
+
+  const payload = {
+    date: document.getElementById('fieldDate').value,
+    game, players: selectedPlayers.join(', '),
+    scores: JSON.stringify(scores), winner,
+    extras: JSON.stringify(extras),
+    lastPlayed: document.getElementById('valLastPlayed').textContent,
+    totalPlays: document.getElementById('valTotalPlays').textContent,
+    topWinner:  document.getElementById('valTopWinner').textContent,
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res    = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showStatus('✅ Session saved!', false, true);
+      resetLogForm();
+      allSessions = []; shownCount = 0; loadRecentPlays();
+    } else throw new Error(result.message);
+  } catch(e) {
+    showStatus(`Error: ${e.message}`, true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit Session';
+  }
+}
+
+function resetLogForm() {
+  document.getElementById('fieldGame').value = '';
+  document.getElementById('fieldWinner').value = '';
+  document.getElementById('fieldWinner').style.display = '';
+  document.getElementById('fieldWinner').readOnly = true;
+  selectedPlayers = []; extraMultiSelects = {};
+  renderPlayerChips();
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('sectionStats').style.display = 'none';
+  document.getElementById('sectionExtra').style.display = 'none';
+  document.getElementById('recentSection').style.display = 'none';
+  currentGameData = null; applyTheme(null); setBackgroundImage('');
+}
+
+// ─── STATUS ───────────────────────────────────────────────
+function showStatus(msg, isError = false, isSuccess = false) {
+  const el = document.getElementById('statusBanner');
+  el.textContent = msg;
+  el.className = 'status-banner visible' + (isError ? ' error' : '') + (isSuccess ? ' success' : '');
+  if (!isError) setTimeout(() => el.classList.remove('visible'), 4000);
+}
+
+// ─── RECENT PLAYS ─────────────────────────────────────────
+let allSessions = [], shownCount = 0;
+const PAGE_SIZE = 5;
+
+async function loadRecentPlays() {
+  const gameName = document.getElementById('fieldGame').value;
+  if (!gameName) { document.getElementById('recentSection').style.display = 'none'; return; }
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
+    const data = await res.json();
+    allSessions = data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    shownCount  = 0;
+    renderRecentPlays();
+  } catch(e) {}
+}
+
+function renderRecentPlays() {
+  const section      = document.getElementById('recentSection');
+  const table        = document.getElementById('recentTable');
+  const loadMoreWrap = document.getElementById('loadMoreWrap');
+  if (allSessions.length === 0) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  document.getElementById('recentTitle').textContent =
+    `Previous Plays — ${shortenGame(document.getElementById('fieldGame').value)}`;
+
+  const toShow = allSessions.slice(0, shownCount + PAGE_SIZE);
+  shownCount   = toShow.length;
+  table.innerHTML = '';
+
+  const header = document.createElement('tr');
+  header.className = 'recent-header';
+  header.innerHTML = '<td>Date</td><td>Winner</td><td class="recent-score">Score</td>';
+  table.appendChild(header);
+
+  toShow.forEach((s, idx) => {
+    const row = document.createElement('tr');
+    row.className = 'recent-row';
+    row.innerHTML = `
+      <td class="recent-date">${s.date ? formatDate(s.date) : '—'}</td>
+      <td class="recent-winner">${s.winner || '—'}</td>
+      <td class="recent-score">${getWinnerScore(s) || '—'}</td>`;
+
+    const detailRow  = document.createElement('tr');
+    detailRow.className = 'detail-row';
+    const detailTd   = document.createElement('td');
+    detailTd.colSpan = 3;
+    const detailInner = document.createElement('div');
+    detailInner.className = 'detail-inner';
+    detailInner.id        = `detail-${idx}`;
+    detailInner.innerHTML = buildSessionDetail(s);
+    detailTd.appendChild(detailInner);
+    detailRow.appendChild(detailTd);
+
+    row.onclick = () => {
+      const isOpen = detailInner.classList.contains('open');
+      document.querySelectorAll('.detail-inner.open').forEach(el => el.classList.remove('open'));
+      if (!isOpen) detailInner.classList.add('open');
+    };
+
+    table.appendChild(row);
+    table.appendChild(detailRow);
+  });
+
+  loadMoreWrap.style.display = shownCount < allSessions.length ? 'block' : 'none';
+}
+
+function buildSessionDetail(s) {
+  const game     = allGames.find(g => g.name === s.game);
+  const scorepad = (game?.extraFields || []).find(f => f.scorepad)?.scorepad || null;
+  const players  = s.players ? s.players.split(', ') : [];
+  let html = '';
+
+  if (players.length > 0) {
+    html += `<div class="detail-section-label">Players</div>
+    <div class="detail-players">
+      ${players.map(p => {
+        const isWinner = s.winner && !s.winner.startsWith('TIE!') && p === s.winner;
+        return `<span class="detail-player-chip${isWinner ? ' winner' : ''}">${p}${isWinner ? ' 🏆' : ''}</span>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if (s.scores) {
+    try {
+      const scoresObj = JSON.parse(s.scores);
+      if (scorepad) {
+        html += `<div class="detail-section-label">Scores</div>
+        <table class="detail-scorepad"><thead><tr>
+          <th>Category</th>${players.map(p => `<th>${p.split(' ')[0]}</th>`).join('')}
+        </tr></thead><tbody>`;
+        scorepad.forEach(cat => {
+          html += `<tr><td>${cat}</td>`;
+          players.forEach(p => {
+            let val = '—';
+            try {
+              const pScore = scoresObj[p];
+              const bd = typeof pScore === 'string' && pScore.startsWith('{') ? JSON.parse(pScore) : pScore;
+              val = bd?.[cat] ?? '—';
+            } catch(e) {}
+            html += `<td>${val}</td>`;
+          });
+          html += `</tr>`;
+        });
+        html += `<tr class="detail-total"><td>Total</td>`;
+        players.forEach(p => {
+          let total = '—';
+          try {
+            const pScore = scoresObj[p];
+            const bd = typeof pScore === 'string' && pScore.startsWith('{') ? JSON.parse(pScore) : null;
+            total = bd?.Total ?? '—';
+          } catch(e) {}
+          html += `<td>${total}</td>`;
+        });
+        html += `</tr></tbody></table>`;
+      } else if (s.winner === 'Win' || s.winner === 'Loss') {
+        // no scores for win/lose
+      } else {
+        html += `<div class="detail-section-label">Scores</div><div class="detail-extras">`;
+        players.forEach(p => { html += `<div><span>${p}:</span>${scoresObj[p] ?? '—'}</div>`; });
+        html += `</div>`;
+      }
+    } catch(e) {}
+  }
+
+  if (s.extras) {
+    try {
+      const extras = JSON.parse(s.extras);
+      const keys   = Object.keys(extras).filter(k => extras[k]);
+      if (keys.length > 0) {
+        html += `<div class="detail-section-label">Details</div><div class="detail-extras">`;
+        keys.forEach(k => { html += `<div><span>${k}:</span>${extras[k]}</div>`; });
+        html += `</div>`;
+      }
+    } catch(e) {}
+  }
+
+  return html || '<div style="color:var(--text-faint);font-size:12px">No details recorded.</div>';
+}
+
+function loadMore(e) { e.preventDefault(); renderRecentPlays(); }
+
+function getWinnerScore(session) {
+  if (!session.scores || !session.winner) return '';
+  if (session.winner.startsWith('TIE!') || session.winner === 'N/A') return '';
+  try {
+    const scores = JSON.parse(session.scores);
+    const val    = scores[session.winner];
+    if (val === undefined) return '';
+    if (typeof val === 'string' && val.startsWith('{')) {
+      const bd = JSON.parse(val);
+      return bd.Total !== undefined ? bd.Total : '';
+    }
+    return val;
+  } catch(e) { return ''; }
+}
+
+// ─── LIBRARY ──────────────────────────────────────────────
+function populateTypeFilter() {
+  const types = [...new Set(allLibrary.map(g => g.gameType).filter(Boolean))].sort();
+  const sel   = document.getElementById('filterType');
+  types.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+function applyLibraryFilters() {
+  const players    = document.getElementById('filterPlayers').value;
+  const type       = document.getElementById('filterType').value;
+  const complexity = document.getElementById('filterComplexity').value;
+
+  let filtered = allLibrary;
+
+  if (players) {
+    const n = parseInt(players);
+    filtered = filtered.filter(g => {
+      const min = parseInt(g.minPlayers) || 1;
+      const max = parseInt(g.maxPlayers) || 99;
+      if (n === 5) return max >= 5;
+      return min <= n && max >= n;
+    });
+  }
+
+  if (type) filtered = filtered.filter(g => g.gameType === type);
+
+  if (complexity) {
+    const c = parseInt(complexity);
+    filtered = filtered.filter(g => {
+      const w = parseFloat(g.complexity) || 0;
+      if (c === 1) return w > 0 && w <= 2;
+      if (c === 2) return w > 2 && w <= 3;
+      if (c === 3) return w > 3;
+      return true;
+    });
+  }
+
+  renderLibraryCards(filtered);
+}
+
+function renderLibrary() {
+  document.getElementById('filterPlayers').value    = '';
+  document.getElementById('filterType').value       = '';
+  document.getElementById('filterComplexity').value = '';
+  renderLibraryCards(allLibrary);
+}
+
+function renderLibraryCards(games) {
+  const container = document.getElementById('libraryCards');
+  const countEl   = document.getElementById('libraryCount');
+
+  countEl.textContent = games.length === 0
+    ? 'No games match your filters'
+    : `${games.length} game${games.length !== 1 ? 's' : ''}`;
+
+  if (games.length === 0) {
+    container.innerHTML = `<div class="library-empty">No games found.<br>Try adjusting your filters.</div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  games.forEach(game => {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+
+    const artHtml = game.imageUrl
+      ? `<div class="card-art"><img src="${game.imageUrl}" alt="${game.name}" onerror="this.parentElement.innerHTML='🎲'"></div>`
+      : `<div class="card-art">🎲</div>`;
+
+    const players = game.minPlayers && game.maxPlayers
+      ? (game.minPlayers === game.maxPlayers ? `${game.minPlayers}p` : `${game.minPlayers}–${game.maxPlayers}p`)
+      : game.maxPlayers ? `Up to ${game.maxPlayers}p` : '';
+
+    const complexity = game.complexity ? parseFloat(game.complexity).toFixed(1) : null;
+
+    const dots = complexity ? Array.from({length:5}, (_,i) =>
+      `<div class="dot${i < Math.round(parseFloat(complexity)) ? ' filled' : ''}"></div>`
+    ).join('') : '';
+
+    card.innerHTML = `
+      ${artHtml}
+      <div class="card-body">
+        <div class="card-name">${game.name}</div>
+        ${game.description ? `<div class="card-desc">${game.description}</div>` : ''}
+        <div class="card-stats">
+          ${players    ? `<div class="card-stat">👥 <span class="card-stat-accent">${players}</span></div>` : ''}
+          ${game.gameType ? `<div class="card-stat">${game.gameType}</div>` : ''}
+          ${complexity ? `<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>` : ''}
+          ${game.coop  ? `<div class="card-stat">🤝 Co-op</div>` : ''}
+        </div>
+      </div>`;
+
+    container.appendChild(card);
+  });
+}
+
+// ─── ADD A GAME ───────────────────────────────────────────
+function setWeight(n) {
+  selectedWeight = n;
+  document.getElementById('addComplexity').value = n;
+  document.querySelectorAll('.weight-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i + 1 === n);
+  });
+}
+
+async function submitAddGame() {
+  const name = document.getElementById('addName').value.trim();
+  if (!name) { showAddStatus('Please enter a game name.', true); return; }
+
+  const payload = {
+    name,
+    gameType:    document.getElementById('addType').value.trim(),
+    description: document.getElementById('addDesc').value.trim(),
+    minPlayers:  document.getElementById('addMinPlayers').value,
+    maxPlayers:  document.getElementById('addMaxPlayers').value,
+    complexity:  document.getElementById('addComplexity').value,
+    imageUrl:    document.getElementById('addImageUrl').value.trim(),
+    coop:        document.getElementById('addCoop').checked ? 'TRUE' : 'FALSE',
+  };
+
+  const btn = document.getElementById('addGameBtn');
+  btn.disabled = true; btn.textContent = 'Adding…';
+
+  try {
+    const res    = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'addGame', ...payload })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showAddStatus('✅ Game added!', false, true);
+      // Reload config to pick up new game in dropdowns and library
+      await loadFromSheet();
+      populateTypeFilter();
+      resetAddForm();
+    } else throw new Error(result.message);
+  } catch(e) {
+    showAddStatus(`Error: ${e.message}`, true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add to Library';
+  }
+}
+
+function resetAddForm() {
+  ['addName','addType','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('addCoop').checked = false;
+  document.getElementById('addComplexity').value = '';
+  selectedWeight = null;
+  document.querySelectorAll('.weight-btn').forEach(btn => btn.classList.remove('selected'));
+}
+
+function showAddStatus(msg, isError = false, isSuccess = false) {
+  const el = document.getElementById('addGameStatus');
+  el.textContent = msg;
+  el.className = 'status-banner visible' + (isError ? ' error' : '') + (isSuccess ? ' success' : '');
+  if (!isError) setTimeout(() => el.classList.remove('visible'), 4000);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+function shortenGame(name) {
+  if (!name) return '';
+  if (name.startsWith('SETI')) return 'SETI';
+  if (name.length > 16) return name.substring(0, 15) + '…';
+  return name;
+}
+
+// ─── BACKGROUND ART ───────────────────────────────────────
+function setBackgroundImage(url) {
+  const el = document.getElementById('bgArt');
+  if (!url) { el.classList.remove('visible'); setTimeout(() => { el.style.backgroundImage = ''; }, 800); return; }
+  const img = new Image();
+  img.onload  = () => { el.style.backgroundImage = `url('${url}')`; el.classList.add('visible'); };
+  img.onerror = () => { el.classList.remove('visible'); };
+  img.src = url;
+}
+
 // ─── THEME ────────────────────────────────────────────────
 function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  return {r, g, b};
+  return { r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) };
 }
 
 function rgbToHsl(r, g, b) {
@@ -772,28 +1424,16 @@ function rgbToHsl(r, g, b) {
 
 function hslToRgb(h, s, l) {
   h /= 360; s /= 100; l /= 100;
-  let r, g, b;
-  if (s === 0) { r = g = b = l; }
-  else {
-    const q = l < 0.5 ? l*(1+s) : l+s-l*s;
-    const p = 2*l-q;
-    const hue2rgb = (p,q,t) => {
-      if (t<0) t+=1; if (t>1) t-=1;
-      if (t<1/6) return p+(q-p)*6*t;
-      if (t<1/2) return q;
-      if (t<2/3) return p+(q-p)*(2/3-t)*6;
-      return p;
-    };
-    r = hue2rgb(p,q,h+1/3);
-    g = hue2rgb(p,q,h);
-    b = hue2rgb(p,q,h-1/3);
-  }
-  return { r: Math.round(r*255), g: Math.round(g*255), b: Math.round(b*255) };
-}
-
-function complementaryHsl(h, s, l) {
-  // Rotate hue 180°, boost saturation slightly, keep lightness similar
-  return { h: (h + 180) % 360, s: Math.min(100, s * 1.1), l };
+  if (s === 0) { const v = Math.round(l*255); return {r:v,g:v,b:v}; }
+  const q = l < 0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+  const hue2rgb = (p,q,t) => {
+    if (t<0) t+=1; if (t>1) t-=1;
+    if (t<1/6) return p+(q-p)*6*t;
+    if (t<1/2) return q;
+    if (t<2/3) return p+(q-p)*(2/3-t)*6;
+    return p;
+  };
+  return { r: Math.round(hue2rgb(p,q,h+1/3)*255), g: Math.round(hue2rgb(p,q,h)*255), b: Math.round(hue2rgb(p,q,h-1/3)*255) };
 }
 
 function applyTheme(primaryHex) {
@@ -801,38 +1441,26 @@ function applyTheme(primaryHex) {
   const VARS = ['--accent','--accent-dark','--bg-base','--bg-section','--bg-input',
                 '--border','--border-dark','--stat-label','--detail-bg','--scorepad-hd',
                 '--text-primary','--text-secondary','--text-muted','--text-faint'];
-  if (!primaryHex) {
-    VARS.forEach(v => root.style.removeProperty(v));
-    return;
-  }
+  if (!primaryHex) { VARS.forEach(v => root.style.removeProperty(v)); return; }
 
-  const {r,g,b}   = hexToRgb(primaryHex);
-  const clamp      = v => Math.min(255, Math.max(0, Math.round(v)));
-  const rgb        = (r,g,b) => `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
+  const {r,g,b} = hexToRgb(primaryHex);
+  const clamp   = v => Math.min(255, Math.max(0, Math.round(v)));
+  const rgb     = (r,g,b) => `rgb(${clamp(r)},${clamp(g)},${clamp(b)})`;
 
-  // Accent — lightened version of the primary colour
-  const hsl      = rgbToHsl(r, g, b);
-  const accHsl   = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(80, Math.max(60, hsl.l + 20)));
-  const accDark  = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(65, Math.max(45, hsl.l + 5)));
+  const hsl    = rgbToHsl(r, g, b);
+  const accHsl = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(80, Math.max(60, hsl.l + 20)));
+  const accDrk = hslToRgb(hsl.h, Math.min(100, hsl.s * 1.1), Math.min(65, Math.max(45, hsl.l + 5)));
 
   root.style.setProperty('--accent',      rgb(accHsl.r, accHsl.g, accHsl.b));
-  root.style.setProperty('--accent-dark', rgb(accDark.r, accDark.g, accDark.b));
-
-  // Backgrounds — very dark tint of primary
-  root.style.setProperty('--bg-base',    rgb(r*0.10, g*0.10, b*0.10));
-  root.style.setProperty('--bg-section', rgb(r*0.16, g*0.16, b*0.16));
-  root.style.setProperty('--bg-input',   rgb(r*0.22, g*0.22, b*0.22));
-
-  // Borders — derived from primary colour only
+  root.style.setProperty('--accent-dark', rgb(accDrk.r, accDrk.g, accDrk.b));
+  root.style.setProperty('--bg-base',     rgb(r*0.10, g*0.10, b*0.10));
+  root.style.setProperty('--bg-section',  rgb(r*0.16, g*0.16, b*0.16));
+  root.style.setProperty('--bg-input',    rgb(r*0.22, g*0.22, b*0.22));
   root.style.setProperty('--border',      rgb(r*0.35, g*0.35, b*0.35));
   root.style.setProperty('--border-dark', rgb(r*0.22, g*0.22, b*0.22));
-
-  // Supporting tones
   root.style.setProperty('--stat-label',  rgb(clamp(120+r*0.18), clamp(145+g*0.18), clamp(145+b*0.18)));
   root.style.setProperty('--detail-bg',   rgb(r*0.12, g*0.12, b*0.12));
   root.style.setProperty('--scorepad-hd', rgb(r*0.08, g*0.08, b*0.08));
-
-  // Text — always light, safe to read
   root.style.setProperty('--text-primary',   rgb(230, 230, 230));
   root.style.setProperty('--text-secondary', rgb(clamp(195+r*0.05), clamp(210+g*0.05), clamp(210+b*0.05)));
   root.style.setProperty('--text-muted',     rgb(clamp(155+r*0.12), clamp(175+g*0.12), clamp(175+b*0.12)));
@@ -844,504 +1472,6 @@ function getGameTheme(game) {
   const t = fields.find(f => f.theme);
   return t ? t.theme : null;
 }
-
-
-// ─── SCORES & WIN CONDITIONS ──────────────────────────────
-// winCondition: 'score' (default) | 'lowest' | 'winlose' | 'manual'
-function getWinCondition() {
-  const fields = currentGameData?.extraFields || [];
-  const wc = fields.find(f => f.winCondition);
-  if (wc) return wc.winCondition;
-  if (currentGameData?.coop) return 'winlose'; // coop default
-  return 'score';
-}
-
-function updateScores() {
-  const resultSection = document.getElementById('resultSection');
-  const container = document.getElementById('scoresContainer');
-  const winnerField = document.getElementById('fieldWinner');
-
-  if (selectedPlayers.length === 0) { resultSection.style.display = 'none'; return; }
-
-  resultSection.style.display = 'block';
-  container.innerHTML = '';
-  winnerField.value = '';
-
-  const wc = getWinCondition();
-
-  if (wc === 'winlose') {
-    // Win/Lose toggle — no scores, no individual winner
-    container.innerHTML = `
-      <div class="winlose-toggle" style="grid-column:1/-1">
-        <div class="winlose-btn win" id="btnWin" onclick="setWinLose('Win')">🏆 Win</div>
-        <div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Loss')">💀 Loss</div>
-      </div>`;
-    winnerField.placeholder = 'Select Win or Loss…';
-
-  } else if (wc === 'manual') {
-    // No scores — just pick winner from players
-    winnerField.readOnly = false;
-    winnerField.placeholder = '';
-    // Populate as a select... but fieldWinner is an input. Render a select instead.
-    container.innerHTML = `
-      <div class="field" style="grid-column:1/-1;margin-bottom:0">
-        <label>Winner</label>
-        <select id="manualWinner" onchange="document.getElementById('fieldWinner').value=this.value">
-          <option value="">Select winner…</option>
-          ${selectedPlayers.map(p => `<option>${p}</option>`).join('')}
-        </select>
-      </div>`;
-    winnerField.style.display = 'none';
-    return; // skip the winner field below
-
-  } else {
-    const scorepad = getScorepad();
-    if (scorepad) {
-      // Scorepad table — categories × players
-      container.style.display = 'block';
-      const wrap = document.createElement('div');
-      wrap.className = 'scorepad-wrap';
-      wrap.style.gridColumn = '1 / -1';
-
-      const table = document.createElement('table');
-      table.className = 'scorepad';
-      table.id = 'scorepadTable';
-
-      // Header row — player names
-      const thead = document.createElement('thead');
-      const hrow = document.createElement('tr');
-      hrow.innerHTML = `<th class="category-col">Category</th>` +
-        selectedPlayers.map(p => `<th>${p.split(' ')[0]}</th>`).join('');
-      thead.appendChild(hrow);
-      table.appendChild(thead);
-
-      // Category rows
-      const tbody = document.createElement('tbody');
-      scorepad.forEach(cat => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="category-label">${cat}</td>` +
-          selectedPlayers.map(p => {
-            const safeId = `sp-${p.replace(/\s/g,'_')}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
-            return `<td><input type="number" id="${safeId}" placeholder="—" oninput="autoWinnerScorepad()"></td>`;
-          }).join('');
-        tbody.appendChild(tr);
-      });
-
-      // Total row
-      const totalRow = document.createElement('tr');
-      totalRow.className = 'total-row';
-      totalRow.innerHTML = `<td class="category-label">Total</td>` +
-        selectedPlayers.map(p => {
-          const safeP = p.replace(/\s/g,'_');
-          return `<td class="total-val" id="sp-total-${safeP}">0</td>`;
-        }).join('');
-      tbody.appendChild(totalRow);
-
-      table.appendChild(tbody);
-      wrap.appendChild(table);
-      container.appendChild(wrap);
-      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest total)…' : 'Auto-filled from totals…';
-
-    } else {
-      // Standard per-player score boxes
-      selectedPlayers.forEach(player => {
-        const cell = document.createElement('div');
-        cell.className = 'score-cell';
-        const safeId = `score-${player.replace(/\s/g,'_')}`;
-        cell.innerHTML = `
-          <div class="score-cell-name">${player}</div>
-          <input type="number" id="${safeId}" placeholder="—" oninput="autoWinner()">`;
-        container.appendChild(cell);
-      });
-      winnerField.placeholder = wc === 'lowest' ? 'Auto-filled (lowest score)…' : 'Auto-filled from scores…';
-    }
-  }
-
-  winnerField.style.display = '';
-  winnerField.readOnly = true;
-}
-
-function setWinLose(result) {
-  document.getElementById('btnWin').classList.toggle('active', result === 'Win');
-  document.getElementById('btnLose').classList.toggle('active', result === 'Loss');
-  document.getElementById('fieldWinner').value = result;
-}
-
-function autoWinner() {
-  const wc = getWinCondition();
-  if (wc === 'winlose' || wc === 'manual') return;
-
-  const scores = {};
-  selectedPlayers.forEach(p => {
-    const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
-    if (val !== '' && val !== undefined) scores[p] = parseFloat(val);
-  });
-
-  const filled = Object.entries(scores).filter(([,v]) => !isNaN(v));
-  if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
-
-  const best = wc === 'lowest'
-    ? Math.min(...filled.map(([,v]) => v))
-    : Math.max(...filled.map(([,v]) => v));
-  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
-
-  document.getElementById('fieldWinner').value = winners.length === 1
-    ? winners[0]
-    : `TIE! ${winners.join(', ')}`;
-}
-
-function autoWinnerScorepad() {
-  const wc = getWinCondition();
-  const scorepad = getScorepad();
-  if (!scorepad) return;
-
-  const totals = {};
-  selectedPlayers.forEach(p => {
-    const safeP = p.replace(/\s/g,'_');
-    let sum = 0;
-    scorepad.forEach(cat => {
-      const safeId = `sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
-      const val = parseFloat(document.getElementById(safeId)?.value || '0');
-      if (!isNaN(val)) sum += val;
-    });
-    totals[p] = sum;
-    const totalCell = document.getElementById(`sp-total-${safeP}`);
-    if (totalCell) totalCell.textContent = sum;
-  });
-
-  const filled = Object.entries(totals);
-  if (filled.length === 0) { document.getElementById('fieldWinner').value = ''; return; }
-
-  const best = wc === 'lowest'
-    ? Math.min(...filled.map(([,v]) => v))
-    : Math.max(...filled.map(([,v]) => v));
-  const winners = filled.filter(([,v]) => v === best).map(([p]) => p);
-  document.getElementById('fieldWinner').value = winners.length === 1
-    ? winners[0]
-    : `TIE! ${winners.join(', ')}`;
-}
-
-// ─── SUBMIT ───────────────────────────────────────────────
-async function submitForm() {
-  const game = document.getElementById('fieldGame').value;
-  if (!game) { showStatus('Please select a game.', true); return; }
-  if (selectedPlayers.length === 0) { showStatus('Please select at least one player.', true); return; }
-  const winner = document.getElementById('fieldWinner').value;
-  const wc = getWinCondition();
-  if (!winner) {
-    if (wc === 'winlose') { showStatus('Please select Win or Loss.', true); return; }
-    if (wc === 'manual')  { showStatus('Please select a winner.', true); return; }
-    showStatus('Please enter scores to determine a winner.', true); return;
-  }
-
-  const scores = {};
-  const wcSubmit = getWinCondition();
-  const scorepadCats = getScorepad();
-  if (scorepadCats) {
-    // Collect per-category scores and totals
-    selectedPlayers.forEach(p => {
-      const safeP = p.replace(/\s/g,'_');
-      const breakdown = {};
-      scorepadCats.forEach(cat => {
-        const safeId = `sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`;
-        const val = document.getElementById(safeId)?.value;
-        if (val) breakdown[cat] = val;
-      });
-      const total = document.getElementById(`sp-total-${safeP}`)?.textContent || '0';
-      scores[p] = JSON.stringify({ ...breakdown, Total: total });
-    });
-  } else if (wcSubmit === 'score' || wcSubmit === 'lowest') {
-    selectedPlayers.forEach(p => {
-      const val = document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;
-      if (val) scores[p] = val;
-    });
-  }
-
-  // Collect extra fields
-  const extras = {};
-  const fields = currentGameData?.extraFields || [];
-  fields.forEach(field => {
-    if (field.winCondition || !field.label) return;
-    const safeKey = fieldKey(field.label);
-    if (field.type === 'multiselect') {
-      extras[field.label] = (extraMultiSelects[safeKey] || []).join(', ');
-    } else {
-      const el = document.getElementById(`extra-${safeKey}`);
-      extras[field.label] = el ? el.value : '';
-    }
-  });
-
-  const payload = {
-    date: document.getElementById('fieldDate').value,
-    game,
-    players: selectedPlayers.join(', '),
-    scores: JSON.stringify(scores),
-    winner,
-    extras: JSON.stringify(extras),
-    lastPlayed: document.getElementById('valLastPlayed').textContent,
-    totalPlays: document.getElementById('valTotalPlays').textContent,
-    topWinner: document.getElementById('valTopWinner').textContent,
-  };
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-    const result = await res.json();
-    if (result.status === 'success') {
-      showStatus('✅ Session saved!', false, true);
-      resetForm();
-    } else throw new Error(result.message);
-  } catch(e) {
-    showStatus(`Error: ${e.message}`, true);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Submit Session';
-  }
-}
-
-function resetForm() {
-  document.getElementById('fieldGame').value = '';
-  document.getElementById('fieldWinner').value = '';
-  selectedPlayers = []; extraMultiSelects = {};
-  renderPlayerChips();
-  document.getElementById('resultSection').style.display = 'none';
-  document.getElementById('sectionStats').style.display = 'none';
-  document.getElementById('sectionExtra').style.display = 'none';
-  document.getElementById('recentSection').style.display = 'none';
-  currentGameData = null;
-  applyTheme(null);
-  document.getElementById('fieldWinner').style.display = '';
-  document.getElementById('fieldWinner').readOnly = true;
-  setBackgroundImage('');
-}
-
-// ─── STATUS ───────────────────────────────────────────────
-function showStatus(msg, isError = false, isSuccess = false) {
-  const el = document.getElementById('statusBanner');
-  el.textContent = msg;
-  el.className = 'status-banner visible' + (isError ? ' error' : '') + (isSuccess ? ' success' : '');
-  if (!isError) setTimeout(() => el.classList.remove('visible'), 4000);
-}
-
-// ─── RECENT PLAYS ─────────────────────────────────────────
-let allSessions = [], shownCount = 0;
-const PAGE_SIZE = 5;
-
-async function loadRecentPlays() {
-  const gameName = document.getElementById('fieldGame').value;
-  if (!gameName) { document.getElementById('recentSection').style.display = 'none'; return; }
-  try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
-    const data = await res.json();
-    allSessions = data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
-    shownCount = 0;
-    renderRecentPlays();
-  } catch(e) { /* silently fail */ }
-}
-
-function renderRecentPlays() {
-  const section = document.getElementById('recentSection');
-  const table = document.getElementById('recentTable');
-  const loadMoreWrap = document.getElementById('loadMoreWrap');
-
-  if (allSessions.length === 0) { section.style.display = 'none'; return; }
-
-  section.style.display = 'block';
-  document.getElementById('recentTitle').textContent =
-    `Previous Plays — ${shortenGame(document.getElementById('fieldGame').value)}`;
-
-  const toShow = allSessions.slice(0, shownCount + PAGE_SIZE);
-  shownCount = toShow.length;
-  table.innerHTML = '';
-
-  const header = document.createElement('tr');
-  header.className = 'recent-header';
-  header.innerHTML = '<td>Date</td><td>Winner</td><td class="recent-score">Score</td>';
-  table.appendChild(header);
-
-  toShow.forEach((s, idx) => {
-    // Summary row
-    const row = document.createElement('tr');
-    row.className = 'recent-row';
-    row.innerHTML = `
-      <td class="recent-date">${s.date ? formatDate(s.date) : '—'}</td>
-      <td class="recent-winner">${s.winner || '—'}</td>
-      <td class="recent-score">${getWinnerScore(s) || '—'}</td>`;
-
-    // Detail row (hidden until tapped)
-    const detailRow = document.createElement('tr');
-    detailRow.className = 'detail-row';
-    const detailTd = document.createElement('td');
-    detailTd.colSpan = 3;
-    const detailInner = document.createElement('div');
-    detailInner.className = 'detail-inner';
-    detailInner.id = `detail-${idx}`;
-    detailInner.innerHTML = buildSessionDetail(s);
-    detailTd.appendChild(detailInner);
-    detailRow.appendChild(detailTd);
-
-    // Toggle on tap
-    row.onclick = () => {
-      const isOpen = detailInner.classList.contains('open');
-      // Close all others
-      document.querySelectorAll('.detail-inner.open').forEach(el => el.classList.remove('open'));
-      if (!isOpen) detailInner.classList.add('open');
-    };
-
-    table.appendChild(row);
-    table.appendChild(detailRow);
-  });
-
-  loadMoreWrap.style.display = shownCount < allSessions.length ? 'block' : 'none';
-}
-
-function buildSessionDetail(s) {
-  const game = allGames.find(g => g.name === s.game);
-  const scorepad = (game?.extraFields || []).find(f => f.scorepad)?.scorepad || null;
-  const players = s.players ? s.players.split(', ') : [];
-  let html = '';
-
-  // Players with winner highlighted
-  if (players.length > 0) {
-    html += `<div class="detail-section-label">Players</div>
-    <div class="detail-players">
-      ${players.map(p => {
-        const isWinner = s.winner && !s.winner.startsWith('TIE!') && p === s.winner;
-        return `<span class="detail-player-chip${isWinner ? ' winner' : ''}">${p}${isWinner ? ' 🏆' : ''}</span>`;
-      }).join('')}
-    </div>`;
-  }
-
-  // Scores
-  if (s.scores) {
-    try {
-      const scoresObj = JSON.parse(s.scores);
-
-      if (scorepad) {
-        // Scorepad table
-        html += `<div class="detail-section-label">Scores</div>
-        <table class="detail-scorepad">
-          <thead><tr>
-            <th>Category</th>
-            ${players.map(p => `<th>${p.split(' ')[0]}</th>`).join('')}
-          </tr></thead>
-          <tbody>`;
-
-        scorepad.forEach(cat => {
-          html += `<tr><td>${cat}</td>`;
-          players.forEach(p => {
-            let val = '—';
-            try {
-              const pScore = scoresObj[p];
-              const breakdown = typeof pScore === 'string' && pScore.startsWith('{')
-                ? JSON.parse(pScore) : pScore;
-              val = breakdown?.[cat] ?? '—';
-            } catch(e) {}
-            html += `<td>${val}</td>`;
-          });
-          html += `</tr>`;
-        });
-
-        // Total row
-        html += `<tr class="detail-total"><td>Total</td>`;
-        players.forEach(p => {
-          let total = '—';
-          try {
-            const pScore = scoresObj[p];
-            const breakdown = typeof pScore === 'string' && pScore.startsWith('{')
-              ? JSON.parse(pScore) : null;
-            total = breakdown?.Total ?? '—';
-          } catch(e) {}
-          html += `<td>${total}</td>`;
-        });
-        html += `</tr></tbody></table>`;
-
-      } else if (s.winner === 'Win' || s.winner === 'Loss') {
-        // Win/Lose — no scores to show
-      } else {
-        // Simple scores
-        html += `<div class="detail-section-label">Scores</div>
-        <div class="detail-extras">`;
-        players.forEach(p => {
-          const val = scoresObj[p] ?? '—';
-          html += `<div><span>${p}:</span>${val}</div>`;
-        });
-        html += `</div>`;
-      }
-    } catch(e) {}
-  }
-
-  // Extras (game-specific fields)
-  if (s.extras) {
-    try {
-      const extras = JSON.parse(s.extras);
-      const keys = Object.keys(extras).filter(k => extras[k]);
-      if (keys.length > 0) {
-        html += `<div class="detail-section-label">Details</div>
-        <div class="detail-extras">`;
-        keys.forEach(k => {
-          html += `<div><span>${k}:</span>${extras[k]}</div>`;
-        });
-        html += `</div>`;
-      }
-    } catch(e) {}
-  }
-
-  return html || '<div style="color:#506080;font-size:12px">No details recorded.</div>';
-}
-
-function loadMore(e) { e.preventDefault(); renderRecentPlays(); }
-
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  if (isNaN(d)) return dateStr;
-  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: '2-digit' });
-}
-
-function shortenGame(name) {
-  if (!name) return '';
-  if (name.startsWith('SETI')) return 'SETI';
-  if (name.length > 16) return name.substring(0, 15) + '…';
-  return name;
-}
-
-function getWinnerScore(session) {
-  if (!session.scores || !session.winner) return '';
-  if (session.winner.startsWith('TIE!') || session.winner === 'N/A') return '';
-  try {
-    const scores = JSON.parse(session.scores);
-    const val = scores[session.winner];
-    if (val === undefined) return '';
-    // If the score is itself a JSON object (scorepad), return just the Total
-    if (typeof val === 'string' && val.startsWith('{')) {
-      const breakdown = JSON.parse(val);
-      return breakdown.Total !== undefined ? breakdown.Total : '';
-    }
-    return val;
-  } catch(e) { return ''; }
-}
-// ─── BACKGROUND ART ───────────────────────────────────────
-function setBackgroundImage(url) {
-  const el = document.getElementById('bgArt');
-  if (!url) {
-    el.classList.remove('visible');
-    setTimeout(() => { el.style.backgroundImage = ''; }, 800);
-    return;
-  }
-  // Preload to avoid flash
-  const img = new Image();
-  img.onload = () => {
-    el.style.backgroundImage = `url('${url}')`;
-    el.classList.add('visible');
-  };
-  img.onerror = () => {
-    // Image failed (e.g. CORS) — just hide
-    el.classList.remove('visible');
-  };
-  img.src = url;
-}
-
 </script>
 </body>
 </html>
