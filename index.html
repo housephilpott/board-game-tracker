@@ -504,10 +504,15 @@
       </select>
     </div>
     <div class="library-filters">
-      <select class="filter-select" id="filterBaseGame" onchange="applyLibraryFilters()" style="flex:none;width:100%">
+      <select class="filter-select" id="filterBaseGame" onchange="applyLibraryFilters()" style="flex:2;min-width:140px">
         <option value="">All games &amp; expansions</option>
         <option value="__base__">Base games only</option>
         <option value="__expansions__">Expansions only</option>
+      </select>
+      <select class="filter-select" id="filterSolo" onchange="applyLibraryFilters()" style="flex:1;min-width:100px">
+        <option value="">Any mode</option>
+        <option value="solo">Solo</option>
+        <option value="coop">Co-op</option>
       </select>
     </div>
     <div class="library-count" id="libraryCount"></div>
@@ -530,7 +535,12 @@
       </div>
       <div class="field">
         <label>Game Type</label>
-        <input type="text" id="addType" placeholder="e.g. Engine Builder, Co-op, Card Game…">
+        <input type="text" id="addType" placeholder="e.g. Family, Card Game, Hand Management">
+        <div style="font-size:11px;color:var(--text-faint);margin-top:4px">Separate multiple types with commas</div>
+      </div>
+      <div class="field">
+        <label>Year of Release</label>
+        <input type="number" id="addYear" placeholder="e.g. 2019" min="1900" max="2099">
       </div>
       <div class="field">
         <label>Description</label>
@@ -580,6 +590,10 @@
       <div class="field" style="display:flex;align-items:center;gap:10px">
         <input type="checkbox" id="addCoop" style="width:auto;padding:0;margin:0">
         <label for="addCoop" style="margin:0;font-size:14px">Co-operative game</label>
+      </div>
+      <div class="field" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="addSolo" style="width:auto;padding:0;margin:0">
+        <label for="addSolo" style="margin:0;font-size:14px">Can be played solo</label>
       </div>
     </div>
 
@@ -1236,9 +1250,12 @@ function getWinnerScore(session) {
 
 // ─── LIBRARY ──────────────────────────────────────────────
 function populateTypeFilter() {
-  const types = [...new Set(allLibrary.map(g => g.gameType).filter(Boolean))].sort();
-  const sel   = document.getElementById('filterType');
-  // Clear all except first option
+  // Split comma-separated types and collect unique tags
+  const allTags = allLibrary.flatMap(g =>
+    g.gameType ? g.gameType.split(',').map(t => t.trim()).filter(Boolean) : []
+  );
+  const types = [...new Set(allTags)].sort();
+  const sel = document.getElementById('filterType');
   while (sel.options.length > 1) sel.remove(1);
   types.forEach(t => {
     const opt = document.createElement('option');
@@ -1279,7 +1296,11 @@ function applyLibraryFilters() {
     });
   }
 
-  if (type) filtered = filtered.filter(g => g.gameType === type);
+  if (type) filtered = filtered.filter(g => {
+    if (!g.gameType) return false;
+    const tags = g.gameType.split(',').map(t => t.trim());
+    return tags.includes(type);
+  });
 
   if (complexity) {
     const c = parseInt(complexity);
@@ -1292,8 +1313,12 @@ function applyLibraryFilters() {
     });
   }
 
-  if (baseGame === '__base__')       filtered = filtered.filter(g => !g.baseGame);
+  if (baseGame === '__base__')            filtered = filtered.filter(g => !g.baseGame);
   else if (baseGame === '__expansions__') filtered = filtered.filter(g => !!g.baseGame);
+
+  const soloFilter = document.getElementById('filterSolo').value;
+  if (soloFilter === 'solo') filtered = filtered.filter(g => g.solo);
+  if (soloFilter === 'coop') filtered = filtered.filter(g => g.coop);
 
   renderLibraryCards(filtered);
 }
@@ -1303,6 +1328,7 @@ function renderLibrary() {
   document.getElementById('filterType').value       = '';
   document.getElementById('filterComplexity').value = '';
   document.getElementById('filterBaseGame').value   = '';
+  document.getElementById('filterSolo').value        = '';
   renderLibraryCards(allLibrary);
 }
 
@@ -1338,17 +1364,28 @@ function renderLibraryCards(games) {
       `<div class="dot${i < Math.round(parseFloat(complexity)) ? ' filled' : ''}"></div>`
     ).join('') : '';
 
+    // Split game types into individual tags
+    const typeTags = game.gameType
+      ? game.gameType.split(',').map(t => t.trim()).filter(Boolean)
+        .map(t => `<div class="card-stat">${t}</div>`).join('')
+      : '';
+
+    const lastPlayed = game.lastPlayed
+      ? `<div class="card-stat">🕒 <span class="card-stat-accent">${game.lastPlayed}</span></div>` : '';
+
     card.innerHTML = `
       ${artHtml}
       <div class="card-body">
         ${game.baseGame ? `<div class="card-expansion-tag">📦 Expansion for ${game.baseGame}</div>` : ''}
-        <div class="card-name">${game.name}</div>
+        <div class="card-name">${game.name}${game.year ? ` <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(${game.year})</span>` : ''}</div>
         ${game.description ? `<div class="card-desc">${game.description}</div>` : ''}
         <div class="card-stats">
-          ${players    ? `<div class="card-stat">👥 <span class="card-stat-accent">${players}</span></div>` : ''}
-          ${game.gameType ? `<div class="card-stat">${game.gameType}</div>` : ''}
-          ${complexity ? `<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>` : ''}
-          ${game.coop  ? `<div class="card-stat">🤝 Co-op</div>` : ''}
+          ${players     ? `<div class="card-stat">👥 <span class="card-stat-accent">${players}</span></div>` : ''}
+          ${complexity  ? `<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>` : ''}
+          ${game.coop   ? `<div class="card-stat">🤝 Co-op</div>` : ''}
+          ${game.solo   ? `<div class="card-stat">🧍 Solo</div>` : ''}
+          ${lastPlayed}
+          ${typeTags}
         </div>
       </div>`;
 
@@ -1378,6 +1415,8 @@ async function submitAddGame() {
     complexity:  document.getElementById('addComplexity').value,
     imageUrl:    document.getElementById('addImageUrl').value.trim(),
     coop:        document.getElementById('addCoop').checked ? 'TRUE' : 'FALSE',
+    solo:        document.getElementById('addSolo').checked ? 'TRUE' : 'FALSE',
+    year:        document.getElementById('addYear').value,
     baseGame:    document.getElementById('addBaseGame').value,
   };
 
@@ -1405,10 +1444,11 @@ async function submitAddGame() {
 }
 
 function resetAddForm() {
-  ['addName','addType','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id => {
+  ['addName','addType','addDesc','addMinPlayers','addMaxPlayers','addImageUrl','addYear'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('addCoop').checked = false;
+  document.getElementById('addSolo').checked = false;
   document.getElementById('addBaseGame').value = '';
   document.getElementById('addComplexity').value = '';
   selectedWeight = null;
