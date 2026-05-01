@@ -345,6 +345,11 @@
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
   .dot.filled { background: var(--accent); }
 
+  .card-expansion-tag {
+    font-size: 11px; color: var(--accent); font-weight: 600;
+    margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
+  }
+
   .library-empty {
     text-align: center; padding: 40px 20px; color: var(--text-faint); font-size: 14px;
   }
@@ -498,6 +503,13 @@
         <option value="3">Heavy (3+)</option>
       </select>
     </div>
+    <div class="library-filters">
+      <select class="filter-select" id="filterBaseGame" onchange="applyLibraryFilters()" style="flex:none;width:100%">
+        <option value="">All games &amp; expansions</option>
+        <option value="__base__">Base games only</option>
+        <option value="__expansions__">Expansions only</option>
+      </select>
+    </div>
     <div class="library-count" id="libraryCount"></div>
     <div id="libraryCards"></div>
   </div>
@@ -546,6 +558,16 @@
           <button class="weight-btn" onclick="setWeight(5)">5<br><span style="font-size:9px;font-weight:400">Expert</span></button>
         </div>
         <input type="hidden" id="addComplexity" value="">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Expansion?</div>
+      <div class="field">
+        <label>Base Game <span style="font-weight:400;color:var(--text-faint)">(leave blank if this is a base game)</span></label>
+        <select id="addBaseGame">
+          <option value="">Not an expansion</option>
+        </select>
       </div>
     </div>
 
@@ -1216,9 +1238,25 @@ function getWinnerScore(session) {
 function populateTypeFilter() {
   const types = [...new Set(allLibrary.map(g => g.gameType).filter(Boolean))].sort();
   const sel   = document.getElementById('filterType');
+  // Clear all except first option
+  while (sel.options.length > 1) sel.remove(1);
   types.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  });
+  populateBaseGameDropdown();
+}
+
+function populateBaseGameDropdown() {
+  const sel = document.getElementById('addBaseGame');
+  if (!sel) return;
+  while (sel.options.length > 1) sel.remove(1);
+  // Only base games (no baseGame set) can be a base game for an expansion
+  const baseGames = allLibrary.filter(g => !g.baseGame).sort((a,b) => a.name.localeCompare(b.name));
+  baseGames.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.name; opt.textContent = g.name;
     sel.appendChild(opt);
   });
 }
@@ -1227,6 +1265,7 @@ function applyLibraryFilters() {
   const players    = document.getElementById('filterPlayers').value;
   const type       = document.getElementById('filterType').value;
   const complexity = document.getElementById('filterComplexity').value;
+  const baseGame   = document.getElementById('filterBaseGame').value;
 
   let filtered = allLibrary;
 
@@ -1253,6 +1292,9 @@ function applyLibraryFilters() {
     });
   }
 
+  if (baseGame === '__base__')       filtered = filtered.filter(g => !g.baseGame);
+  else if (baseGame === '__expansions__') filtered = filtered.filter(g => !!g.baseGame);
+
   renderLibraryCards(filtered);
 }
 
@@ -1260,6 +1302,7 @@ function renderLibrary() {
   document.getElementById('filterPlayers').value    = '';
   document.getElementById('filterType').value       = '';
   document.getElementById('filterComplexity').value = '';
+  document.getElementById('filterBaseGame').value   = '';
   renderLibraryCards(allLibrary);
 }
 
@@ -1298,6 +1341,7 @@ function renderLibraryCards(games) {
     card.innerHTML = `
       ${artHtml}
       <div class="card-body">
+        ${game.baseGame ? `<div class="card-expansion-tag">📦 Expansion for ${game.baseGame}</div>` : ''}
         <div class="card-name">${game.name}</div>
         ${game.description ? `<div class="card-desc">${game.description}</div>` : ''}
         <div class="card-stats">
@@ -1334,6 +1378,7 @@ async function submitAddGame() {
     complexity:  document.getElementById('addComplexity').value,
     imageUrl:    document.getElementById('addImageUrl').value.trim(),
     coop:        document.getElementById('addCoop').checked ? 'TRUE' : 'FALSE',
+    baseGame:    document.getElementById('addBaseGame').value,
   };
 
   const btn = document.getElementById('addGameBtn');
@@ -1364,6 +1409,7 @@ function resetAddForm() {
     document.getElementById(id).value = '';
   });
   document.getElementById('addCoop').checked = false;
+  document.getElementById('addBaseGame').value = '';
   document.getElementById('addComplexity').value = '';
   selectedWeight = null;
   document.querySelectorAll('.weight-btn').forEach(btn => btn.classList.remove('selected'));
