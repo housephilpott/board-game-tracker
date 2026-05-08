@@ -399,6 +399,8 @@
           <span class="chip-placeholder" id="addTypePlaceholder">Select types…</span>
         </div>
       </div>
+      <div class="field"><label>Designer</label><input type="text" id="addDesigner" placeholder="e.g. Elizabeth Hargrave"></div>
+      <div class="field"><label>Publisher</label><input type="text" id="addPublisher" placeholder="e.g. Stonemaier Games"></div>
       <div class="field"><label>Description</label><textarea id="addDesc" placeholder="A short description of the game…"></textarea></div>
     </div>
 
@@ -460,6 +462,8 @@
           <span class="chip-placeholder" id="editTypePlaceholder">Select types…</span>
         </div>
       </div>
+      <div class="field"><label>Designer</label><input type="text" id="editDesigner"></div>
+      <div class="field"><label>Publisher</label><input type="text" id="editPublisher"></div>
       <div class="field"><label>Description</label><textarea id="editDesc"></textarea></div>
     </div>
 
@@ -612,7 +616,7 @@ function setDestination(dest) {
 function populateGameDropdown() {
   const sel = document.getElementById('fieldGame');
   sel.innerHTML = '<option value="">Select a game…</option>';
-  allGames.forEach(g => {
+  [...allGames].sort((a,b) => a.name.localeCompare(b.name)).forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.name; opt.textContent = g.name; sel.appendChild(opt);
   });
@@ -1013,7 +1017,7 @@ function renderLibraryCards(games) {
   countEl.textContent=games.length===0?'No games match your filters':`${games.length} game${games.length!==1?'s':''}`;
   if(games.length===0){container.innerHTML=`<div class="library-empty">No games found.<br>Try adjusting your filters.</div>`;return;}
   container.innerHTML='';
-  games.forEach(game=>{
+  [...games].sort((a,b)=>a.name.localeCompare(b.name)).forEach(game=>{
     const card=document.createElement('div'); card.className='game-card';
     const artHtml=game.imageUrl?`<div class="card-art"><img src="${game.imageUrl}" alt="${game.name}" onerror="this.parentElement.innerHTML='🎲'"></div>`:`<div class="card-art">🎲</div>`;
     const players=game.minPlayers&&game.maxPlayers?(game.minPlayers===game.maxPlayers?`${game.minPlayers}p`:`${game.minPlayers}–${game.maxPlayers}p`):game.maxPlayers?`Up to ${game.maxPlayers}p`:'';
@@ -1021,7 +1025,9 @@ function renderLibraryCards(games) {
     const dots=complexity?Array.from({length:5},(_,i)=>`<div class="dot${i<Math.round(parseFloat(complexity))?' filled':''}"></div>`).join(''):'';
     const typeTags=game.gameType?game.gameType.split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<div class="card-stat">${t}</div>`).join(''):'';
     const lastPlayed=game.lastPlayed?`<div class="card-stat">🕒 <span class="card-stat-accent">${game.lastPlayed}</span></div>`:'';
-    card.innerHTML=`${artHtml}<div class="card-body">${game.baseGame?`<div class="card-expansion-tag">📦 Expansion for ${game.baseGame}</div>`:''}<div class="card-name">${game.name}${game.year?` <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(${game.year})</span>`:''}</div>${game.description?`<div class="card-desc">${game.description}</div>`:''}<div class="card-stats">${players?`<div class="card-stat">👥 <span class="card-stat-accent">${players}</span></div>`:''} ${complexity?`<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>`:''} ${game.coop?`<div class="card-stat">🤝 Co-op</div>`:''} ${game.solo?`<div class="card-stat">🧍 Solo</div>`:''} ${lastPlayed} ${typeTags}</div></div>`;
+    const designer=game.designer?`<div class="card-stat">✏️ ${game.designer}</div>`:'';
+    const publisher=game.publisher?`<div class="card-stat">🏢 ${game.publisher}</div>`:'';
+    card.innerHTML=`${artHtml}<div class="card-body">${game.baseGame?`<div class="card-expansion-tag">📦 Expansion for ${game.baseGame}</div>`:''}<div class="card-name">${game.name}${game.year?` <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(${game.year})</span>`:''}</div>${game.description?`<div class="card-desc">${game.description}</div>`:''}<div class="card-stats">${players?`<div class="card-stat">👥 <span class="card-stat-accent">${players}</span></div>`:''} ${complexity?`<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>`:''} ${game.coop?`<div class="card-stat">🤝 Co-op</div>`:''} ${game.solo?`<div class="card-stat">🧍 Solo</div>`:''} ${lastPlayed} ${designer} ${publisher} ${typeTags}</div></div>`;
     card.onclick=()=>openEditGame(game);
     container.appendChild(card);
   });
@@ -1032,7 +1038,9 @@ function renderWantList() {
   const container=document.getElementById('wantListItems');
   if(allWantList.length===0){container.innerHTML=`<div class="library-empty">Your want list is empty.<br>Add games using the ➕ button.</div>`;return;}
   container.innerHTML='';
-  allWantList.forEach((game,idx)=>{
+  const sorted=[...allWantList].map((g,i)=>({...g,_idx:i})).sort((a,b)=>a.name.localeCompare(b.name));
+  sorted.forEach((game)=>{
+  const idx=game._idx;
     const div=document.createElement('div'); div.className='want-item';
     const meta=[game.year,game.gameType].filter(Boolean).join(' · ');
     div.innerHTML=`<div class="want-item-name">${game.name}</div>${meta?`<div class="want-item-meta">${meta}</div>`:''} ${game.baseGame?`<div class="want-item-expansion">📦 Expansion for ${game.baseGame}</div>`:''}<div class="want-item-actions"><button class="want-move-btn" onclick="moveToLibrary(${idx})">📚 Move to Library</button></div>`;
@@ -1071,6 +1079,8 @@ async function submitAddGame() {
     action: addDestination==='library'?'addGame':'addToWantList',
     name, year:document.getElementById('addYear').value,
     gameType:selectedAddTypes.join(', '),
+    designer:document.getElementById('addDesigner').value.trim(),
+    publisher:document.getElementById('addPublisher').value.trim(),
     description:document.getElementById('addDesc').value.trim(),
     minPlayers:document.getElementById('addMinPlayers').value,
     maxPlayers:document.getElementById('addMaxPlayers').value,
@@ -1093,7 +1103,7 @@ async function submitAddGame() {
 }
 
 function resetAddForm() {
-  ['addName','addYear','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
+  ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addCoop').checked=false; document.getElementById('addSolo').checked=false;
   document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';
   selectedAddTypes=[]; selectedWeight=null;
@@ -1113,6 +1123,8 @@ function openEditGame(game) {
   document.getElementById('editRowIndex').value=game.name;
   document.getElementById('editName').value=game.name||'';
   document.getElementById('editYear').value=game.year||'';
+  document.getElementById('editDesigner').value=game.designer||'';
+  document.getElementById('editPublisher').value=game.publisher||'';
   document.getElementById('editDesc').value=game.description||'';
   document.getElementById('editMinPlayers').value=game.minPlayers||'';
   document.getElementById('editMaxPlayers').value=game.maxPlayers||'';
@@ -1143,6 +1155,8 @@ async function submitEditGame() {
     name:document.getElementById('editName').value.trim(),
     year:document.getElementById('editYear').value,
     gameType:selectedEditTypes.join(', '),
+    designer:document.getElementById('editDesigner').value.trim(),
+    publisher:document.getElementById('editPublisher').value.trim(),
     description:document.getElementById('editDesc').value.trim(),
     minPlayers:document.getElementById('editMinPlayers').value,
     maxPlayers:document.getElementById('editMaxPlayers').value,
