@@ -425,6 +425,14 @@
         <option value="coop">Co-op</option>
       </select>
     </div>
+    <div class="library-filters">
+      <select class="filter-select" id="filterDesigner" onchange="applyLibraryFilters()">
+        <option value="">Any designer</option>
+      </select>
+      <select class="filter-select" id="filterPublisher" onchange="applyLibraryFilters()">
+        <option value="">Any publisher</option>
+      </select>
+    </div>
     <div class="library-count" id="libraryCount"></div>
     <div id="libraryCards"></div>
   </div>
@@ -1086,8 +1094,10 @@ function applyLibraryFilters() {
   else if(baseGame==='__expansions__') f=f.filter(g=>!!g.baseGame);
   if(solo==='solo') f=f.filter(g=>g.solo);
   if(solo==='coop') f=f.filter(g=>g.coop);
-  const designer=document.getElementById('filterDesigner').value;
-  const publisher=document.getElementById('filterPublisher').value;
+  const designerEl=document.getElementById('filterDesigner');
+  const publisherEl=document.getElementById('filterPublisher');
+  const designer=designerEl?designerEl.value:'';
+  const publisher=publisherEl?publisherEl.value:'';
   if(designer) f=f.filter(g=>g.designer===designer);
   if(publisher) f=f.filter(g=>g.publisher===publisher);
   renderLibraryCards(f);
