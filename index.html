@@ -337,11 +337,28 @@
       <div><div class="home-btn-label">Want List</div><div class="home-btn-sub" id="wantListSub">Games you want to buy</div></div>
       <span class="home-btn-arrow">›</span>
     </button>
+    <button class="home-btn" onclick="showScreen('screenHistory')">
+      <span class="home-btn-icon">📖</span>
+      <div><div class="home-btn-label">Play History</div><div class="home-btn-sub" id="historyHomeSub">All your recorded sessions</div></div>
+      <span class="home-btn-arrow">›</span>
+    </button>
     <button class="home-btn" onclick="showScreen('screenAddGame')">
       <span class="home-btn-icon">➕</span>
       <div><div class="home-btn-label">Add a Game</div><div class="home-btn-sub">Add to library or want list</div></div>
       <span class="home-btn-arrow">›</span>
     </button>
+  </div>
+</div>
+
+
+<!-- ════ PLAY HISTORY ════ -->
+<div class="screen" id="screenHistory">
+  <div class="page-body">
+    <div class="status-banner" id="historyStatus"></div>
+    <div id="historyList"></div>
+    <div id="historyLoadMoreWrap" style="text-align:center;margin-top:10px;display:none">
+      <a href="#" onclick="historyLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more…</a>
+    </div>
   </div>
 </div>
 
@@ -681,6 +698,11 @@ function showScreen(id) {
     title.textContent = '🛒 Want List';
     sub.textContent   = `${allWantList.length} game${allWantList.length !== 1 ? 's' : ''}`;
     renderWantList();
+  } else if (id === 'screenHistory') {
+    back.classList.remove('hidden');
+    title.textContent = '📖 Play History';
+    sub.textContent   = 'All recorded sessions';
+    loadHistory();
   } else if (id === 'screenAddGame') {
     title.textContent = '➕ Add a Game'; sub.textContent = 'Add to library or want list';
     populateBaseGameDropdowns();
