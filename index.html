@@ -707,7 +707,7 @@ function setDestination(dest) {
 function populateGameDropdown() {
   const sel = document.getElementById('fieldGame');
   sel.innerHTML = '<option value="">Select a game…</option>';
-  [...allGames].sort((a,b) => a.name.localeCompare(b.name)).forEach(g => {
+  [...allGames].filter(g => !g.baseGame).sort((a,b) => a.name.localeCompare(b.name)).forEach(g => {
     const opt = document.createElement('option');
     opt.value = g.name; opt.textContent = g.name; sel.appendChild(opt);
   });
