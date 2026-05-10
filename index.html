@@ -1382,6 +1382,82 @@ function shortenGame(name) {
   return name.length>16?name.substring(0,15)+'…':name;
 }
 
+// ─── PLAY HISTORY ─────────────────────────────────────────
+let allHistory = [], historyShown = 0;
+const HISTORY_PAGE = 20;
+
+async function loadHistory() {
+  const el = document.getElementById('historyList');
+  el.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:20px;font-size:13px">Loading…</div>';
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getSessions`);
+    const data = await res.json();
+    allHistory  = data.sessions.sort((a,b) => new Date(b.date) - new Date(a.date));
+    historyShown = 0;
+    renderHistory();
+    const sub = document.getElementById('historyHomeSub');
+    if (sub) sub.textContent = `${allHistory.length} session${allHistory.length !== 1 ? 's' : ''} recorded`;
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;color:#ff8080;padding:20px;font-size:13px">Could not load history.</div>';
+  }
+}
+
+function renderHistory() {
+  const container    = document.getElementById('historyList');
+  const loadMoreWrap = document.getElementById('historyLoadMoreWrap');
+  if (allHistory.length === 0) {
+    container.innerHTML = '<div class="library-empty">No sessions recorded yet.</div>';
+    return;
+  }
+
+  const toShow = allHistory.slice(0, historyShown + HISTORY_PAGE);
+  historyShown = toShow.length;
+  container.innerHTML = '';
+
+  let currentMonth = '';
+  toShow.forEach(s => {
+    const dateObj  = s.date ? new Date(s.date) : null;
+    const monthKey = dateObj ? dateObj.toLocaleDateString('en-NZ', { month: 'long', year: 'numeric' }) : '';
+
+    if (monthKey && monthKey !== currentMonth) {
+      currentMonth = monthKey;
+      const divider = document.createElement('div');
+      divider.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);padding:12px 4px 6px;';
+      divider.textContent = monthKey;
+      container.appendChild(divider);
+    }
+
+    const row = document.createElement('div');
+    row.style.cssText = 'background:var(--bg-section);border:1px solid var(--border-dark);border-radius:10px;margin-bottom:8px;overflow:hidden;cursor:pointer;';
+
+    const summary = document.createElement('div');
+    summary.style.cssText = 'display:flex;align-items:center;gap:10px;padding:11px 14px;';
+    summary.innerHTML = `
+      <div style="min-width:52px;font-size:12px;color:var(--text-faint)">${s.date ? formatDate(s.date) : '—'}</div>
+      <div style="flex:1;font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.game || '—'}</div>
+      <div style="font-size:13px;color:var(--accent);font-weight:600;white-space:nowrap">${s.winner || '—'}</div>`;
+
+    const detail = document.createElement('div');
+    detail.style.cssText = 'display:none;border-top:1px solid var(--border-dark);padding:12px 14px;background:var(--detail-bg);';
+    detail.setAttribute('data-detail','1');
+    detail.innerHTML = buildSessionDetail(s);
+
+    summary.onclick = () => {
+      const isOpen = detail.style.display === 'block';
+      container.querySelectorAll('[data-detail]').forEach(d => d.style.display = 'none');
+      detail.style.display = isOpen ? 'none' : 'block';
+    };
+
+    row.appendChild(summary);
+    row.appendChild(detail);
+    container.appendChild(row);
+  });
+
+  loadMoreWrap.style.display = historyShown < allHistory.length ? 'block' : 'none';
+}
+
+function historyLoadMore(e) { e.preventDefault(); renderHistory(); }
+
 // ── BACKGROUND ART ────────────────────────────────────────
 function setBackgroundImage(url) {
   const el=document.getElementById('bgArt');
