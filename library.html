@@ -276,7 +276,7 @@ function renderCards(games) {
   }
 
   container.innerHTML = '';
-  [...games].sort((a,b) => a.name.localeCompare(b.name)).forEach(game => {
+  [...games].sort((a,b) => sortName(a.name).localeCompare(sortName(b.name))).forEach(game => {
     const card = document.createElement('div');
     card.className = 'game-card';
 
@@ -343,6 +343,10 @@ function renderCards(games) {
 }
 
 // ─── HELPERS ──────────────────────────────────────────────
+function sortName(name) {
+  return name.replace(/^(A|An|The)\s+/i, '').trim();
+}
+
 function safeId(name) { return name.replace(/[^a-zA-Z0-9]/g,'_'); }
 
 function getTheme(game) {
