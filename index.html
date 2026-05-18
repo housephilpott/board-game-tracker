@@ -716,7 +716,8 @@ async function loadFromSheet() {
     populateTypeFilter();
     populateBaseGameDropdowns();
   } catch(e) {
-    document.getElementById('homeSubtitle').textContent = 'Could not load data — check your Apps Script.';
+    document.getElementById('homeSubtitle').textContent = 'Error: ' + e.message;
+    console.error('loadFromSheet error:', e);
   }
 }
 
