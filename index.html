@@ -685,7 +685,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8
 
 const DEFAULT_GAME_TYPES = ['Abstract','Card Game','Co-operative','Deck Building','Engine Builder','Family','Party','Roll & Write','Strategy','Worker Placement'];
 
-let allPlayers = [], allGames = [], allLibrary = [], allWantList = [], allGameTypes = [];
+let allPlayers = [], allGames = [], allLibrary = [], allWantList = [], allGameTypes = [], allCharacters = [];
 let selectedPlayers = [], selectedAddTypes = [], selectedEditTypes = [];
 let currentDropdown = null, currentDropdownField = null;
 let currentGameData = null, extraMultiSelects = {};
@@ -709,7 +709,8 @@ async function loadFromSheet() {
     allPlayers   = data.players   || [];
     allLibrary   = data.library   || [];
     allWantList  = data.wantList  || [];
-    allGameTypes = data.gameTypes || DEFAULT_GAME_TYPES;
+    allGameTypes  = data.gameTypes || DEFAULT_GAME_TYPES;
+    allCharacters = data.characters || [];
     populateGameDropdown();
     updateHomeSubtitle();
     populateTypeFilter();
@@ -1244,7 +1245,7 @@ function renderLibraryCards(games) {
           ${game.description?`<div class="card-detail-desc">${game.description}</div>`:''}
           ${detailFields}
           ${typeTags?`<div class="card-detail-badges">${typeTags}</div>`:''}
-          <button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName('${game.name.replace(/'/g,"\'")}'))">✏️ Edit</button>
+          ${hasCharacters(game.name)?`<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick="event.stopPropagation();openCharacters(game.name)">🎭 Characters</button>`:''} <button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName('${game.name.replace(/'/g,"\'")}'))">✏️ Edit</button>
         </div>
       </div>`;
 
@@ -1517,6 +1518,73 @@ function renderHistory() {
 }
 
 function historyLoadMore(e) { e.preventDefault(); renderHistory(); }
+
+// ─── CHARACTERS ───────────────────────────────────────────
+function hasCharacters(gameName) {
+  return allCharacters.some(c => c.game === gameName);
+}
+
+function openCharacters(gameName) {
+  showScreen('screenCharacters');
+  document.getElementById('headerTitle').textContent = '🎭 ' + gameName;
+  document.getElementById('headerSub').textContent   = 'Characters';
+  renderCharacters(gameName);
+}
+
+function renderCharacters(gameName) {
+  const container = document.getElementById('characterCards');
+  const chars = allCharacters
+    .filter(c => c.game === gameName)
+    .sort((a,b) => sortName(a.character).localeCompare(sortName(b.character)));
+
+  if (chars.length === 0) {
+    container.innerHTML = '<div class="library-empty">No characters found for this game.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  chars.forEach(ch => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    const artHtml = ch.imageUrl
+      ? `<div class="char-art"><img src="${ch.imageUrl}" alt="${ch.character}" onerror="this.parentElement.innerHTML='🎭'"></div>`
+      : `<div class="char-art">🎭</div>`;
+    const complexity = parseInt(ch.complexity) || 0;
+    const diceHtml   = buildDice(complexity, 6);
+    const bgStyle    = ch.imageUrl ? `background-image:url('${ch.imageUrl}')` : '';
+
+    card.innerHTML = `
+      ${artHtml}
+      <div class="char-body">
+        <div class="char-name">${ch.character}</div>
+        ${complexity ? `<div class="char-dice">${diceHtml}</div>` : ''}
+      </div>
+      <div class="char-detail">
+        <div class="char-detail-bg" style="${bgStyle}"></div>
+        <div class="char-detail-content">
+          ${complexity ? `<div class="char-complexity-label">Complexity</div><div class="char-detail-dice">${diceHtml}</div>` : ''}
+          ${ch.foundIn ? `<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px">📦 ${ch.foundIn}</div>` : ''}
+          ${ch.description ? `<div>${ch.description}</div>` : ''}
+        </div>
+      </div>`;
+
+    card.querySelector('.char-body').onclick = () => {
+      const detail = card.querySelector('.char-detail');
+      const isOpen = detail.classList.contains('open');
+      container.querySelectorAll('.char-detail.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) detail.classList.add('open');
+    };
+    container.appendChild(card);
+  });
+}
+
+function buildDice(filled, total) {
+  let html = '';
+  for (let i = 1; i <= total; i++) {
+    html += i <= filled ? `<div class="die">${i}</div>` : `<div class="die-empty"></div>`;
+  }
+  return html;
+}
 
 // ── BACKGROUND ART ────────────────────────────────────────
 function setBackgroundImage(url) {
