@@ -702,21 +702,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadFromSheet() {
+  const sub = document.getElementById('homeSubtitle');
   try {
+    sub.textContent = 'Connecting…';
     const res  = await fetch(`${APPS_SCRIPT_URL}?action=getConfig`);
+    sub.textContent = 'Parsing response…';
     const data = await res.json();
-    allGames     = data.games     || [];
-    allPlayers   = data.players   || [];
-    allLibrary   = data.library   || [];
-    allWantList  = data.wantList  || [];
-    allGameTypes  = data.gameTypes || DEFAULT_GAME_TYPES;
+    sub.textContent = 'Loading games…';
+    allGames      = data.games      || [];
+    allPlayers    = data.players    || [];
+    allLibrary    = data.library    || [];
+    allWantList   = data.wantList   || [];
+    allGameTypes  = data.gameTypes  || DEFAULT_GAME_TYPES;
     allCharacters = data.characters || [];
+    sub.textContent = 'Populating dropdowns…';
     populateGameDropdown();
+    sub.textContent = 'Updating display…';
     updateHomeSubtitle();
     populateTypeFilter();
     populateBaseGameDropdowns();
   } catch(e) {
-    document.getElementById('homeSubtitle').textContent = 'Error: ' + e.message;
+    sub.textContent = 'Error: ' + e.message;
     console.error('loadFromSheet error:', e);
   }
 }
