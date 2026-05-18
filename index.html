@@ -1245,7 +1245,7 @@ function renderLibraryCards(games) {
           ${game.description?`<div class="card-detail-desc">${game.description}</div>`:''}
           ${detailFields}
           ${typeTags?`<div class="card-detail-badges">${typeTags}</div>`:''}
-          ${hasCharacters(game.name)?`<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick="event.stopPropagation();openCharacters(game.name)">🎭 Characters</button>`:''} <button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName('${game.name.replace(/'/g,"\'")}'))">✏️ Edit</button>
+          ${hasCharacters(game.name)?`<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick=\"event.stopPropagation();openCharacters('${game.name.replace(/'/g,\"\\'\")}')\">🎭 Characters</button>`:''} <button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName('${game.name.replace(/'/g,"\'")}'))">✏️ Edit</button>
         </div>
       </div>`;
 
