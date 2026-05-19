@@ -254,7 +254,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 40px; color: var(--text-faint); flex-shrink: 0;
   }
-  .card-art img { width: 100%; height: 100%; object-fit: cover; }
+  .card-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
   /* Filter groups */
   .filter-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -268,7 +268,7 @@
   .game-card { background: var(--bg-section); border: 1px solid var(--border-dark); border-radius: 14px; margin-bottom: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
   .game-card:active { border-color: var(--accent); }
   .card-art { width: 100%; height: 140px; background: var(--bg-input); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-faint); overflow: hidden; }
-  .card-art img { width: 100%; height: 100%; object-fit: cover; }
+  .card-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
   .card-body { padding: 12px 14px 14px; }
   .card-expansion-tag { font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
   .card-name { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
@@ -290,7 +290,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 48px; color: var(--text-faint); overflow: hidden;
   }
-  .char-art img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .char-art img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
   .char-body { padding: 10px 14px 12px; }
   .char-name { font-size: 17px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
   .char-dice { display: flex; gap: 5px; align-items: center; }
@@ -314,7 +314,7 @@
   .char-detail.open { display: block; }
   .char-detail-bg {
     position: absolute; inset: 0;
-    background-size: cover; background-position: top center;
+    background-size: cover; background-position: center center;
     filter: blur(10px) brightness(0.2) saturate(1.3);
     transform: scale(1.08); pointer-events: none;
   }
