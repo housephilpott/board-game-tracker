@@ -1252,9 +1252,20 @@ function renderLibraryCards(games) {
           ${game.description?`<div class="card-detail-desc">${game.description}</div>`:''}
           ${detailFields}
           ${typeTags?`<div class="card-detail-badges">${typeTags}</div>`:''}
-          ${hasCharacters(game.name)?`<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick=\"event.stopPropagation();openCharacters('${game.name.replace(/'/g,\"\\'\")}')\">🎭 Characters</button>`:''} <button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName('${game.name.replace(/'/g,"\'")}'))">✏️ Edit</button>
+          <button class="card-edit-btn" id="edit-${card_id(game.name)}" onclick="event.stopPropagation();openEditGame(libraryGameByName(this.dataset.name))" data-name="${game.name.replace(/"/g,'&quot;')}">✏️ Edit</button>
         </div>
       </div>`;
+
+    // Add Characters button if this game has characters
+    if (hasCharacters(game.name)) {
+      const charBtn = document.createElement('button');
+      charBtn.className = 'card-edit-btn';
+      charBtn.style.cssText = 'background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px';
+      charBtn.textContent = '🎭 Characters';
+      charBtn.onclick = (e) => { e.stopPropagation(); openCharacters(game.name); };
+      const editBtn = card.querySelector('.card-edit-btn');
+      editBtn.parentNode.insertBefore(charBtn, editBtn);
+    }
 
     card.querySelector('.card-body').onclick = () => {
       const detail = card.querySelector('.card-detail');
