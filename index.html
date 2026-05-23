@@ -1584,6 +1584,9 @@ function renderCharacters(gameName) {
     .filter(c => c.game === gameName)
     .sort((a,b) => sortName(a.character).localeCompare(sortName(b.character)));
 
+  console.log('Characters for', gameName, ':', chars.length);
+  if (chars.length > 0) console.log('First char logo field:', JSON.stringify(chars[0].logo));
+
   if (chars.length === 0) {
     container.innerHTML = '<div class="library-empty">No characters found for this game.</div>';
     return;
