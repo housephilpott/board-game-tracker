@@ -181,6 +181,18 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8
 
 let allLibrary = [];
 
+
+// ─── LOGO MAP ─────────────────────────────────────────────
+const LOGO_MAP = {
+  'Dice Throne': 'logos/dice-throne.png',
+  'Marvel':      'logos/marvel.png',
+};
+
+function getLogoHtml(logoKey) {
+  if (!logoKey || !LOGO_MAP[logoKey]) return '';
+  return `<img src="${LOGO_MAP[logoKey]}" alt="${logoKey}" class="char-logo" onerror="this.style.display='none'">`;
+}
+
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', loadLibrary);
 
