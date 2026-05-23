@@ -711,6 +711,17 @@ let selectedWeight = null, selectedEditWeight = null;
 let addDestination = 'library';
 let editingGame = null;
 
+// ─── LOGO MAP ─────────────────────────────────────────────
+const LOGO_MAP = {
+  'Dice Throne': 'logos/dice-throne.png',
+  'Marvel':      'logos/marvel.png',
+};
+
+function getLogoHtml(logoKey) {
+  if (!logoKey || !LOGO_MAP[logoKey]) return '';
+  return `<img src="${LOGO_MAP[logoKey]}" alt="${logoKey}" class="char-logo" onerror="this.style.display='none'">`;
+}
+
 // ── INIT ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
@@ -1563,7 +1574,7 @@ function hasCharacters(gameName) {
 function openCharacters(gameName) {
   showScreen('screenCharacters');
   document.getElementById('headerTitle').textContent = '🎭 ' + gameName;
-  document.getElementById('headerSub').textContent   = 'Characters';
+  document.getElementById('headerSub').textContent   = `Characters (${allCharacters.length} loaded)`;
   renderCharacters(gameName);
 }
 
