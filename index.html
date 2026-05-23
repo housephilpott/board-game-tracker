@@ -324,6 +324,19 @@
     transform: scale(1.08); pointer-events: none;
   }
   .char-detail-content { position: relative; z-index: 1; }
+
+  /* Logos */
+  .char-logo {
+    height: 20px; width: auto; max-width: 80px;
+    object-fit: contain; object-position: left center;
+    opacity: 0.85; margin-bottom: 4px; display: block;
+  }
+  .char-logo-detail {
+    height: 28px; width: auto; max-width: 110px;
+    object-fit: contain; object-position: left center;
+    opacity: 0.9; margin-bottom: 10px; display: block;
+  }
+
   .char-complexity-label {
     font-size: 10px; font-weight: 700; text-transform: uppercase;
     letter-spacing: 0.8px; color: var(--accent); margin-bottom: 6px;
@@ -1579,6 +1592,7 @@ function renderCharacters(gameName) {
     card.innerHTML = `
       ${artHtml}
       <div class="char-body">
+        ${getLogoHtml(ch.logo)}
         <div class="char-name">${ch.character}</div>
         ${complexity ? `<div class="char-complexity-label" style="margin-bottom:5px">Complexity</div><div class="char-dice">${diceHtml}</div>` : ''}
       </div>
@@ -1586,6 +1600,7 @@ function renderCharacters(gameName) {
         <div class="char-detail-bg" style="${bgStyle}"></div>
         <div class="char-detail-content">
           ${complexity ? `<div class="char-complexity-label">Complexity</div><div class="char-detail-dice">${diceHtml}</div>` : ''}
+          ${ch.logo && LOGO_MAP[ch.logo] ? `<img src="${LOGO_MAP[ch.logo]}" alt="${ch.logo}" class="char-logo-detail" onerror="this.style.display='none'">` : ''}
           ${ch.foundIn ? `<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px">📦 ${ch.foundIn}</div>` : ''}
           ${ch.description ? `<div>${ch.description}</div>` : ''}
         </div>
