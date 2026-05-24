@@ -1110,7 +1110,7 @@ async function submitForm() {
   if(selectedPlayers.length===0){showStatus('Please select at least one player.',true);return;}
   const winner=document.getElementById('fieldWinner').value;
   const wc=getWinCondition();
-  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success or Failure.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return
+  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success or Failure.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return;}
   const scores={}, sp=getScorepad();
   if(sp){selectedPlayers.forEach(p=>{const safeP=p.replace(/\s/g,'_'),breakdown={};sp.forEach(cat=>{const v=document.getElementById(`sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`)?.value;if(v)breakdown[cat]=v;});const total=document.getElementById(`sp-total-${safeP}`)?.textContent||'0';scores[p]=JSON.stringify({...breakdown,Total:total});});}
   else if(wc==='score'||wc==='lowest'){selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v)scores[p]=v;});}
