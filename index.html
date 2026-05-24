@@ -1034,6 +1034,9 @@ function updateScores() {
   if (wc==='winlose') {
     c.innerHTML=`<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose('Win')">🏆 Win</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Loss')">💀 Loss</div></div>`;
     wf.placeholder='Select Win or Loss…';
+  } else if (wc==='successfail') {
+    c.innerHTML=`<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose('Success')">✅ Success</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Failure')">❌ Failure</div></div>`;
+    wf.placeholder='Select Success or Failure…';
   } else if (wc==='manual') {
     c.innerHTML=`<div class="field" style="grid-column:1/-1;margin-bottom:0"><select id="manualWinner" onchange="document.getElementById('fieldWinner').value=this.value"><option value="">Select winner…</option>${selectedPlayers.map(p=>`<option>${p}</option>`).join('')}</select></div>`;
     wf.style.display='none'; return;
@@ -1068,14 +1071,14 @@ function updateScores() {
 }
 
 function setWinLose(r) {
-  document.getElementById('btnWin').classList.toggle('active',r==='Win');
-  document.getElementById('btnLose').classList.toggle('active',r==='Loss');
-  document.getElementById('fieldWinner').value=r;
+    document.getElementById('btnWin').classList.toggle('active', r==='Win' || r==='Success');
+    document.getElementById('btnLose').classList.toggle('active', r==='Loss' || r==='Failure');
+    document.getElementById('fieldWinner').value=r;
 }
 
 function autoWinner() {
   const wc=getWinCondition();
-  if(wc==='winlose'||wc==='manual') return;
+  if(wc==='winlose'||wc==='successfail'||wc==='manual') return;
   const scores={};
   selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v!==''&&v!==undefined)scores[p]=parseFloat(v);});
   const filled=Object.entries(scores).filter(([,v])=>!isNaN(v));
@@ -1107,7 +1110,7 @@ async function submitForm() {
   if(selectedPlayers.length===0){showStatus('Please select at least one player.',true);return;}
   const winner=document.getElementById('fieldWinner').value;
   const wc=getWinCondition();
-  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return;}
+  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success or Failure.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return
   const scores={}, sp=getScorepad();
   if(sp){selectedPlayers.forEach(p=>{const safeP=p.replace(/\s/g,'_'),breakdown={};sp.forEach(cat=>{const v=document.getElementById(`sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`)?.value;if(v)breakdown[cat]=v;});const total=document.getElementById(`sp-total-${safeP}`)?.textContent||'0';scores[p]=JSON.stringify({...breakdown,Total:total});});}
   else if(wc==='score'||wc==='lowest'){selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v)scores[p]=v;});}
@@ -1181,7 +1184,7 @@ function buildSessionDetail(s) {
   const players=s.players?s.players.split(', '):[];
   let html='';
   if(players.length>0){html+=`<div class="detail-section-label">Players</div><div class="detail-players">${players.map(p=>{const iw=s.winner&&!s.winner.startsWith('TIE!')&&p===s.winner;return`<span class="detail-player-chip${iw?' winner':''}">${p}${iw?' 🏆':''}</span>`;}).join('')}</div>`;}
-  if(s.scores){try{const sc=JSON.parse(s.scores);if(sp){html+=`<div class="detail-section-label">Scores</div><table class="detail-scorepad"><thead><tr><th>Category</th>${players.map(p=>`<th>${p.split(' ')[0]}</th>`).join('')}</tr></thead><tbody>`;sp.forEach(cat=>{html+=`<tr><td>${cat}</td>`;players.forEach(p=>{let v='—';try{const ps=sc[p];const bd=typeof ps==='string'&&ps.startsWith('{')?JSON.parse(ps):ps;v=bd?.[cat]??'—';}catch(e){}html+=`<td>${v}</td>`;});html+=`</tr>`;});html+=`<tr class="detail-total"><td>Total</td>`;players.forEach(p=>{let t='—';try{const ps=sc[p];const bd=typeof ps==='string'&&ps.startsWith('{')?JSON.parse(ps):null;t=bd?.Total??'—';}catch(e){}html+=`<td>${t}</td>`;});html+=`</tr></tbody></table>`;}else if(s.winner==='Win'||s.winner==='Loss'){}else{html+=`<div class="detail-section-label">Scores</div><div class="detail-extras">`;players.forEach(p=>{html+=`<div><span>${p}:</span>${sc[p]??'—'}</div>`;});html+=`</div>`;}}catch(e){}}
+  if(s.scores){try{const sc=JSON.parse(s.scores);if(sp){html+=`<div class="detail-section-label">Scores</div><table class="detail-scorepad"><thead><tr><th>Category</th>${players.map(p=>`<th>${p.split(' ')[0]}</th>`).join('')}</tr></thead><tbody>`;sp.forEach(cat=>{html+=`<tr><td>${cat}</td>`;players.forEach(p=>{let v='—';try{const ps=sc[p];const bd=typeof ps==='string'&&ps.startsWith('{')?JSON.parse(ps):ps;v=bd?.[cat]??'—';}catch(e){}html+=`<td>${v}</td>`;});html+=`</tr>`;});html+=`<tr class="detail-total"><td>Total</td>`;players.forEach(p=>{let t='—';try{const ps=sc[p];const bd=typeof ps==='string'&&ps.startsWith('{')?JSON.parse(ps):null;t=bd?.Total??'—';}catch(e){}html+=`<td>${t}</td>`;});html+=`</tr></tbody></table>`;}else if(s.winner==='Win'||s.winner==='Loss'||s.winner==='Success'||s.winner==='Failure'){}else{html+=`<div class="detail-section-label">Scores</div><div class="detail-extras">`;players.forEach(p=>{html+=`<div><span>${p}:</span>${sc[p]??'—'}</div>`;});html+=`</div>`;}}catch(e){}}
   if(s.extras){try{const ex=JSON.parse(s.extras);const keys=Object.keys(ex).filter(k=>ex[k]);if(keys.length>0){html+=`<div class="detail-section-label">Details</div><div class="detail-extras">`;keys.forEach(k=>{html+=`<div><span>${k}:</span>${ex[k]}</div>`;});html+=`</div>`;}}catch(e){}}
   return html||'<div style="color:var(--text-faint);font-size:12px">No details recorded.</div>';
 }
