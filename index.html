@@ -1012,7 +1012,7 @@ function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(e
 
 // ── WIN CONDITIONS ────────────────────────────────────────
 function getWinCondition() {
-  const fields = currentGameData?.extraFields||[];
+  const fields = currentGameData?.extraFields ?? [];
   if(fields.some(f => f.scorepad)) return 'score';
   const (wc) = fields.find(f => f.winCondition);
   if (wc) return wc.winCondition;
