@@ -606,12 +606,41 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Advanced</div>
-      <div class="field">
-        <label>ExtraFields JSON <span style="font-weight:400;color:var(--text-faint)">(optional)</span></label>
-        <textarea id="addExtraFields" style="font-size:12px;min-height:60px" placeholder='[{"theme":"#4a7c59"}]'></textarea>
-      </div>
+    <div class="section-title">Scoring & Theme</div>
+    <div class="field">
+        <label>Theme Colour</label>
+        <div style="display:flex;gap:8px;align-items:center">
+            <input type="color" id="addThemeColor" value="#1a1a2e" oninput="onThemeChange('add')"
+                style="width:48px;height:38px;padding:2px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);cursor:pointer">
+            <input type="text" id="addThemeHex" placeholder="None" readonly style="flex:1">
+            <button type="button" class="secondary-btn" style="width:auto;padding:8px 12px;margin:0;font-size:12px" onclick="clearTheme('add')">Clear</button>
+        </div>
     </div>
+    <div class="field">
+        <label>Win Condition</label>
+        <select id="addWinCondition">
+            <option value="">Default (highest score)</option>
+            <option value="lowest">Lowest Score Wins</option>
+            <option value="winlose">Win / Loss</option>
+            <option value="successfail">Success / Failure</option>
+            <option value="manual">Manual (pick winner)</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>Scorepad Categories</label>
+        <div id="addScorepadList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px">
+            <input type="text" id="addScorepadInput" placeholder="e.g. Birds, Bonus Cards"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addScorepadCat('add')}" style="flex:1">
+            <button type="button" class="secondary-btn" style="width:auto;padding:8px 14px;margin:0" onclick="addScorepadCat('add')">Add</button>
+        </div>
+    </div>
+    <div class="field">
+        <label>Custom Session Fields</label>
+        <div id="addCustomFieldsList"></div>
+        <button type="button" class="secondary-btn" onclick="addCustomField('add')">+ Add Field</button>
+    </div>
+</div>
 
     <button class="submit-btn" id="addGameBtn" onclick="submitAddGame()">Add Game</button>
   </div>
@@ -677,12 +706,41 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Advanced</div>
-      <div class="field">
-        <label>ExtraFields JSON</label>
-        <textarea id="editExtraFields" style="font-size:12px;min-height:60px"></textarea>
-      </div>
+    <div class="section-title">Scoring & Theme</div>
+    <div class="field">
+        <label>Theme Colour</label>
+        <div style="display:flex;gap:8px;align-items:center">
+            <input type="color" id="editThemeColor" value="#1a1a2e" oninput="onThemeChange('edit')"
+                style="width:48px;height:38px;padding:2px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);cursor:pointer">
+            <input type="text" id="editThemeHex" placeholder="None" readonly style="flex:1">
+            <button type="button" class="secondary-btn" style="width:auto;padding:8px 12px;margin:0;font-size:12px" onclick="clearTheme('edit')">Clear</button>
+        </div>
     </div>
+    <div class="field">
+        <label>Win Condition</label>
+        <select id="editWinCondition">
+            <option value="">Default (highest score)</option>
+            <option value="lowest">Lowest Score Wins</option>
+            <option value="winlose">Win / Loss</option>
+            <option value="successfail">Success / Failure</option>
+            <option value="manual">Manual (pick winner)</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>Scorepad Categories</label>
+        <div id="editScorepadList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px">
+            <input type="text" id="editScorepadInput" placeholder="e.g. Birds, Bonus Cards"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();editScorepadCat('edit')}" style="flex:1">
+            <button type="button" class="secondary-btn" style="width:auto;padding:8px 14px;margin:0" onclick="editScorepadCat('edit')">Edit</button>
+        </div>
+    </div>
+    <div class="field">
+        <label>Custom Session Fields</label>
+        <div id="editCustomFieldsList"></div>
+        <button type="button" class="secondary-btn" onclick="editCustomField('edit')">+ Edit Field</button>
+    </div>
+</div>
 
     <button class="submit-btn" id="editSaveBtn" onclick="submitEditGame()">Save Changes</button>
     <button class="secondary-btn" onclick="showScreen('screenLibrary')">Cancel</button>
@@ -710,6 +768,10 @@ let currentGameData = null, extraMultiSelects = {};
 let selectedWeight = null, selectedEditWeight = null;
 let addDestination = 'library';
 let editingGame = null;
+let addScorepadCats = [], editScorepadCats = [];
+let addCustomFields = [], editCustomFields = [];
+let addThemeSet = false, editThemeSet = false;
+
 
 // ─── LOGO MAP ─────────────────────────────────────────────
 const LOGO_MAP = {
@@ -909,6 +971,164 @@ function buildExtraFields(game) {
 
 function fieldKey(label) { return label.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase(); }
 
+// ── EXTRAFIELDS FORM BUILDER ────────────────────────────
+function onThemeChange(prefix) {
+    const hex = document.getElementById(prefix + 'ThemeColor').value;
+    document.getElementById(prefix + 'ThemeHex').value = hex;
+    if (prefix === 'add') addThemeSet = true; else editThemeSet = true;
+}
+
+function clearTheme(prefix) {
+    document.getElementById(prefix + 'ThemeHex').value = '';
+    document.getElementById(prefix + 'ThemeColor').value = '#1a1a2e';
+    if (prefix === 'add') addThemeSet = false; else editThemeSet = false;
+}
+
+function addScorepadCat(prefix) {
+    const input = document.getElementById(prefix + 'ScorepadInput');
+    const val = input.value.trim(); if (!val) return;
+    const arr = prefix === 'add' ? addScorepadCats : editScorepadCats;
+    val.split(',').map(s => s.trim()).filter(Boolean).forEach(c => { if (!arr.includes(c)) arr.push(c); });
+    input.value = '';
+    renderScorepadChips(prefix);
+}
+
+function removeScorepadCat(prefix, idx) {
+    (prefix === 'add' ? addScorepadCats : editScorepadCats).splice(idx, 1);
+    renderScorepadChips(prefix);
+}
+
+function renderScorepadChips(prefix) {
+    const arr = prefix === 'add' ? addScorepadCats : editScorepadCats;
+    const container = document.getElementById(prefix + 'ScorepadList');
+    container.innerHTML = '';
+    arr.forEach((cat, idx) => {
+        const chip = document.createElement('div'); chip.className = 'chip';
+        chip.innerHTML = `${cat}<span class="remove" onclick="removeScorepadCat('${prefix}',${idx})">×</span>`;
+        container.appendChild(chip);
+    });
+}
+
+function addCustomField(prefix) {
+    (prefix === 'add' ? addCustomFields : editCustomFields).push({ label: '', type: 'text', options: [] });
+    renderCustomFieldRows(prefix);
+}
+
+function removeCustomField(prefix, idx) {
+    (prefix === 'add' ? addCustomFields : editCustomFields).splice(idx, 1);
+    renderCustomFieldRows(prefix);
+}
+
+function updateCFType(prefix, idx) {
+    const arr = prefix === 'add' ? addCustomFields : editCustomFields;
+    arr[idx].type = document.getElementById(`${prefix}CF${idx}Type`).value;
+    renderCustomFieldRows(prefix);
+}
+
+function updateCFLabel(prefix, idx) {
+    const arr = prefix === 'add' ? addCustomFields : editCustomFields;
+    arr[idx].label = document.getElementById(`${prefix}CF${idx}Label`).value.trim();
+}
+
+function addCFOption(prefix, idx) {
+    const arr = prefix === 'add' ? addCustomFields : editCustomFields;
+    const input = document.getElementById(`${prefix}CF${idx}OptInput`);
+    const val = input.value.trim(); if (!val) return;
+    val.split(',').map(s => s.trim()).filter(Boolean).forEach(o => {
+        if (!arr[idx].options.includes(o)) arr[idx].options.push(o);
+    });
+    input.value = '';
+    renderCustomFieldRows(prefix);
+}
+
+function removeCFOption(prefix, fIdx, oIdx) {
+    (prefix === 'add' ? addCustomFields : editCustomFields)[fIdx].options.splice(oIdx, 1);
+    renderCustomFieldRows(prefix);
+}
+
+function renderCustomFieldRows(prefix) {
+    const arr = prefix === 'add' ? addCustomFields : editCustomFields;
+    const container = document.getElementById(prefix + 'CustomFieldsList');
+    container.innerHTML = '';
+    arr.forEach((field, idx) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px';
+        const needsOpts = field.type === 'dropdown' || field.type === 'multiselect';
+        const optsHtml = needsOpts ? `
+            <div style="margin-top:8px">
+                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
+                    ${field.options.map((o, oi) => `<div class="chip">${o}<span class="remove" onclick="removeCFOption('${prefix}',${idx},${oi})">×</span></div>`).join('')}
+                </div>
+                <div style="display:flex;gap:6px">
+                    <input type="text" id="${prefix}CF${idx}OptInput" placeholder="Add options…"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();addCFOption('${prefix}',${idx})}"
+                        style="flex:1;font-size:13px;padding:7px 10px">
+                    <button type="button" class="secondary-btn" style="width:auto;padding:6px 10px;margin:0;font-size:12px"
+                        onclick="addCFOption('${prefix}',${idx})">+</button>
+                </div>
+            </div>` : '';
+        div.innerHTML = `
+            <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="${prefix}CF${idx}Label" placeholder="Field label" value="${field.label}"
+                    onchange="updateCFLabel('${prefix}',${idx})" style="flex:1;font-size:13px;padding:7px 10px">
+                <select id="${prefix}CF${idx}Type" onchange="updateCFType('${prefix}',${idx})"
+                    style="width:auto;min-width:100px;font-size:13px;padding:7px 10px">
+                    <option value="text" ${field.type==='text'?'selected':''}>Text</option>
+                    <option value="number" ${field.type==='number'?'selected':''}>Number</option>
+                    <option value="dropdown" ${field.type==='dropdown'?'selected':''}>Dropdown</option>
+                    <option value="multiselect" ${field.type==='multiselect'?'selected':''}>Multi-select</option>
+                </select>
+                <button type="button" onclick="removeCustomField('${prefix}',${idx})"
+                    style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px">×</button>
+            </div>${optsHtml}`;
+        container.appendChild(div);
+    });
+}
+
+function buildExtraFieldsJSON(prefix) {
+    const result = [];
+    if (prefix === 'add' ? addThemeSet : editThemeSet) {
+        const hex = document.getElementById(prefix + 'ThemeHex').value;
+        if (hex) result.push({ theme: hex });
+    }
+    const wc = document.getElementById(prefix + 'WinCondition').value;
+    if (wc) result.push({ winCondition: wc });
+    const cats = prefix === 'add' ? addScorepadCats : editScorepadCats;
+    if (cats.length > 0) result.push({ scorepad: [...cats] });
+    const fields = prefix === 'add' ? addCustomFields : editCustomFields;
+    fields.forEach(f => {
+        if (!f.label) return;
+        const entry = { label: f.label, type: f.type };
+        if ((f.type === 'dropdown' || f.type === 'multiselect') && f.options.length > 0) entry.options = [...f.options];
+        result.push(entry);
+    });
+    return result.length > 0 ? JSON.stringify(result) : '';
+}
+
+function populateExtraFieldsForm(prefix, extraFields) {
+    let fields = extraFields || [];
+    if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch(e) { fields = []; } }
+    // Reset
+    if (prefix === 'add') { addScorepadCats = []; addCustomFields = []; addThemeSet = false; }
+    else { editScorepadCats = []; editCustomFields = []; editThemeSet = false; }
+    // Theme
+    const theme = fields.find(f => f.theme);
+    if (theme) { document.getElementById(prefix+'ThemeColor').value = theme.theme; document.getElementById(prefix+'ThemeHex').value = theme.theme; if(prefix==='add') addThemeSet=true; else editThemeSet=true; }
+    else { clearTheme(prefix); }
+    // Win condition
+    const wc = fields.find(f => f.winCondition);
+    document.getElementById(prefix + 'WinCondition').value = wc ? wc.winCondition : '';
+    // Scorepad
+    const sp = fields.find(f => f.scorepad);
+    if (sp) { if(prefix==='add') addScorepadCats=[...sp.scorepad]; else editScorepadCats=[...sp.scorepad]; }
+    renderScorepadChips(prefix);
+    // Custom fields
+    const customs = fields.filter(f => f.label && !f.winCondition && !f.scorepad && !f.theme);
+    const arr = customs.map(f => ({ label: f.label, type: f.type || 'text', options: f.options ? [...f.options] : [] }));
+    if (prefix === 'add') addCustomFields = arr; else editCustomFields = arr;
+    renderCustomFieldRows(prefix);
+}
+  
 // ── MULTI-SELECTS ─────────────────────────────────────────
 function openMultiSelect(type) {
   currentDropdown = type; currentDropdownField = null;
@@ -1012,15 +1232,11 @@ function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(e
 
 // ── WIN CONDITIONS ────────────────────────────────────────
 function getWinCondition() {
-  const fields = currentGameData?.extraFields ?? [];
-  if(fields.some(f => f.scorepad)) return 'score';
-  const wc = fields.find(f => f.winCondition);
-  if (wc) return wc.winCondition;
-  if (currentGameData?.coop) return 'winlose';
-  return 'score';
+    const fields = currentGameData?.extraFields ?? [];
+    const wc = fields.find(f => f.winCondition);
+    if (wc) return wc.winCondition;
+    return 'score';
 }
-
-
   
 function getScorepad() {
   const sp = (currentGameData?.extraFields||[]).find(f=>f.scorepad);
@@ -1383,6 +1599,7 @@ async function submitAddGame() {
     coop:document.getElementById('addCoop').checked?'TRUE':'FALSE',
     solo:document.getElementById('addSolo').checked?'TRUE':'FALSE',
     baseGame:document.getElementById('addBaseGame').value,
+    extraFields: buildExtraFieldsJSON('add'),
   };
   const btn=document.getElementById('addGameBtn'); btn.disabled=true; btn.textContent='Adding…';
   try{
@@ -1397,12 +1614,13 @@ async function submitAddGame() {
 }
 
 function resetAddForm() {
-  ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl','addExtraFields'].forEach(id=>document.getElementById(id).value='');
+  ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addCoop').checked=false; document.getElementById('addSolo').checked=false;
   document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
   renderTypeChips('addTypeContainer','addTypePlaceholder',selectedAddTypes,'addType');
+  populateExtraFieldsForm('add', []);
 }
 
 function showAddStatus(msg,isError=false,isSuccess=false) {
@@ -1427,9 +1645,7 @@ function openEditGame(game) {
   document.getElementById('editSolo').checked=game.solo||false;
   document.getElementById('editComplexity').value=game.complexity||'';
   document.getElementById('editBaseGame').value=game.baseGame||'';
-  let efVal='';
-  if(game.extraFields){try{efVal=Array.isArray(game.extraFields)?JSON.stringify(game.extraFields):game.extraFields;}catch(e){}}
-  document.getElementById('editExtraFields').value=efVal;
+  populateExtraFieldsForm('edit', game.extraFields);
   // Weight buttons
   const w=parseInt(game.complexity)||0; selectedEditWeight=w||null;
   document.querySelectorAll('#editWeightInput .weight-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===w));
@@ -1462,7 +1678,7 @@ async function submitEditGame() {
     coop:document.getElementById('editCoop').checked?'TRUE':'FALSE',
     solo:document.getElementById('editSolo').checked?'TRUE':'FALSE',
     baseGame:document.getElementById('editBaseGame').value,
-    extraFields:document.getElementById('editExtraFields').value.trim(),
+    extraFields: buildExtraFieldsJSON('edit'),
   };
   const btn=document.getElementById('editSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
   try{
