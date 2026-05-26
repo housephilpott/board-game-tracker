@@ -445,6 +445,10 @@
         <select id="fieldGame" onchange="onGameChange()"><option value="">Select a game…</option></select>
       </div>
     </div>
+    <div class="section" id="sectionMode" style="display:none">
+    <div class="section-title">Game Mode</div>
+    <div id="modeContent"></div>
+    </div>
     <div class="section" id="sectionStats" style="display:none">
       <div class="section-title">Game History</div>
       <div class="auto-field">
@@ -587,13 +591,12 @@
     <div class="section">
       <div class="section-title">Art &amp; Flags</div>
       <div class="field"><label>Image URL <span style="font-weight:400;color:var(--text-faint)">(optional)</span></label><input type="url" id="addImageUrl" placeholder="https://…"></div>
-      <div class="field" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="addCoop" style="width:auto;padding:0;margin:0">
-        <label for="addCoop" style="margin:0;font-size:14px">Co-operative game</label>
-      </div>
-      <div class="field" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="addSolo" style="width:auto;padding:0;margin:0">
-        <label for="addSolo" style="margin:0;font-size:14px">Can be played solo</label>
+      <div class="field"><label>Game Modes <span style="font-weight:400;color:var(--text-faint)">(select all that apply)</span></label>
+        <div class="dest-toggle" id="addModesToggle">
+          <button type="button" class="dest-btn" data-mode="solo" onclick="toggleMode('add','solo')">🧍 Solo</button>
+          <button type="button" class="dest-btn" data-mode="coop" onclick="toggleMode('add','coop')">🤝 Co-op</button>
+          <button type="button" class="dest-btn" data-mode="competitive" onclick="toggleMode('add','competitive')">⚔️ Competitive</button>
+        </div>
       </div>
     </div>
 
@@ -687,14 +690,14 @@
     <div class="section">
       <div class="section-title">Art &amp; Flags</div>
       <div class="field"><label>Image URL</label><input type="url" id="editImageUrl"></div>
-      <div class="field" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="editCoop" style="width:auto;padding:0;margin:0">
-        <label for="editCoop" style="margin:0;font-size:14px">Co-operative game</label>
-      </div>
-      <div class="field" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="editSolo" style="width:auto;padding:0;margin:0">
-        <label for="editSolo" style="margin:0;font-size:14px">Can be played solo</label>
-      </div>
+      <div class="field">
+    <label>Game Modes <span style="font-weight:400;color:var(--text-faint)">(select all that apply)</span></label>
+    <div class="dest-toggle" id="editModesToggle">
+        <button type="button" class="dest-btn" data-mode="solo" onclick="toggleMode('edit','solo')">🧍 Solo</button>
+        <button type="button" class="dest-btn" data-mode="coop" onclick="toggleMode('edit','coop')">🤝 Co-op</button>
+        <button type="button" class="dest-btn" data-mode="competitive" onclick="toggleMode('edit','competitive')">⚔️ Competitive</button>
+    </div>
+</div>
     </div>
 
     <div class="section">
@@ -771,7 +774,8 @@ let editingGame = null;
 let addScorepadCats = [], editScorepadCats = [];
 let addCustomFields = [], editCustomFields = [];
 let addThemeSet = false, editThemeSet = false;
-
+let addSelectedModes = [], editSelectedModes = [];
+let selectedMode = '';
 
 // ─── LOGO MAP ─────────────────────────────────────────────
 const LOGO_MAP = {
@@ -926,6 +930,7 @@ async function onGameChange() {
   const game = allGames.find(g => g.name === gameName);
   currentGameData = game;
   applyTheme(getGameTheme(game)); setBackgroundImage(game?.imageUrl || '');
+  renderModePicker(game);
   buildExtraFields(game);
   document.getElementById('sectionStats').style.display = 'block';
   ['valLastPlayed','valTotalPlays','valTopWinner'].forEach(id => document.getElementById(id).textContent = '…');
@@ -1087,6 +1092,8 @@ function renderCustomFieldRows(prefix) {
 
 function buildExtraFieldsJSON(prefix) {
     const result = [];
+  const modes = prefix === 'add' ? addSelectedModes : editSelectedModes;
+if (modes.length > 0) result.push({ modes: [...modes] });
     if (prefix === 'add' ? addThemeSet : editThemeSet) {
         const hex = document.getElementById(prefix + 'ThemeHex').value;
         if (hex) result.push({ theme: hex });
@@ -1114,7 +1121,17 @@ function populateExtraFieldsForm(prefix, extraFields) {
     // Theme
     const theme = fields.find(f => f.theme);
     if (theme) { document.getElementById(prefix+'ThemeColor').value = theme.theme; document.getElementById(prefix+'ThemeHex').value = theme.theme; if(prefix==='add') addThemeSet=true; else editThemeSet=true; }
-    else { clearTheme(prefix); }
+    else { clearTheme(prefix); 
+    // Modes
+const modesObj = fields.find(f => f.modes);
+if (modesObj) {
+    if (prefix === 'add') addSelectedModes = [...modesObj.modes];
+    else editSelectedModes = [...modesObj.modes];
+} else {
+    if (prefix === 'add') addSelectedModes = [];
+    else editSelectedModes = [];
+}
+renderModeButtons(prefix); }
     // Win condition
     const wc = fields.find(f => f.winCondition);
     document.getElementById(prefix + 'WinCondition').value = wc ? wc.winCondition : '';
@@ -1127,6 +1144,63 @@ function populateExtraFieldsForm(prefix, extraFields) {
     const arr = customs.map(f => ({ label: f.label, type: f.type || 'text', options: f.options ? [...f.options] : [] }));
     if (prefix === 'add') addCustomFields = arr; else editCustomFields = arr;
     renderCustomFieldRows(prefix);
+}
+  
+// ── GAME MODES ──────────────────────────────────────────
+function toggleMode(prefix, mode) {
+    const arr = prefix === 'add' ? addSelectedModes : editSelectedModes;
+    const idx = arr.indexOf(mode);
+    if (idx > -1) arr.splice(idx, 1); else arr.push(mode);
+    renderModeButtons(prefix);
+}
+
+function renderModeButtons(prefix) {
+    const arr = prefix === 'add' ? addSelectedModes : editSelectedModes;
+    document.querySelectorAll(`#${prefix}ModesToggle .dest-btn`).forEach(btn => {
+        btn.classList.toggle('selected', arr.includes(btn.dataset.mode));
+    });
+}
+
+function getGameModes(game) {
+    const fields = game?.extraFields || [];
+    if (typeof fields === 'string') { try { fields = JSON.parse(fields); } catch(e) { return ['competitive']; } }
+    const mf = fields.find(f => f.modes);
+    if (mf) return [...mf.modes];
+    // Legacy fallback: derive from booleans
+    const modes = [];
+    if (game?.solo) modes.push('solo');
+    if (game?.coop) modes.push('coop');
+    if (modes.length === 0) modes.push('competitive');
+    return modes;
+}
+
+function renderModePicker(game) {
+    const section = document.getElementById('sectionMode');
+    const content = document.getElementById('modeContent');
+    const modes = getGameModes(game);
+    const labels = { solo: '🧍 Solo', coop: '🤝 Co-op', competitive: '⚔️ Competitive' };
+
+    if (modes.length <= 1) {
+        selectedMode = modes[0] || 'competitive';
+        content.innerHTML = `<div class="card-stat" style="display:inline-flex">${labels[selectedMode] || selectedMode}</div>`;
+        section.style.display = 'block';
+        return;
+    }
+
+    selectedMode = '';
+    content.innerHTML = `<div class="dest-toggle">${modes.map(m =>
+        `<button type="button" class="dest-btn" id="mode-${m}" onclick="selectMode('${m}')">${labels[m] || m}</button>`
+    ).join('')}</div>`;
+    section.style.display = 'block';
+}
+
+function selectMode(mode) {
+    selectedMode = mode;
+    const modes = getGameModes(currentGameData);
+    modes.forEach(m => {
+        const btn = document.getElementById('mode-' + m);
+        if (btn) btn.classList.toggle('selected', m === mode);
+    });
 }
   
 // ── MULTI-SELECTS ─────────────────────────────────────────
@@ -1327,6 +1401,7 @@ async function submitForm() {
   const game=document.getElementById('fieldGame').value;
   if(!game){showStatus('Please select a game.',true);return;}
   if(selectedPlayers.length===0){showStatus('Please select at least one player.',true);return;}
+  if(getGameModes(currentGameData).length > 1 && !selectedMode){showStatus('Please select a game mode.',true);return;}
   const winner=document.getElementById('fieldWinner').value;
   const wc=getWinCondition();
   if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success or Failure.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return;}
@@ -1337,6 +1412,7 @@ async function submitForm() {
   (currentGameData?.extraFields||[]).forEach(field=>{if(!field.label)return;const sk=fieldKey(field.label);extras[field.label]=field.type==='multiselect'?(extraMultiSelects[sk]||[]).join(', '):(document.getElementById(`extra-${sk}`)?.value||'');});
   const payload={date:document.getElementById('fieldDate').value,game,players:selectedPlayers.join(', '),scores:JSON.stringify(scores),winner,extras:JSON.stringify(extras),lastPlayed:document.getElementById('valLastPlayed').textContent,totalPlays:document.getElementById('valTotalPlays').textContent,topWinner:document.getElementById('valTopWinner').textContent};
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Submitting…';
+  if (selectedMode) extras['Mode'] = selectedMode;
   try {
     const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
     const result=await res.json();
@@ -1351,7 +1427,7 @@ function resetLogForm() {
   document.getElementById('fieldWinner').style.display=''; document.getElementById('fieldWinner').readOnly=true;
   selectedPlayers=[]; extraMultiSelects={}; renderPlayerChips();
   ['resultSection','sectionStats','sectionExtra','recentSection'].forEach(id=>document.getElementById(id).style.display='none');
-  currentGameData=null; applyTheme(null); setBackgroundImage('');
+  currentGameData=null; selectedMode = ''; document.getElementById('sectionMode').style.display = 'none';applyTheme(null); setBackgroundImage('');
 }
 
 function showStatus(msg,isError=false,isSuccess=false) {
@@ -1596,8 +1672,8 @@ async function submitAddGame() {
     maxPlayers:document.getElementById('addMaxPlayers').value,
     complexity:document.getElementById('addComplexity').value,
     imageUrl:document.getElementById('addImageUrl').value.trim(),
-    coop:document.getElementById('addCoop').checked?'TRUE':'FALSE',
-    solo:document.getElementById('addSolo').checked?'TRUE':'FALSE',
+    coop: addSelectedModes.includes('coop') ? 'TRUE' : 'FALSE',
+    solo: addSelectedModes.includes('solo') ? 'TRUE' : 'FALSE',
     baseGame:document.getElementById('addBaseGame').value,
     extraFields: buildExtraFieldsJSON('add'),
   };
@@ -1615,7 +1691,7 @@ async function submitAddGame() {
 
 function resetAddForm() {
   ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('addCoop').checked=false; document.getElementById('addSolo').checked=false;
+  addSelectedModes = []; renderModeButtons('add');
   document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
@@ -1641,8 +1717,19 @@ function openEditGame(game) {
   document.getElementById('editMinPlayers').value=game.minPlayers||'';
   document.getElementById('editMaxPlayers').value=game.maxPlayers||'';
   document.getElementById('editImageUrl').value=game.imageUrl||'';
-  document.getElementById('editCoop').checked=game.coop||false;
-  document.getElementById('editSolo').checked=game.solo||false;
+  // Populate modes
+const ef = game.extraFields || [];
+const parsedEF = typeof ef === 'string' ? (()=>{ try { return JSON.parse(ef); } catch(e) { return []; } })() : ef;
+const modesObj = parsedEF.find(f => f.modes);
+if (modesObj) {
+    editSelectedModes = [...modesObj.modes];
+} else {
+    editSelectedModes = [];
+    if (game.solo) editSelectedModes.push('solo');
+    if (game.coop) editSelectedModes.push('coop');
+    if (!game.solo && !game.coop) editSelectedModes.push('competitive');
+}
+renderModeButtons('edit');
   document.getElementById('editComplexity').value=game.complexity||'';
   document.getElementById('editBaseGame').value=game.baseGame||'';
   populateExtraFieldsForm('edit', game.extraFields);
@@ -1675,8 +1762,8 @@ async function submitEditGame() {
     maxPlayers:document.getElementById('editMaxPlayers').value,
     complexity:document.getElementById('editComplexity').value,
     imageUrl:document.getElementById('editImageUrl').value.trim(),
-    coop:document.getElementById('editCoop').checked?'TRUE':'FALSE',
-    solo:document.getElementById('editSolo').checked?'TRUE':'FALSE',
+    coop: editSelectedModes.includes('coop') ? 'TRUE' : 'FALSE',
+    solo: editSelectedModes.includes('solo') ? 'TRUE' : 'FALSE',
     baseGame:document.getElementById('editBaseGame').value,
     extraFields: buildExtraFieldsJSON('edit'),
   };
