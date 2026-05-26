@@ -1014,7 +1014,7 @@ function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(e
 function getWinCondition() {
   const fields = currentGameData?.extraFields ?? [];
   if(fields.some(f => f.scorepad)) return 'score';
-  const (wc) = fields.find(f => f.winCondition);
+  const wc = fields.find(f => f.winCondition);
   if (wc) return wc.winCondition;
   if (currentGameData?.coop) return 'winlose';
   return 'score';
