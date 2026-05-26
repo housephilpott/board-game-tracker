@@ -1013,16 +1013,19 @@ function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(e
 // ── WIN CONDITIONS ────────────────────────────────────────
 function getWinCondition() {
   const fields = currentGameData?.extraFields||[];
-  const wc = fields.find(f=>f.winCondition);
+  if(fields.some(f => f.scorepad)) return 'score';
+  const (wc) = fields.find(f => f.winCondition);
   if (wc) return wc.winCondition;
   if (currentGameData?.coop) return 'winlose';
   return 'score';
 }
+
+
+  
 function getScorepad() {
   const sp = (currentGameData?.extraFields||[]).find(f=>f.scorepad);
   return sp ? sp.scorepad : null;
 }
-
 // ── SCORES ────────────────────────────────────────────────
 function updateScores() {
   const rs = document.getElementById('resultSection');
