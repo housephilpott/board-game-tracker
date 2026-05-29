@@ -226,6 +226,11 @@
  .dest-toggle { display: flex; gap: 8px; margin-bottom: 4px; }
  .dest-btn { flex: 1; padding: 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; }
  .dest-btn.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+ .pie-canvas-wrap{text-align:center;margin-bottom:12px}
+ .pie-legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center}
+ .pie-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)}
+ .pie-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+ .pie-legend-pct{color:var(--text-faint);font-size:11px}
 </style>
 </head>
 <body>
@@ -333,6 +338,11 @@
  <div class="field"><label>Winner</label><input type="text" id="fieldWinner" readonly placeholder="Auto-filled from scores&hellip;"></div>
  </div>
  <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Session</button>
+ <div class="section" id="sectionWinChart" style="margin-top:12px;display:none">
+ <div class="section-title" id="winChartTitle">Win Distribution</div>
+ <div class="pie-canvas-wrap"><canvas id="winPieCanvas" width="220" height="220"></canvas></div>
+ <div class="pie-legend" id="winPieLegend"></div>
+ </div>
  <div class="section" id="recentSection" style="margin-top:12px;display:none">
  <div class="section-title" id="recentTitle">Recent Plays</div>
  <table id="recentTable" style="width:100%;border-collapse:collapse"></table>
@@ -755,6 +765,7 @@ async function onGameChange() {
   document.getElementById('sectionExtra').style.display = 'none';
   document.getElementById('recentSection').style.display = 'none';
   document.getElementById('sectionMode').style.display = 'none';
+  document.getElementById('sectionWinChart').style.display = 'none';
   extraMultiSelects = {};
   selectedMode = '';
   if (!gameName) { applyTheme(null); setBackgroundImage(''); return; }
@@ -1040,7 +1051,7 @@ async function loadRecentPlays() {
     const res=await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
     const data=await res.json();
     allSessions=data.sessions.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    shownCount=0; renderRecentPlays();
+    shownCount=0; renderRecentPlays(); renderWinChart();
   } catch(e){}
 }
 function renderRecentPlays() {
@@ -1079,6 +1090,46 @@ function getWinnerScore(session) {
   if(!session.scores||!session.winner) return '';
   if(session.winner.startsWith('TIE!')||session.winner==='N/A') return '';
   try{const sc=JSON.parse(session.scores);const v=sc[session.winner];if(v===undefined)return '';if(typeof v==='string'&&v.startsWith('{')){const bd=JSON.parse(v);return bd.Total!==undefined?bd.Total:'';}return v;}catch(e){return '';}
+}
+
+const PIE_COLORS=['#e94560','#40e094','#4da6ff','#ffa040','#c084fc','#f472b6','#34d399','#facc15','#60a5fa','#fb923c','#a78bfa','#f87171','#2dd4bf','#e879f9','#38bdf8'];
+function renderWinChart(){
+  const section=document.getElementById('sectionWinChart'),canvas=document.getElementById('winPieCanvas'),legend=document.getElementById('winPieLegend');
+  if(!allSessions||allSessions.length===0){section.style.display='none';return;}
+  const counts={};
+  allSessions.forEach(s=>{let w=s.winner;if(!w||w==='N/A')return;if(w.startsWith('TIE!'))w='Tie';counts[w]=(counts[w]||0)+1;});
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(entries.length===0){section.style.display='none';return;}
+  const total=entries.reduce((s,[,v])=>s+v,0);
+  document.getElementById('winChartTitle').textContent='Win Distribution \u2014 '+shortenGame(document.getElementById('fieldGame').value);
+  section.style.display='block';
+  const ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,size=220;
+  canvas.width=size*dpr;canvas.height=size*dpr;canvas.style.width=size+'px';canvas.style.height=size+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,size,size);
+  const cx=size/2,cy=size/2,radius=90;
+  ctx.save();ctx.shadowColor='rgba(233,69,96,0.25)';ctx.shadowBlur=20;
+  ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();ctx.restore();
+  let startAngle=-Math.PI/2;
+  entries.forEach(([name,count],i)=>{
+    const sliceAngle=(count/total)*Math.PI*2,color=PIE_COLORS[i%PIE_COLORS.length];
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,radius,startAngle,startAngle+sliceAngle);ctx.closePath();
+    ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=1.5;ctx.stroke();
+    if(sliceAngle>0.4){const midAngle=startAngle+sliceAngle/2,labelR=radius*0.62,lx=cx+Math.cos(midAngle)*labelR,ly=cy+Math.sin(midAngle)*labelR;
+      ctx.fillStyle='#fff';ctx.font='bold 13px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(Math.round((count/total)*100)+'%',lx,ly);}
+    startAngle+=sliceAngle;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,radius*0.42,0,Math.PI*2);
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-section').trim()||'#16213e';ctx.fill();
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim()||'#e0e0e0';
+  ctx.font='bold 22px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(total,cx,cy-8);
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-faint').trim()||'#7090b0';
+  ctx.font='10px -apple-system,sans-serif';ctx.fillText(total===1?'game':'games',cx,cy+10);
+  legend.innerHTML='';
+  entries.forEach(([name,count],i)=>{const pct=Math.round((count/total)*100),color=PIE_COLORS[i%PIE_COLORS.length];
+    const item=document.createElement('div');item.className='pie-legend-item';
+    item.innerHTML='<div class="pie-legend-dot" style="background:'+color+'"></div>'+name+' <span class="pie-legend-pct">'+count+' ('+pct+'%)</span>';
+    legend.appendChild(item);});
 }
 
 // PLAY HISTORY
