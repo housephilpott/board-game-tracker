@@ -1285,10 +1285,12 @@ function renderLibrary() {
 function renderLibraryCards(games) {
   const container=document.getElementById('libraryCards');
   const countEl=document.getElementById('libraryCount');
-  countEl.textContent=games.length===0?'No games match your filters':`${games.length} game${games.length!==1?'s':''}`;
+  const baseGames=[...games].filter(g=>!g.baseGame);
+  countEl.textContent=baseGames.length===0?'No games match your filters':`${baseGames.length} game${baseGames.length!==1?'s':''}`;
+
   if(games.length===0){container.innerHTML=`<div class="library-empty">No games found.<br>Try adjusting your filters.</div>`;return;}
   container.innerHTML='';
-  [...games].sort((a,b)=>sortName(a.name).localeCompare(sortName(b.name))).forEach(game=>{
+  baseGames.sort((a,b)=>sortName(a.name).localeCompare(sortName(b.name))).forEach(game=>{
     const card=document.createElement('div'); card.className='game-card';
     const artHtml=game.imageUrl
     ?`<div class="card-art"><img src="${game.imageUrl}" alt="${game.name}" onerror="this.parentElement.innerHTML='\\uD83C\\uDFB2'"></div>`
