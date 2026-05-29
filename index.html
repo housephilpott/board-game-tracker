@@ -310,6 +310,12 @@
  <select id="fieldGame" onchange="onGameChange()"><option value="">Select a game&hellip;</option></select>
  </div>
  </div>
+ <div class="section" id="sectionExpansions" style="display:none">
+ <div class="section-title">Expansions</div>
+ <div class="chip-container" id="expansionsContainer" onclick="openMultiSelect('expansions')">
+ <span class="chip-placeholder">Select expansions…</span>
+ </div>
+ </div>
  <div class="section" id="sectionMode" style="display:none">
  <div class="section-title">Game Mode</div>
  <div id="modeContent"></div>
@@ -602,6 +608,10 @@
 </div>
 
 <!-- Dropdown overlay -->
+<div class="screen" id="screenGameDetail"><div class="page-body">
+<div id="gameDetailContent"></div>
+<div id="gameDetailExpansions"></div>
+</div></div>
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
  <div class="dropdown-sheet">
  <h3 id="dropdownTitle"></h3>
@@ -624,6 +634,7 @@ let addCustomFields = [], editCustomFields = [];
 let addThemeSet = false, editThemeSet = false;
 let addSelectedModes = [], editSelectedModes = [];
 let selectedMode = '';
+let selectedExpansions = [];
 
 const LOGO_MAP = {
   'Dice Throne': 'logos/dice-throne.png',
@@ -710,10 +721,16 @@ function showScreen(id) {
     populateBaseGameDropdowns();
   } else if (id === 'screenEditGame') {
     title.textContent = '\u270F\uFE0F Edit Game'; sub.textContent = 'Update game details';
-  }
+  } else if (id === 'screenGameDetail') {
+  back.classList.remove('hidden');
   window.scrollTo(0, 0);
 }
-function goHome() { showScreen('screenHome'); }
+function goHome() {
+  const current = document.querySelector('.screen.active');
+  if (current && current.id === 'screenGameDetail') { showScreen('screenLibrary'); return; }
+  if (current && current.id === 'screenCharacters') { showScreen('screenLibrary'); return; }
+  showScreen('screenHome');
+}
 
 function setDestination(dest) {
   addDestination = dest;
@@ -772,6 +789,15 @@ async function onGameChange() {
   const game = allGames.find(g => g.name === gameName);
   currentGameData = JSON.parse(JSON.stringify(game));
   applyTheme(getGameTheme(game)); setBackgroundImage(game?.imageUrl || '');
+  const expansions = allLibrary.filter(g => g.baseGame === gameName);
+if (expansions.length > 0) {
+  selectedExpansions = ['Base Game'];
+  renderExpansionChips();
+  document.getElementById('sectionExpansions').style.display = 'block';
+} else {
+  selectedExpansions = [];
+  document.getElementById('sectionExpansions').style.display = 'none';
+}
   renderModePicker(game);
   buildExtraFields(game);
   document.getElementById('sectionStats').style.display = 'block';
@@ -819,8 +845,15 @@ function fieldKey(label) { return label.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase
 // MULTI-SELECTS
 function openMultiSelect(type) {
   currentDropdown = type; currentDropdownField = null;
-  document.getElementById('dropdownTitle').textContent = 'Select Players';
-  renderDropdownOptions(allPlayers, selectedPlayers);
+  if (type === 'expansions') {
+    document.getElementById('dropdownTitle').textContent = 'Select Expansions';
+    const gameName = document.getElementById('fieldGame').value;
+    const expNames = ['Base Game', ...allLibrary.filter(g => g.baseGame === gameName).map(g => g.name).sort()];
+    renderDropdownOptions(expNames, selectedExpansions);
+  } else {
+    document.getElementById('dropdownTitle').textContent = 'Select Players';
+    renderDropdownOptions(allPlayers, selectedPlayers);
+  }
   document.getElementById('dropdownOverlay').classList.add('open');
 }
 function openExtraMultiSelect(sk, label, idx) {
@@ -865,6 +898,7 @@ function renderDropdownOptions(items, selected) {
 }
 function closeMultiSelect() {
   document.getElementById('dropdownOverlay').classList.remove('open');
+  if (currentDropdown === 'expansions') { renderExpansionChips(); }
   if (currentDropdown === 'players') { renderPlayerChips(); updateScores(); }
   else if (currentDropdown === 'addType') renderTypeChips('addTypeContainer','addTypePlaceholder', selectedAddTypes, 'addType');
   else if (currentDropdown === 'editType') renderTypeChips('editTypeContainer','editTypePlaceholder', selectedEditTypes, 'editType');
@@ -883,6 +917,16 @@ function renderPlayerChips() {
     c.appendChild(chip);
   });
 }
+function renderExpansionChips() {
+  const c = document.getElementById('expansionsContainer'); c.innerHTML = '';
+  if (selectedExpansions.length === 0) { c.innerHTML = '<span class="chip-placeholder">Select expansions\u2026</span>'; return; }
+  selectedExpansions.forEach(item => {
+    const chip = document.createElement('div'); chip.className = 'chip';
+    chip.innerHTML = item + '<span class="remove" onclick="removeExpansion(event,\'' + item.replace(/'/g,"\\'") + '\')">\u00d7</span>';
+    c.appendChild(chip);
+  });
+}
+function removeExpansion(e, v) { e.stopPropagation(); selectedExpansions = selectedExpansions.filter(x => x !== v); renderExpansionChips(); }
 function renderTypeChips(containerId, phId, arr, context) {
   const c = document.getElementById(containerId); c.innerHTML = '';
   if (arr.length === 0) { c.innerHTML=`<span class="chip-placeholder" id="${phId}">Select types\u2026</span>`; return; }
@@ -1014,6 +1058,9 @@ async function submitForm() {
   const extras={};
   (currentGameData?.extraFields||[]).forEach(field=>{if(!field.label)return;const sk=fieldKey(field.label);extras[field.label]=field.type==='multiselect'?(extraMultiSelects[sk]||[]).join(', '):(document.getElementById(`extra-${sk}`)?.value||'');});
   if (selectedMode) extras['Mode'] = selectedMode;
+  if (selectedExpansions.length > 0 && !(selectedExpansions.length === 1 && selectedExpansions[0] === 'Base Game')) {
+  extras['Expansions'] = selectedExpansions.filter(e => e !== 'Base Game').join(', ');
+}
   const payload={date:document.getElementById('fieldDate').value,game,players:selectedPlayers.join(', '),scores:JSON.stringify(scores),winner,extras:JSON.stringify(extras),lastPlayed:document.getElementById('valLastPlayed').textContent,totalPlays:document.getElementById('valTotalPlays').textContent,topWinner:document.getElementById('valTopWinner').textContent};
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Submitting\u2026';
   try {
@@ -1032,6 +1079,8 @@ function resetLogForm() {
   ['resultSection','sectionStats','sectionExtra','recentSection'].forEach(id=>document.getElementById(id).style.display='none');
   currentGameData=null; applyTheme(null); setBackgroundImage('');
   selectedMode = '';
+  selectedExpansions = [];
+document.getElementById('sectionExpansions').style.display = 'none';
   document.getElementById('sectionMode').style.display = 'none';
 }
 
@@ -1290,12 +1339,7 @@ function renderLibraryCards(games) {
       const editBtn = card.querySelector('.card-edit-btn');
       editBtn.parentNode.insertBefore(charBtn, editBtn);
     }
-    card.querySelector('.card-body').onclick = () => {
-      const detail = card.querySelector('.card-detail');
-      const isOpen = detail.classList.contains('open');
-      document.querySelectorAll('.card-detail.open').forEach(d=>d.classList.remove('open'));
-      if (!isOpen) detail.classList.add('open');
-    };
+    card.querySelector('.card-body').onclick = () => { openGameDetail(game); };
     container.appendChild(card);
   });
 }
@@ -1677,6 +1721,94 @@ function populateExtraFieldsForm(prefix, extraFields) {
   const arr = customs.map(f => ({ label: f.label, type: f.type || 'text', options: f.options ? [...f.options] : [] }));
   if (prefix === 'add') addCustomFields = arr; else editCustomFields = arr;
   renderCustomFieldRows(prefix);
+}
+
+// GAME DETAIL SCREEN
+function openGameDetail(game) {
+  showScreen('screenGameDetail');
+  document.getElementById('headerTitle').textContent = game.name;
+  document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
+  applyTheme(getGameTheme(game));
+  setBackgroundImage(game.imageUrl || '');
+  renderGameDetailContent(game);
+}
+function renderGameDetailContent(game) {
+  const container = document.getElementById('gameDetailContent');
+  const expContainer = document.getElementById('gameDetailExpansions');
+  const players = game.minPlayers && game.maxPlayers
+    ? (game.minPlayers === game.maxPlayers ? game.minPlayers + 'p' : game.minPlayers + '\u2013' + game.maxPlayers + 'p')
+    : game.maxPlayers ? 'Up to ' + game.maxPlayers + 'p' : '';
+  const complexity = game.complexity ? parseFloat(game.complexity).toFixed(1) : null;
+  const dots = complexity ? Array.from({length:5},(_,i) => '<div class="dot' + (i < Math.round(parseFloat(complexity)) ? ' filled' : '') + '"></div>').join('') : '';
+  const typeTags = game.gameType ? game.gameType.split(',').map(t => t.trim()).filter(Boolean).map(t => '<div class="card-stat">' + t + '</div>').join('') : '';
+  const artHtml = game.imageUrl
+    ? '<div class="card-art"><img src="' + game.imageUrl + '" alt="' + game.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
+    : '<div class="card-art">\uD83C\uDFB2</div>';
+  const fields = [
+    game.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
+    game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
+    game.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
+    players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
+    complexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
+  ].filter(Boolean).join('');
+  let btns = '';
+  if (hasCharacters(game.name)) {
+    btns += '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick="openCharacters(\'' + game.name.replace(/'/g,"\\'") + '\')">\uD83C\uDFAD Characters</button>';
+  }
+  btns += '<button class="card-edit-btn" onclick="openEditGame(libraryGameByName(\'' + game.name.replace(/'/g,"\\'") + '\'))">\u270E Edit</button>';
+  container.innerHTML = '<div class="game-card" style="cursor:default;margin-bottom:16px">' + artHtml +
+    '<div class="card-body">' +
+    (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
+    '<div class="card-name">' + game.name + '</div>' +
+    (game.description ? '<div class="card-desc">' + game.description + '</div>' : '') +
+    '<div class="card-stats">' +
+    (players ? '<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">' + players + '</span></div>' : '') +
+    (complexity ? '<div class="card-stat">Weight <span class="card-stat-accent">' + complexity + '</span> <div class="complexity-dots">' + dots + '</div></div>' : '') +
+    (game.coop ? '<div class="card-stat">\uD83E\uDD1D Co-op</div>' : '') +
+    (game.solo ? '<div class="card-stat">\uD83E\uDDCD Solo</div>' : '') +
+    '</div></div>' +
+    '<div style="padding:0 14px 14px">' + fields +
+    (typeTags ? '<div class="card-detail-badges" style="margin-top:8px">' + typeTags + '</div>' : '') +
+    btns + '</div></div>';
+  // Expansions
+  const expansions = allLibrary.filter(g => g.baseGame === game.name).sort((a,b) => sortName(a.name).localeCompare(sortName(b.name)));
+  if (expansions.length === 0) { expContainer.innerHTML = ''; return; }
+  expContainer.innerHTML = '<div class="section-title" style="margin-top:4px">\uD83D\uDCE6 Expansions (' + expansions.length + ')</div>';
+  expansions.forEach(exp => {
+    const card = document.createElement('div'); card.className = 'game-card';
+    const eArt = exp.imageUrl
+      ? '<div class="card-art"><img src="' + exp.imageUrl + '" alt="' + exp.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
+      : '<div class="card-art">\uD83C\uDFB2</div>';
+    const ePlayers = exp.minPlayers && exp.maxPlayers
+      ? (exp.minPlayers === exp.maxPlayers ? exp.minPlayers + 'p' : exp.minPlayers + '\u2013' + exp.maxPlayers + 'p') : '';
+    const eComp = exp.complexity ? parseFloat(exp.complexity).toFixed(1) : null;
+    const eDots = eComp ? Array.from({length:5},(_,i) => '<div class="dot' + (i < Math.round(parseFloat(eComp)) ? ' filled' : '') + '"></div>').join('') : '';
+    const eFields = [
+      exp.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + exp.designer + '</span></div>' : '',
+      exp.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + exp.year + '</span></div>' : '',
+    ].filter(Boolean).join('');
+    const eTypes = exp.gameType ? exp.gameType.split(',').map(t => t.trim()).filter(Boolean).map(t => '<div class="card-stat">' + t + '</div>').join('') : '';
+    const bgStyle = exp.imageUrl ? "background-image:url('" + exp.imageUrl + "')" : '';
+    card.innerHTML = eArt +
+      '<div class="card-body"><div class="card-name">' + exp.name + '</div>' +
+      '<div class="card-stats">' +
+      (ePlayers ? '<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">' + ePlayers + '</span></div>' : '') +
+      (eComp ? '<div class="card-stat">Weight <span class="card-stat-accent">' + eComp + '</span> <div class="complexity-dots">' + eDots + '</div></div>' : '') +
+      '</div></div>' +
+      '<div class="card-detail" style="display:none"><div class="card-detail-bg" style="' + bgStyle + '"></div><div class="card-detail-content">' +
+      (exp.description ? '<div class="card-detail-desc">' + exp.description + '</div>' : '') +
+      eFields +
+      (eTypes ? '<div class="card-detail-badges">' + eTypes + '</div>' : '') +
+      '<button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName(\'' + exp.name.replace(/'/g,"\\'") + '\'))">\u270E Edit</button>' +
+      '</div></div>';
+    card.onclick = () => {
+      const detail = card.querySelector('.card-detail');
+      const isOpen = detail.style.display === 'block';
+      expContainer.querySelectorAll('.card-detail').forEach(d => d.style.display = 'none');
+      detail.style.display = isOpen ? 'none' : 'block';
+    };
+    expContainer.appendChild(card);
+  });
 }
 
 // HELPERS
