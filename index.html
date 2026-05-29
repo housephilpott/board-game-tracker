@@ -1724,6 +1724,7 @@ function populateExtraFieldsForm(prefix, extraFields) {
 }
 
 // GAME DETAIL SCREEN
+ 
 function openGameDetail(game) {
   showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
@@ -1748,14 +1749,13 @@ function renderGameDetailContent(game) {
     game.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
     game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
     game.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
-    players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
-    complexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
+    players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65omplexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
   ].filter(Boolean).join('');
-  let btns = '';
+  var btns = '';
   if (hasCharacters(game.name)) {
-    btns += '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick="openCharacters(\'' + game.name.replace(/'/g,"\\'") + '\')">\uD83C\uDFAD Characters</button>';
+    btns += '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px" onclick="event.stopPropagation();openCharacters(\'' + game.name.replace(/'/g,"\\'") + '\')">\uD83C\uDFAD Characters</button>';
   }
-  btns += '<button class="card-edit-btn" onclick="openEditGame(libraryGameByName(\'' + game.name.replace(/'/g,"\\'") + '\'))">\u270E Edit</button>';
+  btns += '<button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName(\'' + game.name.replace(/'/g,"\\'") + '\'))">\u270E Edit</button>';
   container.innerHTML = '<div class="game-card" style="cursor:default;margin-bottom:16px">' + artHtml +
     '<div class="card-body">' +
     (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
@@ -1770,25 +1770,24 @@ function renderGameDetailContent(game) {
     '<div style="padding:0 14px 14px">' + fields +
     (typeTags ? '<div class="card-detail-badges" style="margin-top:8px">' + typeTags + '</div>' : '') +
     btns + '</div></div>';
-  // Expansions
-  const expansions = allLibrary.filter(g => g.baseGame === game.name).sort((a,b) => sortName(a.name).localeCompare(sortName(b.name)));
+  var expansions = allLibrary.filter(function(g) { return g.baseGame === game.name; }).sort(function(a,b) { return sortName(a.name).localeCompare(sortName(b.name)); });
   if (expansions.length === 0) { expContainer.innerHTML = ''; return; }
   expContainer.innerHTML = '<div class="section-title" style="margin-top:4px">\uD83D\uDCE6 Expansions (' + expansions.length + ')</div>';
-  expansions.forEach(exp => {
-    const card = document.createElement('div'); card.className = 'game-card';
-    const eArt = exp.imageUrl
-      ? '<div class="card-art"><img src="' + exp.imageUrl + '" alt="' + exp.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
+  expansions.forEach(function(exp) {
+    var card = document.createElement('div'); card.className = 'game-card';
+    var eArt = exp.imageUrl
+      ? '<div class="card-art">' + exp.imageUrl + '=\'\\uD83C\\uDFB2\'"></div>'
       : '<div class="card-art">\uD83C\uDFB2</div>';
-    const ePlayers = exp.minPlayers && exp.maxPlayers
+    var ePlayers = exp.minPlayers && exp.maxPlayers
       ? (exp.minPlayers === exp.maxPlayers ? exp.minPlayers + 'p' : exp.minPlayers + '\u2013' + exp.maxPlayers + 'p') : '';
-    const eComp = exp.complexity ? parseFloat(exp.complexity).toFixed(1) : null;
-    const eDots = eComp ? Array.from({length:5},(_,i) => '<div class="dot' + (i < Math.round(parseFloat(eComp)) ? ' filled' : '') + '"></div>').join('') : '';
-    const eFields = [
+    var eComp = exp.complexity ? parseFloat(exp.complexity).toFixed(1) : null;
+    var eDots = eComp ? Array.from({length:5},function(_,i) { return '<div class="dot' + (i < Math.round(parseFloat(eComp)) ? ' filled' : '') + '"></div>'; }).join('') : '';
+    var eFields = [
       exp.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + exp.designer + '</span></div>' : '',
       exp.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + exp.year + '</span></div>' : '',
     ].filter(Boolean).join('');
-    const eTypes = exp.gameType ? exp.gameType.split(',').map(t => t.trim()).filter(Boolean).map(t => '<div class="card-stat">' + t + '</div>').join('') : '';
-    const bgStyle = exp.imageUrl ? "background-image:url('" + exp.imageUrl + "')" : '';
+    var eTypes = exp.gameType ? exp.gameType.split(',').map(function(t) { return t.trim(); }).filter(Boolean).map(function(t) { return '<div class="card-stat">' + t + '</div>'; }).join('') : '';
+    var bgStyle = exp.imageUrl ? "background-image:url('" + exp.imageUrl + "')" : '';
     card.innerHTML = eArt +
       '<div class="card-body"><div class="card-name">' + exp.name + '</div>' +
       '<div class="card-stats">' +
@@ -1801,10 +1800,10 @@ function renderGameDetailContent(game) {
       (eTypes ? '<div class="card-detail-badges">' + eTypes + '</div>' : '') +
       '<button class="card-edit-btn" onclick="event.stopPropagation();openEditGame(libraryGameByName(\'' + exp.name.replace(/'/g,"\\'") + '\'))">\u270E Edit</button>' +
       '</div></div>';
-    card.onclick = () => {
-      const detail = card.querySelector('.card-detail');
-      const isOpen = detail.style.display === 'block';
-      expContainer.querySelectorAll('.card-detail').forEach(d => d.style.display = 'none');
+    card.onclick = function() {
+      var detail = card.querySelector('.card-detail');
+      var isOpen = detail.style.display === 'block';
+      expContainer.querySelectorAll('.card-detail').forEach(function(d) { d.style.display = 'none'; });
       detail.style.display = isOpen ? 'none' : 'block';
     };
     expContainer.appendChild(card);
