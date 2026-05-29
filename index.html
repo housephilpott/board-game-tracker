@@ -1800,7 +1800,6 @@ function renderGameDetailContent(game) {
     allExp.forEach(function(group) {
     expContainer.innerHTML += '<div class="section-title" style="margin-top:12px">' + group.label + '</div>';
     group.items.forEach(function(exp) {
-    expansions.forEach(function(exp) {
     var card = document.createElement('div'); card.className = 'game-card';
     var eArt = exp.imageUrl
       ? '<div class="card-art"><img src="' + exp.imageUrl + '"></div>'
