@@ -722,9 +722,11 @@ function showScreen(id) {
   } else if (id === 'screenEditGame') {
     title.textContent = '\u270F\uFE0F Edit Game'; sub.textContent = 'Update game details';
   } else if (id === 'screenGameDetail') {
-  back.classList.remove('hidden');
+    back.classList.remove('hidden');
+  }
   window.scrollTo(0, 0);
 }
+
 function goHome() {
   const current = document.querySelector('.screen.active');
   if (current && current.id === 'screenGameDetail') { showScreen('screenLibrary'); return; }
@@ -784,6 +786,7 @@ async function onGameChange() {
   document.getElementById('sectionMode').style.display = 'none';
   document.getElementById('sectionWinChart').style.display = 'none';
   extraMultiSelects = {};
+  selectedMode = '';
   
   if (!gameName) { applyTheme(null); setBackgroundImage(''); return; }
   const game = allGames.find(g => g.name === gameName);
@@ -1082,6 +1085,7 @@ function resetLogForm() {
   document.getElementById('sectionMode').style.display = 'none';
   selectedExpansions = [];
   document.getElementById('sectionExpansions').style.display = 'none';
+  document.getElementById('sectionWinChart').style.display = 'none';
 }
 
 function showStatus(msg,isError=false,isSuccess=false) {
@@ -1296,17 +1300,7 @@ function renderLibraryCards(games) {
     const dots=complexity?Array.from({length:5},(_,i)=>`<div class="dot${i<Math.round(parseFloat(complexity))?' filled':''}"></div>`).join(''):'';
     const lastPlayed=game.lastPlayed?`<div class="card-stat">\uD83D\uDD52 <span class="card-stat-accent">${game.lastPlayed}</span></div>`:'';
     const theme=getGameTheme(game);
-    const themeStyle=theme?`--accent:${lighten(theme)};--bg-section:${darken(theme,0.16)};--bg-input:${darken(theme,0.22)};--border:${darken(theme,0.35)};`:'';
     const typeTags=game.gameType?game.gameType.split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<div class="card-stat">${t}</div>`).join(''):'';
-    const detailFields=[
-      game.designer ?`<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">${game.designer}</span></div>`:'',
-      game.publisher ?`<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">${game.publisher}</span></div>`:'',
-      game.year ?`<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">${game.year}</span></div>`:'',
-      players ?`<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">${players}</span></div>`:'',
-      complexity ?`<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">${complexity} / 5</span></div>`:'',
-      game.baseGame ?`<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCE6 Expansion</span><span class="card-detail-field-value">for ${game.baseGame}</span></div>`:'',
-    ].filter(Boolean).join('');
-    const bgStyle=game.imageUrl?`background-image:url('${game.imageUrl}')`:'';
     card.innerHTML=`
       ${artHtml}
       <div class="card-body">
@@ -1320,25 +1314,8 @@ function renderLibraryCards(games) {
           ${lastPlayed}
         </div>
       </div>
-      <div class="card-detail" id="detail-${card_id(game.name)}" style="${themeStyle}">
-        <div class="card-detail-bg" style="${bgStyle}"></div>
-        <div class="card-detail-content">
-          ${game.description?`<div class="card-detail-desc">${game.description}</div>`:''}
-          ${detailFields}
-          ${typeTags?`<div class="card-detail-badges">${typeTags}</div>`:''}
-          <button class="card-edit-btn" id="edit-${card_id(game.name)}" onclick="event.stopPropagation();openEditGame(libraryGameByName(this.dataset.name))" data-name="${game.name.replace(/"/g,'&quot;')}">&#9998; Edit</button>
-        </div>
-      </div>`;
-    // Characters button
-    if (hasCharacters(game.name)) {
-      const charBtn = document.createElement('button');
-      charBtn.className = 'card-edit-btn';
-      charBtn.style.cssText = 'background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-bottom:8px';
-      charBtn.textContent = '\uD83C\uDFAD Characters';
-      charBtn.onclick = (e) => { e.stopPropagation(); openCharacters(game.name); };
-      const editBtn = card.querySelector('.card-edit-btn');
-      editBtn.parentNode.insertBefore(charBtn, editBtn);
-    }
+</div>`;
+      
     card.querySelector('.card-body').onclick = () => { openGameDetail(game); };
     container.appendChild(card);
   });
