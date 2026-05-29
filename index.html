@@ -1287,8 +1287,7 @@ function renderLibraryCards(games) {
   [...games].sort((a,b)=>sortName(a.name).localeCompare(sortName(b.name))).forEach(game=>{
     const card=document.createElement('div'); card.className='game-card';
     const artHtml=game.imageUrl
-      ?`<div class="card-art"><img src="${game.imageUrl}" alt="${game.name}" onerror="this.parentElement.innerHTML='\uD83C\uDFB2'"></div>`
-      :`<div class="card-art">\uD83C\uDFB2</div>`;
+      ? '<div class="card-art"><img src="' + exp.imageUrl + '" alt="' + exp.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
     const players=game.minPlayers&&game.maxPlayers
       ?(game.minPlayers===game.maxPlayers?`${game.minPlayers}p`:`${game.minPlayers}\u2013${game.maxPlayers}p`)
       :game.maxPlayers?`Up to ${game.maxPlayers}p`:'';
