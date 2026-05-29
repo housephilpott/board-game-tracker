@@ -1749,7 +1749,8 @@ function renderGameDetailContent(game) {
     game.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
     game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
     game.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
-    players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65omplexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
+    players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
+    complexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
   ].filter(Boolean).join('');
   var btns = '';
   if (hasCharacters(game.name)) {
