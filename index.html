@@ -1756,7 +1756,7 @@ function renderGameDetailContent(game) {
   expansions.forEach(function(exp) {
     var card = document.createElement('div'); card.className = 'game-card';
     var eArt = exp.imageUrl
-      ? '<div class="card-art">' + exp.imageUrl + '=\'\\uD83C\\uDFB2\'"></div>'
+      ? '<div class="card-art"><img src="' + exp.imageUrl + '"></div>'
       : '<div class="card-art">\uD83C\uDFB2</div>';
     var ePlayers = exp.minPlayers && exp.maxPlayers
       ? (exp.minPlayers === exp.maxPlayers ? exp.minPlayers + 'p' : exp.minPlayers + '\u2013' + exp.maxPlayers + 'p') : '';
