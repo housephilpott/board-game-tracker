@@ -784,7 +784,7 @@ async function onGameChange() {
   document.getElementById('sectionMode').style.display = 'none';
   document.getElementById('sectionWinChart').style.display = 'none';
   extraMultiSelects = {};
-  selectedMode = '';
+  
   if (!gameName) { applyTheme(null); setBackgroundImage(''); return; }
   const game = allGames.find(g => g.name === gameName);
   currentGameData = JSON.parse(JSON.stringify(game));
@@ -1079,9 +1079,9 @@ function resetLogForm() {
   ['resultSection','sectionStats','sectionExtra','recentSection'].forEach(id=>document.getElementById(id).style.display='none');
   currentGameData=null; applyTheme(null); setBackgroundImage('');
   selectedMode = '';
-  selectedExpansions = [];
-document.getElementById('sectionExpansions').style.display = 'none';
   document.getElementById('sectionMode').style.display = 'none';
+  selectedExpansions = [];
+  document.getElementById('sectionExpansions').style.display = 'none';
 }
 
 function showStatus(msg,isError=false,isSuccess=false) {
