@@ -930,6 +930,7 @@ function renderDropdownOptions(items, selected) {
     div.onclick = () => {
       let arr;
       if (currentDropdown === 'players') arr = selectedPlayers;
+      else if (currentDropdown === 'expansions') arr = selectedExpansions;
       else if (currentDropdown === 'addType') arr = selectedAddTypes;
       else if (currentDropdown === 'editType') arr = selectedEditTypes;
       else arr = extraMultiSelects[currentDropdownField];
