@@ -251,11 +251,6 @@
  <h2>Board Game Tracker</h2>
  <p id="homeSubtitle">Loading your collection&hellip;</p>
  </div>
- <div class="section" id="sectionHomeChart" style="margin:0 16px;display:none">
- <div class="section-title" id="homeChartTitle">&#127942; Overall Win Distribution</div>
- <div class="pie-canvas-wrap"><canvas id="homePieCanvas" width="220" height="220"></canvas></div>
- <div class="pie-legend" id="homePieLegend"></div>
- </div>
  <div class="home-buttons">
  <button class="home-btn" onclick="showScreen('screenLog')">
  <span class="home-btn-icon">&#128221;</span>
@@ -272,6 +267,11 @@
  <div><div class="home-btn-label">Want List</div><div class="home-btn-sub" id="wantListSub">Games you want to buy</div></div>
  <span class="home-btn-arrow">&#8250;</span>
  </button>
+ <div class="section" id="sectionHomeChart" style="display:none">
+ <div class="section-title" id="homeChartTitle">&#127942; Overall Win Distribution</div>
+ <div class="pie-canvas-wrap"><canvas id="homePieCanvas" width="220" height="220"></canvas></div>
+ <div class="pie-legend" id="homePieLegend"></div>
+ </div>
  <button class="home-btn" onclick="showScreen('screenHistory')">
  <span class="home-btn-icon">&#128214;</span>
  <div><div class="home-btn-label">Play History</div><div class="home-btn-sub" id="historyHomeSub">All your recorded sessions</div></div>
