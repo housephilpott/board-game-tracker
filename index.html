@@ -251,6 +251,11 @@
  <h2>Board Game Tracker</h2>
  <p id="homeSubtitle">Loading your collection&hellip;</p>
  </div>
+ <div class="section" id="sectionHomeChart" style="margin:0 16px;display:none">
+ <div class="section-title" id="homeChartTitle">&#127942; Overall Win Distribution</div>
+ <div class="pie-canvas-wrap"><canvas id="homePieCanvas" width="220" height="220"></canvas></div>
+ <div class="pie-legend" id="homePieLegend"></div>
+ </div>
  <div class="home-buttons">
  <button class="home-btn" onclick="showScreen('screenLog')">
  <span class="home-btn-icon">&#128221;</span>
@@ -692,6 +697,7 @@ async function loadFromSheet() {
     populateGameDropdown();
     sub.textContent = 'Updating display\u2026';
     updateHomeSubtitle();
+    renderHomeChart();
     populateTypeFilter();
     populateBaseGameDropdowns();
   } catch(e) {
@@ -1837,6 +1843,82 @@ function renderGameDetailContent(game) {
 });     
 }
 
+// HOME PIE CHART
+async function renderHomeChart() {
+  const section = document.getElementById('sectionHomeChart');
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
+    const data = await res.json();
+    const sessions = data.sessions || [];
+    if (sessions.length === 0) { section.style.display = 'none'; return; }
+    const counts = {};
+    sessions.forEach(function(s) {
+      var w = s.winner;
+      if (!w || w === 'N/A' || w === 'Win' || w === 'Loss' || w === 'Success' || w === 'Failure') return;
+      if (w.startsWith('TIE!')) return;
+      counts[w] = (counts[w] || 0) + 1;
+    });
+    var entries = Object.entries(counts).filter(function(e) { return e[1] >= 2; }).sort(function(a,b) { return b[1] - a[1]; });
+    if (entries.length === 0) { section.style.display = 'none'; return; }
+    var total = entries.reduce(function(s,e) { return s + e[1]; }, 0);
+    section.style.display = 'block';
+    var canvas = document.getElementById('homePieCanvas');
+    var legend = document.getElementById('homePieLegend');
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var size = 220;
+    canvas.width = size * dpr; canvas.height = size * dpr;
+    canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+    var cx = size / 2, cy = size / 2, radius = 90;
+    ctx.save();
+    ctx.shadowColor = 'rgba(233,69,96,0.25)'; ctx.shadowBlur = 20;
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
+    ctx.restore();
+    var startAngle = -Math.PI / 2;
+    entries.forEach(function(entry, i) {
+      var count = entry[1];
+      var sliceAngle = (count / total) * Math.PI * 2;
+      var color = PIE_COLORS[i % PIE_COLORS.length];
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+      ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+      if (sliceAngle > 0.4) {
+        var midAngle = startAngle + sliceAngle / 2;
+        var labelR = radius * 0.62;
+        var lx = cx + Math.cos(midAngle) * labelR;
+        var ly = cy + Math.sin(midAngle) * labelR;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px -apple-system,sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(Math.round((count / total) * 100) + '%', lx, ly);
+      }
+      startAngle += sliceAngle;
+    });
+    ctx.beginPath(); ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-section').trim() || '#16213e';
+    ctx.fill();
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#e0e0e0';
+    ctx.font = 'bold 22px -apple-system,sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(total, cx, cy - 8);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-faint').trim() || '#7090b0';
+    ctx.font = '10px -apple-system,sans-serif';
+    ctx.fillText('wins', cx, cy + 10);
+    legend.innerHTML = '';
+    entries.forEach(function(entry, i) {
+      var pct = Math.round((entry[1] / total) * 100);
+      var color = PIE_COLORS[i % PIE_COLORS.length];
+      var item = document.createElement('div'); item.className = 'pie-legend-item';
+      item.innerHTML = '<div class="pie-legend-dot" style="background:' + color + '"></div>' + entry[0] + ' <span class="pie-legend-pct">' + entry[1] + ' (' + pct + '%)</span>';
+      legend.appendChild(item);
+    });
+  } catch(e) { section.style.display = 'none'; }
+}
+ 
 // HELPERS
 function sortName(name) {
   return name.replace(/^(A|An|The)\s+/i, '').trim();
