@@ -1016,12 +1016,30 @@ function updateScores() {
   if (selectedPlayers.length===0) { rs.style.display='none'; return; }
   rs.style.display='block'; c.innerHTML=''; wf.value=''; wf.style.display=''; wf.readOnly=true;
   const wc = getWinCondition();
-  if (wc==='winlose') {
-    c.innerHTML=`<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose('Win')">&#127942; Win</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Loss')">&#128128; Loss</div></div>`;
-    wf.placeholder='Select Win or Loss\u2026';
-  } else if (wc==='successfail') {
-    c.innerHTML=`<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose('Success')">&#9989; Success</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose('Failure')">&#10060; Failure</div></div>`;
-    wf.placeholder='Select Success or Failure\u2026';
+  if (wc==='winlose' || wc==='successfail') {
+    var btnLabel1 = wc==='winlose' ? '&#127942; Win' : '&#9989; Success';
+    var btnLabel2 = wc==='winlose' ? '&#128128; Loss' : '&#10060; Failure';
+    var val1 = wc==='winlose' ? 'Win' : 'Success';
+    var val2 = wc==='winlose' ? 'Loss' : 'Failure';
+    c.innerHTML='<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose(\''+val1+'\')">' + btnLabel1 + '</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose(\''+val2+'\')">' + btnLabel2 + '</div></div>';
+    wf.placeholder='Select ' + (wc==='winlose' ? 'Win or Loss' : 'Success or Failure') + '\u2026';
+    var sp = getScorepad();
+    if (sp) {
+      var wrap=document.createElement('div'); wrap.className='scorepad-wrap'; wrap.style.gridColumn='1/-1';
+      var table=document.createElement('table'); table.className='scorepad';
+      var thead=document.createElement('thead'), hrow=document.createElement('tr');
+      hrow.innerHTML='<th class="category-col">Category</th>'+selectedPlayers.map(function(p){return '<th>'+p.split(' ')[0]+'</th>';}).join('');
+      thead.appendChild(hrow); table.appendChild(thead);
+      var tbody=document.createElement('tbody');
+      sp.forEach(function(cat){
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td class="category-label">'+cat+'</td>'+selectedPlayers.map(function(p){var sid='sp-'+p.replace(/\s/g,'_')+'-'+cat.replace(/[^a-zA-Z0-9]/g,'_');return '<td><input type="number" id="'+sid+'" placeholder="\u2014" oninput="autoTotalScorepad()"></td>';}).join('');
+        tbody.appendChild(tr);
+      });
+      var tr=document.createElement('tr'); tr.className='total-row';
+      tr.innerHTML='<td class="category-label">Total</td>'+selectedPlayers.map(function(p){return '<td class="total-val" id="sp-total-'+p.replace(/\s/g,'_')+'">0</td>';}).join('');
+      tbody.appendChild(tr); table.appendChild(tbody); wrap.appendChild(table); c.appendChild(wrap);
+    }
   } else if (wc==='manual') {
     c.innerHTML=`<div class="field" style="grid-column:1/-1;margin-bottom:0"><select id="manualWinner" onchange="document.getElementById('fieldWinner').value=this.value"><option value="">Select winner\u2026</option>${selectedPlayers.map(p=>`<option>${p}</option>`).join('')}</select></div>`;
     wf.style.display='none'; return;
