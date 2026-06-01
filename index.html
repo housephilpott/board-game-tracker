@@ -662,6 +662,7 @@ let addSelectedModes = [], editSelectedModes = [];
 let selectedMode = '';
 let selectedExpansions = [];
 let selectedVersion = '';
+let libraryScrollPos = 0; 
 
 const LOGO_MAP = {
   'Dice Throne': 'logos/dice-throne.png',
@@ -733,6 +734,7 @@ function showScreen(id) {
     title.textContent = '\uD83D\uDCDA Library';
     sub.textContent = `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''}`;
     renderLibrary();
+     setTimeout(function() { window.scrollTo(0, libraryScrollPos); }, 50);
   } else if (id === 'screenWantList') {
     title.textContent = '\uD83D\uDED2 Want List';
     sub.textContent = `${allWantList.length} game${allWantList.length !== 1 ? 's' : ''}`;
@@ -1770,7 +1772,8 @@ function populateExtraFieldsForm(prefix, extraFields) {
 // GAME DETAIL SCREEN
  
 function openGameDetail(game) {
-  showScreen('screenGameDetail');
+  libraryScrollPos = window.scrollY;
+ showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
   document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
   applyTheme(getGameTheme(game));
