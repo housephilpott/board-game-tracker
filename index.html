@@ -529,6 +529,9 @@
  <button type="button" class="secondary-btn" onclick="addCustomField('add')">+ Add Field</button>
  </div>
  </div>
+ <div class="section"><div class="section-title">Notes</div>
+ <div class="field"><textarea id="addNotes" placeholder="Any notes about this game…"></textarea></div>
+ </div>
  <button class="submit-btn" id="addGameBtn" onclick="submitAddGame()">Add Game</button>
  </div>
 </div>
@@ -627,6 +630,9 @@
  <div id="editCustomFieldsList"></div>
  <button type="button" class="secondary-btn" onclick="addCustomField('edit')">+ Add Field</button>
  </div>
+ </div>
+ <div class="section"><div class="section-title">Notes</div>
+ <div class="field"><textarea id="editNotes" placeholder="Any notes about this game…"></textarea></div>
  </div>
  <button class="submit-btn" id="editSaveBtn" onclick="submitEditGame()">Save Changes</button>
  <button class="secondary-btn" onclick="showScreen('screenLibrary')">Cancel</button>
@@ -1460,6 +1466,7 @@ async function submitAddGame() {
     solo: addSelectedModes.includes('solo') ? 'TRUE' : 'FALSE',
     baseGame:document.getElementById('addBaseGame').value,
     linkType:document.getElementById('addBaseGame').value ? document.getElementById('addLinkType').value : '',
+    notes:document.getElementById('addNotes').value||'',
     extraFields: buildExtraFieldsJSON('add'),
   };
   const btn=document.getElementById('addGameBtn'); btn.disabled=true; btn.textContent='Adding\u2026';
@@ -1475,7 +1482,7 @@ async function submitAddGame() {
 }
 function resetAddForm() {
   ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';
+  document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';document.getElementById('addNotes').value='';
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
   renderTypeChips('addTypeContainer','addTypePlaceholder',selectedAddTypes,'addType');
@@ -1504,6 +1511,7 @@ function openEditGame(game) {
   document.getElementById('editComplexity').value=game.complexity||'';
   document.getElementById('editBaseGame').value=game.baseGame||'';
   document.getElementById('editLinkType').value=game.linkType||'expansion';
+  document.getElementById('editNotes').value=game.notes||'';
   // Weight buttons
   const w=parseInt(game.complexity)||0; selectedEditWeight=w||null;
   document.querySelectorAll('#editWeightInput .weight-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===w));
@@ -1546,6 +1554,7 @@ async function submitEditGame() {
     solo: editSelectedModes.includes('solo') ? 'TRUE' : 'FALSE',
     baseGame:document.getElementById('editBaseGame').value,
     linkType:document.getElementById('editBaseGame').value ? document.getElementById('editLinkType').value : '',
+    notes:document.getElementById('editNotes').value||'',
     extraFields: buildExtraFieldsJSON('edit'),
   };
   const btn=document.getElementById('editSaveBtn'); btn.disabled=true; btn.textContent='Saving\u2026';
@@ -1817,7 +1826,9 @@ function renderGameDetailContent(game) {
     '</div></div>' +
     '<div style="padding:0 14px 14px">' + fields +
     (typeTags ? '<div class="card-detail-badges" style="margin-top:8px">' + typeTags + '</div>' : '') +
-    btns + '</div></div>';
+    btns + '</div>' +
+    (game.notes ? '<div style="padding:0 14px 14px"><div class="section-title" style="margin-bottom:6px">\uD83D\uDCDD Notes</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap">' + game.notes + '</div></div>' : '') +
+    '</div>';
     var versions = allLibrary.filter(function(g) { return g.baseGame === game.name && g.linkType === 'version'; }).sort(function(a,b) { return sortName(a.name).localeCompare(sortName(b.name)); });
     var expansions = allLibrary.filter(function(g) { return g.baseGame === game.name && (!g.linkType || g.linkType === 'expansion'); }).sort(function(a,b) { return sortName(a.name).localeCompare(sortName(b.name)); });
     if (versions.length === 0 && expansions.length === 0) { expContainer.innerHTML = ''; return; }
