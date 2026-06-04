@@ -1976,13 +1976,8 @@ async function renderTopGames() {
     var medals = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
     var html = '';
     top.forEach(function(entry, i) {
-      var game = allLibrary.find(function(g) { return g.name === entry[0]; });
-      var art = game && game.imageUrl
-        ? '<img src="' + game.imageUrl + '">'
-        : '<div style="width:36px;height:36px;border-radius:6px;background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:18px">\uD83C\uDFB2</div>';
       html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;' + (i < top.length - 1 ? 'border-bottom:1px solid var(--border-dark)' : '') + '">'
         + '<div style="font-size:20px;width:28px;text-align:center">' + medals[i] + '</div>'
-        + art
         + '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + entry[0] + '</div></div>'
         + '<div style="font-size:18px;font-weight:800;color:var(--accent)">' + entry[1] + '</div>'
         + '</div>';
