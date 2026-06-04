@@ -272,6 +272,10 @@
  <div class="pie-canvas-wrap"><canvas id="homePieCanvas" width="220" height="220"></canvas></div>
  <div class="pie-legend" id="homePieLegend"></div>
  </div>
+ <div class="section" id="sectionTopGames" style="display:none">
+ <div class="section-title">&#127942; Most Played Games</div>
+ <div id="topGamesContent"></div>
+ </div>
  <button class="home-btn" onclick="showScreen('screenHistory')">
  <span class="home-btn-icon">&#128214;</span>
  <div><div class="home-btn-label">Play History</div><div class="home-btn-sub" id="historyHomeSub">All your recorded sessions</div></div>
@@ -705,6 +709,7 @@ async function loadFromSheet() {
     sub.textContent = 'Updating display\u2026';
     updateHomeSubtitle();
     renderHomeChart();
+    renderTopGames();
     populateTypeFilter();
     populateBaseGameDropdowns();
   } catch(e) {
@@ -1949,6 +1954,41 @@ async function renderHomeChart() {
       item.innerHTML = '<div class="pie-legend-dot" style="background:' + color + '"></div>' + entry[0] + ' <span class="pie-legend-pct">' + entry[1] + ' (' + pct + '%)</span>';
       legend.appendChild(item);
     });
+  } catch(e) { section.style.display = 'none'; }
+}
+
+// TOP GAMES TABLE
+async function renderTopGames() {
+  var section = document.getElementById('sectionTopGames');
+  var content = document.getElementById('topGamesContent');
+  try {
+    var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
+    var data = await res.json();
+    var sessions = data.sessions || [];
+    if (sessions.length === 0) { section.style.display = 'none'; return; }
+    var counts = {};
+    sessions.forEach(function(s) {
+      if (!s.game) return;
+      counts[s.game] = (counts[s.game] || 0) + 1;
+    });
+    var top = Object.entries(counts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 3);
+    if (top.length === 0) { section.style.display = 'none'; return; }
+    var medals = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
+    var html = '';
+    top.forEach(function(entry, i) {
+      var game = allLibrary.find(function(g) { return g.name === entry[0]; });
+      var art = game && game.imageUrl
+        ? '<img src="' + game.imageUrl + '">'
+        : '<div style="width:36px;height:36px;border-radius:6px;background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:18px">\uD83C\uDFB2</div>';
+      html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;' + (i < top.length - 1 ? 'border-bottom:1px solid var(--border-dark)' : '') + '">'
+        + '<div style="font-size:20px;width:28px;text-align:center">' + medals[i] + '</div>'
+        + art
+        + '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + entry[0] + '</div></div>'
+        + '<div style="font-size:18px;font-weight:800;color:var(--accent)">' + entry[1] + '</div>'
+        + '</div>';
+    });
+    content.innerHTML = html;
+    section.style.display = 'block';
   } catch(e) { section.style.display = 'none'; }
 }
  
