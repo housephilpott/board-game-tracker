@@ -550,6 +550,7 @@
  <button type="button" class="secondary-btn" onclick="addCustomField('add')">+ Add Field</button>
  </div>
  </div>
+ <div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="addExcludeRandom" style="accent-color:var(--accent);width:18px;height:18px"> Exclude from random picker</label></div>
  <div class="section"><div class="section-title">Notes</div>
  <div class="field"><textarea id="addNotes" placeholder="Any notes about this game…"></textarea></div>
  </div>
@@ -652,6 +653,7 @@
  <button type="button" class="secondary-btn" onclick="addCustomField('edit')">+ Add Field</button>
  </div>
  </div>
+ <div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="editExcludeRandom" style="accent-color:var(--accent);width:18px;height:18px"> Exclude from random picker</label></div>
  <div class="section"><div class="section-title">Notes</div>
  <div class="field"><textarea id="editNotes" placeholder="Any notes about this game…"></textarea></div>
  </div>
@@ -1492,6 +1494,7 @@ async function submitAddGame() {
     baseGame:document.getElementById('addBaseGame').value,
     linkType:document.getElementById('addBaseGame').value ? document.getElementById('addLinkType').value : '',
     notes:document.getElementById('addNotes').value||'',
+    excludeRandom:document.getElementById('addExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('add'),
   };
   const btn=document.getElementById('addGameBtn'); btn.disabled=true; btn.textContent='Adding\u2026';
@@ -1507,7 +1510,7 @@ async function submitAddGame() {
 }
 function resetAddForm() {
   ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';document.getElementById('addNotes').value='';
+  document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';document.getElementById('addNotes').value='';document.getElementById('addExcludeRandom').checked=false;
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
   renderTypeChips('addTypeContainer','addTypePlaceholder',selectedAddTypes,'addType');
@@ -1537,6 +1540,7 @@ function openEditGame(game) {
   document.getElementById('editBaseGame').value=game.baseGame||'';
   document.getElementById('editLinkType').value=game.linkType||'expansion';
   document.getElementById('editNotes').value=game.notes||'';
+  document.getElementById('editExcludeRandom').checked=!!game.excludeRandom;
   // Weight buttons
   const w=parseInt(game.complexity)||0; selectedEditWeight=w||null;
   document.querySelectorAll('#editWeightInput .weight-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===w));
@@ -1580,6 +1584,7 @@ async function submitEditGame() {
     baseGame:document.getElementById('editBaseGame').value,
     linkType:document.getElementById('editBaseGame').value ? document.getElementById('editLinkType').value : '',
     notes:document.getElementById('editNotes').value||'',
+    excludeRandom:document.getElementById('editExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('edit'),
   };
   const btn=document.getElementById('editSaveBtn'); btn.disabled=true; btn.textContent='Saving\u2026';
@@ -2013,8 +2018,8 @@ async function spinRandomGame() {
   var btn = document.getElementById('randomSpinBtn');
   var playerFilter = document.getElementById('randomPlayerCount').value;
   var excludeRecent = document.getElementById('randomExcludeRecent').checked;
-
-  var games = allLibrary.filter(function(g) { return !g.baseGame || g.linkType === 'version'; });
+ 
+  var games = allLibrary.filter(function(g) { return (!g.baseGame || g.linkType === 'version') && !g.excludeRandom; });
 
   // Filter by player count
   if (playerFilter) {
