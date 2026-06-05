@@ -281,6 +281,23 @@
  <div><div class="home-btn-label">Play History</div><div class="home-btn-sub" id="historyHomeSub">All your recorded sessions</div></div>
  <span class="home-btn-arrow">&#8250;</span>
  </button>
+ <div class="section" id="sectionRandomGame" style="margin:0">
+ <div class="section-title">&#127922; What should we play?</div>
+ <div style="display:flex;gap:8px;margin-bottom:12px">
+ <select id="randomPlayerCount" class="filter-select" style="flex:1">
+ <option value="">Any player count</option>
+ <option value="1">1 player</option>
+ <option value="2">2 players</option>
+ <option value="3">3 players</option>
+ <option value="4">4 players</option>
+ <option value="5">5 players</option>
+ <option value="6">6+ players</option>
+ </select>
+ <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);white-space:nowrap;cursor:pointer"><input type="checkbox" id="randomExcludeRecent" checked style="accent-color:var(--accent)"> Skip recent</label>
+ </div>
+ <div id="randomGameDisplay" style="text-align:center;font-size:18px;font-weight:700;color:var(--accent);min-height:28px;margin:10px 0;transition:transform .15s ease,opacity .15s ease">&#8212;</div>
+ <button class="secondary-btn" id="randomSpinBtn" onclick="spinRandomGame()" style="margin-top:0">Pick a random game!</button>
+ </div>
  <button class="home-btn" onclick="showScreen('screenAddGame')">
  <span class="home-btn-icon">&#10133;</span>
  <div><div class="home-btn-label">Add a Game</div><div class="home-btn-sub">Add to library or want list</div></div>
@@ -673,6 +690,9 @@ let selectedMode = '';
 let selectedExpansions = [];
 let selectedVersion = '';
 let libraryScrollPos = 0; 
+let randomSpinTimer = null;
+let randomSpinIndex = 0;
+let lastRandomResult = null;
 
 const LOGO_MAP = {
   'Dice Throne': 'logos/dice-throne.png',
@@ -1985,6 +2005,101 @@ async function renderTopGames() {
     content.innerHTML = html;
     section.style.display = 'block';
   } catch(e) { section.style.display = 'none'; }
+}
+
+// RANDOM GAME PICKER
+async function spinRandomGame() {
+  var display = document.getElementById('randomGameDisplay');
+  var btn = document.getElementById('randomSpinBtn');
+  var playerFilter = document.getElementById('randomPlayerCount').value;
+  var excludeRecent = document.getElementById('randomExcludeRecent').checked;
+
+  var games = allLibrary.filter(function(g) { return !g.baseGame; });
+
+  // Filter by player count
+  if (playerFilter) {
+    var pf = parseInt(playerFilter);
+    games = games.filter(function(g) {
+      var min = parseInt(g.minPlayers) || 1;
+      var max = parseInt(g.maxPlayers) || 99;
+      if (pf >= 6) return max >= 6;
+      return pf >= min && pf <= max;
+    });
+  }
+
+  // Exclude recently played
+  if (excludeRecent && games.length > 3) {
+    try {
+      var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
+      var data = await res.json();
+      var sessions = data.sessions || [];
+      var recentGames = [];
+      sessions.forEach(function(s) {
+        if (s.game && recentGames.indexOf(s.game) === -1 && recentGames.length < 5) {
+          recentGames.push(s.game);
+        }
+      });
+      var filtered = games.filter(function(g) { return recentGames.indexOf(g.name) === -1; });
+      if (filtered.length > 0) games = filtered;
+    } catch(e) {}
+  }
+
+  if (games.length === 0) {
+    display.textContent = 'No games match!';
+    display.onclick = null;
+    display.style.cursor = 'default';
+    return;
+  }
+
+  // Shuffle the list
+  for (var i = games.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = games[i]; games[i] = games[j]; games[j] = temp;
+  }
+
+  // If re-spinning, try to avoid the same result
+  if (lastRandomResult && games.length > 1) {
+    while (games[games.length - 1].name === lastRandomResult) {
+      var k = Math.floor(Math.random() * (games.length - 1));
+      var t = games[games.length - 1]; games[games.length - 1] = games[k]; games[k] = t;
+    }
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Spinning\u2026';
+  clearTimeout(randomSpinTimer);
+
+  var spins = 0;
+  var maxSpins = 30 + Math.floor(Math.random() * 20);
+  var delay = 40;
+
+  function tick() {
+    var game = games[randomSpinIndex % games.length];
+    display.textContent = game.name;
+    display.style.transform = 'scale(1.05)';
+    display.style.opacity = '0.7';
+    setTimeout(function() { display.style.transform = 'scale(1)'; display.style.opacity = '1'; }, 80);
+    randomSpinIndex++;
+    spins++;
+
+    if (spins < maxSpins) {
+      if (spins > maxSpins * 0.6) delay += 12;
+      else if (spins > maxSpins * 0.3) delay += 6;
+      randomSpinTimer = setTimeout(tick, delay);
+    } else {
+      // Final selection
+      display.textContent = '\uD83C\uDFAF ' + game.name;
+      display.style.cursor = 'pointer';
+      display.onclick = function() { openGameDetail(game); };
+      lastRandomResult = game.name;
+      btn.disabled = false;
+      btn.textContent = '\uD83D\uDD04 Spin again!';
+    }
+  }
+
+  display.style.cursor = 'default';
+  display.onclick = null;
+  tick();
 }
  
 // HELPERS
