@@ -2014,7 +2014,7 @@ async function spinRandomGame() {
   var playerFilter = document.getElementById('randomPlayerCount').value;
   var excludeRecent = document.getElementById('randomExcludeRecent').checked;
 
-  var games = allLibrary.filter(function(g) { return !g.baseGame; });
+  var games = allLibrary.filter(function(g) { return !g.baseGame || g.linkType === 'version'; });
 
   // Filter by player count
   if (playerFilter) {
