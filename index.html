@@ -1867,7 +1867,11 @@ function renderGameDetailContent(game) {
     if (expansions.length > 0) allExp.push({label: '\uD83D\uDCE6 Expansions (' + expansions.length + ')', items: expansions, tag: 'Expansion'});
     expContainer.innerHTML = '';
     allExp.forEach(function(group) {
-    expContainer.innerHTML += '<div class="section-title" style="margin-top:12px">' + group.label + '</div>';
+    var groupTitle = document.createElement('div');
+    groupTitle.className = 'section-title';
+    groupTitle.style.marginTop = '12px';
+    groupTitle.innerHTML = group.label;
+    expContainer.appendChild(groupTitle);
     group.items.forEach(function(exp) {
     var card = document.createElement('div'); card.className = 'game-card';
     var eArt = exp.imageUrl
