@@ -699,6 +699,18 @@ let lastRandomResult = null;
 const LOGO_MAP = {
   'Dice Throne': 'logos/dice-throne.png',
   'Marvel': 'logos/marvel.png',
+  'AHGuardian': 'logos/arkham-gua.png',
+  'AHMystic': 'logos/arkham-mys.png',
+  'AHRogue': 'logos/arkham-rog.png',
+  'AHSeeker': 'logos/arkham-see.png',
+  'AHSurvivor': 'logos/arkham-sur.png',
+  'MCAvengers': 'logos/champs-avengers.png',
+  'MCDaredevil': 'logos/champs-daredevil.png',
+  'MCGuardians': 'logos/champs-guardians.png',
+  'MCPool': 'logos/champs-pool.png',
+  'MCShield': 'logos/champs-shield.png',
+  'MCSpidey': 'logos/champs-webs.png',
+  'MCXMen': 'logos/champs-xmen.png',
 };
 function getLogoHtml(logoKey) {
   if (!logoKey || !LOGO_MAP[logoKey]) return '';
@@ -2163,8 +2175,6 @@ function renderCharacters(gameName) {
       <div class="char-detail">
         <div class="char-detail-bg" style="${bgStyle}"></div>
         <div class="char-detail-content">
-          ${complexity ? `<div class="char-complexity-label">Complexity</div><div class="char-detail-dice">${diceHtml}</div>` : ''}
-          ${ch.logo && LOGO_MAP[ch.logo] ? `<img src="${LOGO_MAP[ch.logo]}" alt="${ch.logo}" class="char-logo-detail" onerror="this.style.display='none'">` : ''}
           ${ch.foundIn ? `<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px">\uD83D\uDCE6 ${ch.foundIn}</div>` : ''}
           ${ch.description ? `<div>${ch.description}</div>` : ''}
         </div>
