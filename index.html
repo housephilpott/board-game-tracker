@@ -672,7 +672,8 @@
 <div class="pie-legend" id="detailPieLegend"></div>
 </div>
 <div class="section" id="detailRecentSection" style="display:none">
-<div class="section-title" id="detailRecentTitle">Play History</div>
+<div class="section-title" id="detailRecentTitle" onclick="toggleDetailHistory()" style="cursor:pointer">Play History &#9654;</div>
+<div id="detailRecentBody" style="display:none">
 <table id="detailRecentTable" style="width:100%;border-collapse:collapse"></table>
 <div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none">#(--accent);font-size:13px;text-decoration:none">Load more&hellip;</a></div>
 </div>
@@ -683,7 +684,7 @@
  <h3 id="dropdownTitle"></h3>
  <div id="dropdownOptions"></div>
  <button class="dropdown-done" onclick="closeMultiSelect()">Done</button>
- </div>
+ </div></div>
 </div>
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8RVFQaQxiozN4t5LAjYOgoh_m2AlP3R7yzUOS0Msmn_KxVD-_2V4l/exec';
@@ -2236,7 +2237,8 @@ function renderDetailRecent() {
   var wrap = document.getElementById('detailLoadMoreWrap');
   if (detailSessions.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
-  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
+  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ') \u25B6';
+  document.getElementById('detailRecentBody').style.display = 'none';
   var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
   var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Winner</td><td style="text-align:right">Score</td></tr>' : table.innerHTML;
   for (var i = detailShownCount; i < end; i++) {
@@ -2248,6 +2250,14 @@ function renderDetailRecent() {
   table.innerHTML = html;
   detailShownCount = end;
   wrap.style.display = detailShownCount < detailSessions.length ? 'block' : 'none';
+}
+function toggleDetailHistory() {
+  var body = document.getElementById('detailRecentBody');
+  var title = document.getElementById('detailRecentTitle');
+  var isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  var label = title.textContent.replace(/ [\u25B6\u25BC]$/, '');
+  title.textContent = label + (isOpen ? ' \u25B6' : ' \u25BC');
 }
 function detailLoadMore(e) { e.preventDefault(); renderDetailRecent(); }
  
