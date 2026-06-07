@@ -231,6 +231,7 @@
  .pie-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)}
  .pie-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
  .pie-legend-pct{color:var(--text-faint);font-size:11px}
+ .winlose-btn.lose.dnf-active{background:#2a2a1e;border-color:#a0a060;color:#d0d080}
 </style>
 </head>
 <body>
@@ -1066,9 +1067,11 @@ function updateScores() {
   if (wc==='winlose' || wc==='successfail') {
     var btnLabel1 = wc==='winlose' ? '&#127942; Win' : '&#9989; Success';
     var btnLabel2 = wc==='winlose' ? '&#128128; Loss' : '&#10060; Failure';
+    var btnLabel3 = wc==='successfail' ? '&#9898; DNF' : '';
     var val1 = wc==='winlose' ? 'Win' : 'Success';
     var val2 = wc==='winlose' ? 'Loss' : 'Failure';
-    c.innerHTML='<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose(\''+val1+'\')">' + btnLabel1 + '</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose(\''+val2+'\')">' + btnLabel2 + '</div></div>';
+    var val3 = wc==='successfail' ? 'DNF' : '';
+    c.innerHTML='<div class="winlose-toggle" style="grid-column:1/-1"><div class="winlose-btn win" id="btnWin" onclick="setWinLose(\''+val1+'\')">' + btnLabel1 + '</div><div class="winlose-btn lose" id="btnLose" onclick="setWinLose(\''+val2+'\')">' + btnLabel2 + '</div>' + (val3 ? '<div class="winlose-btn lose" id="btnDnf" onclick="setWinLose(\''+val3+'\')">' + btnLabel3 + '</div>' : '') + '</div>';
     wf.placeholder='Select ' + (wc==='winlose' ? 'Win or Loss' : 'Success or Failure') + '\u2026';
     var sp = getScorepad();
     if (sp) {
@@ -1120,10 +1123,17 @@ function updateScores() {
   }
 }
 
-function setWinLose(r) {
-  document.getElementById('btnWin').classList.toggle('active', r==='Win' || r==='Success');
-  document.getElementById('btnLose').classList.toggle('active', r==='Loss' || r==='Failure');
-  document.getElementById('fieldWinner').value=r;
+function setWinLose(val) {
+  var w = document.getElementById('btnWin');
+  var l = document.getElementById('btnLose');
+  var d = document.getElementById('btnDnf');
+  var wf = document.getElementById('fieldWinner');
+  var current = wf.value;
+  if (current === val) { wf.value = ''; w.classList.remove('active'); l.classList.remove('active'); if(d) d.classList.remove('active'); return; }
+  wf.value = val;
+  w.classList.toggle('active', val === 'Win' || val === 'Success');
+  l.classList.toggle('active', val === 'Loss' || val === 'Failure');
+  if (d) { d.classList.toggle('active', val === 'DNF'); d.classList.toggle('dnf-active', val === 'DNF'); }
 }
 
 function autoWinner() {
@@ -1161,7 +1171,7 @@ async function submitForm() {
   if(getGameModes(currentGameData).length > 1 && !selectedMode){showStatus('Please select a game mode.',true);return;}
   const winner=document.getElementById('fieldWinner').value;
   const wc=getWinCondition();
-  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success or Failure.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return;}
+  if(!winner){showStatus(wc==='winlose'?'Please select Win or Loss.':wc==='successfail'?'Please select Success, Failure, or DNF.':wc==='manual'?'Please select a winner.':'Please enter scores to determine a winner.',true);return;}
   const scores={}, sp=getScorepad();
   if(sp){selectedPlayers.forEach(p=>{const safeP=p.replace(/\s/g,'_'),breakdown={};sp.forEach(cat=>{const v=document.getElementById(`sp-${safeP}-${cat.replace(/[^a-zA-Z0-9]/g,'_')}`)?.value;if(v)breakdown[cat]=v;});const total=document.getElementById(`sp-total-${safeP}`)?.textContent||'0';scores[p]=JSON.stringify({...breakdown,Total:total});});}
   else if(wc==='score'||wc==='lowest'){selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v)scores[p]=v;});}
