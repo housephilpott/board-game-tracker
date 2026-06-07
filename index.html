@@ -666,6 +666,16 @@
 <!-- Dropdown overlay -->
 <div class="screen" id="screenGameDetail"><div class="page-body">
 <div id="gameDetailContent"></div>
+<div class="section" id="detailWinChart" style="display:none">
+<div class="section-title" id="detailWinChartTitle">Win Distribution</div>
+<div class="pie-canvas-wrap"><canvas id="detailPieCanvas" width="220" height="220"></canvas></div>
+<div class="pie-legend" id="detailPieLegend"></div>
+</div>
+<div class="section" id="detailRecentSection" style="display:none">
+<div class="section-title" id="detailRecentTitle">Play History</div>
+<table id="detailRecentTable" style="width:100%;border-collapse:collapse"></table>
+<div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none">#(--accent);font-size:13px;text-decoration:none">Load more&hellip;</a></div>
+</div>
 <div id="gameDetailExpansions"></div>
 </div></div>
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
@@ -696,6 +706,9 @@ let libraryScrollPos = 0;
 let randomSpinTimer = null;
 let randomSpinIndex = 0;
 let lastRandomResult = null;
+let detailSessions = [];
+let detailShownCount = 0;
+
 
 const LOGO_MAP = {
   'Dice Throne': 'logos/dice-throne.png',
@@ -1840,6 +1853,7 @@ function openGameDetail(game) {
   applyTheme(getGameTheme(game));
   setBackgroundImage(game.imageUrl || '');
   renderGameDetailContent(game);
+  loadDetailHistory(game.name);
 }
 function renderGameDetailContent(game) {
   const container = document.getElementById('gameDetailContent');
@@ -2132,6 +2146,110 @@ async function spinRandomGame() {
   display.onclick = null;
   tick();
 }
+
+// GAME DETAIL PLAY HISTORY
+async function loadDetailHistory(gameName) {
+  detailSessions = []; detailShownCount = 0;
+  document.getElementById('detailWinChart').style.display = 'none';
+  document.getElementById('detailRecentSection').style.display = 'none';
+  try {
+    var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions&game=' + encodeURIComponent(gameName));
+    var data = await res.json();
+    detailSessions = (data.sessions || []).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
+    if (detailSessions.length === 0) return;
+    renderDetailWinChart(gameName);
+    detailShownCount = 0;
+    renderDetailRecent();
+  } catch(e) {}
+}
+function renderDetailWinChart(gameName) {
+  var section = document.getElementById('detailWinChart');
+  var canvas = document.getElementById('detailPieCanvas');
+  var legend = document.getElementById('detailPieLegend');
+  if (!detailSessions || detailSessions.length === 0) { section.style.display = 'none'; return; }
+  var counts = {};
+  detailSessions.forEach(function(s) {
+    var w = s.winner;
+    if (!w || w === 'N/A') return;
+    if (w.startsWith('TIE!')) w = 'Tie';
+    counts[w] = (counts[w] || 0) + 1;
+  });
+  var entries = Object.entries(counts).sort(function(a,b) { return b[1] - a[1]; });
+  if (entries.length === 0) { section.style.display = 'none'; return; }
+  var total = entries.reduce(function(s,e) { return s + e[1]; }, 0);
+  document.getElementById('detailWinChartTitle').textContent = 'Win Distribution \u2014 ' + shortenGame(gameName);
+  section.style.display = 'block';
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var size = 220;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+  var cx = size / 2, cy = size / 2, radius = 90;
+  ctx.save(); ctx.shadowColor = 'rgba(233,69,96,0.25)'; ctx.shadowBlur = 20;
+  ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill(); ctx.restore();
+  var startAngle = -Math.PI / 2;
+  entries.forEach(function(entry, i) {
+    var count = entry[1];
+    var sliceAngle = (count / total) * Math.PI * 2;
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+    if (sliceAngle > 0.4) {
+      var midAngle = startAngle + sliceAngle / 2;
+      var labelR = radius * 0.62;
+      var lx = cx + Math.cos(midAngle) * labelR;
+      var ly = cy + Math.sin(midAngle) * labelR;
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px -apple-system,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(Math.round((count / total) * 100) + '%', lx, ly);
+    }
+    startAngle += sliceAngle;
+  });
+  ctx.beginPath(); ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-section').trim() || '#16213e';
+  ctx.fill();
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#e0e0e0';
+  ctx.font = 'bold 22px -apple-system,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(total, cx, cy - 8);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-faint').trim() || '#7090b0';
+  ctx.font = '10px -apple-system,sans-serif';
+  ctx.fillText(total === 1 ? 'game' : 'games', cx, cy + 10);
+  legend.innerHTML = '';
+  entries.forEach(function(entry, i) {
+    var pct = Math.round((entry[1] / total) * 100);
+    var color = PIE_COLORS[i % PIE_COLORS.length];
+    var item = document.createElement('div'); item.className = 'pie-legend-item';
+    item.innerHTML = '<div class="pie-legend-dot" style="background:' + color + '"></div>' + entry[0] + ' <span class="pie-legend-pct">' + entry[1] + ' (' + pct + '%)</span>';
+    legend.appendChild(item);
+  });
+}
+function renderDetailRecent() {
+  var table = document.getElementById('detailRecentTable');
+  var section = document.getElementById('detailRecentSection');
+  var wrap = document.getElementById('detailLoadMoreWrap');
+  if (detailSessions.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
+  var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
+  var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Winner</td><td style="text-align:right">Score</td></tr>' : table.innerHTML;
+  for (var i = detailShownCount; i < end; i++) {
+    var s = detailSessions[i];
+    var ws = getWinnerScore(s);
+    html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td><td class="recent-score">' + ws + '</td></tr>';
+    html += '<tr class="detail-row"><td colspan="3">' + buildSessionDetail(s) + '</td></tr>';
+  }
+  table.innerHTML = html;
+  detailShownCount = end;
+  wrap.style.display = detailShownCount < detailSessions.length ? 'block' : 'none';
+}
+function detailLoadMore(e) { e.preventDefault(); renderDetailRecent(); }
  
 // HELPERS
 function sortName(name) {
