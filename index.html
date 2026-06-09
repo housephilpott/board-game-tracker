@@ -990,12 +990,19 @@ function renderDropdownOptions(items, selected) {
     div.className = 'dropdown-option' + (isSel ? ' selected' : '');
     div.innerHTML = `<div class="check">${isSel?'\u2713':''}</div><span>${item}</span>`;
     div.onclick = () => {
-      let arr;
-      if (currentDropdown === 'players') arr = selectedPlayers;
-      else if (currentDropdown === 'expansions') arr = selectedExpansions;
-      else if (currentDropdown === 'addType') arr = selectedAddTypes;
-      else if (currentDropdown === 'editType') arr = selectedEditTypes;
-      else arr = extraMultiSelects[currentDropdownField];
+    let arr;
+    if (currentDropdown === 'players') {
+    arr = selectedPlayers;
+    } else if (currentDropdown === 'expansions') {
+    arr = selectedExpansions;
+    } else if (currentDropdown === 'addType') {
+    arr = selectedAddTypes;
+    } else if (currentDropdown === 'editType') {
+    arr = selectedEditTypes;
+    } else {
+    arr = extraMultiSelects[currentDropdownField];
+    }
+
       const idx = arr.indexOf(item);
       if (idx > -1) { arr.splice(idx,1); div.classList.remove('selected'); div.querySelector('.check').textContent=''; }
       else { arr.push(item); div.classList.add('selected'); div.querySelector('.check').textContent='\u2713'; }
