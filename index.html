@@ -1290,7 +1290,7 @@ function renderWinChart(){
   const section=document.getElementById('sectionWinChart'),canvas=document.getElementById('winPieCanvas'),legend=document.getElementById('winPieLegend');
   if(!allSessions||allSessions.length===0){section.style.display='none';return;}
   const counts={};
-  allSessions.forEach(s=>{let w=s.winner;if(!w||w==='N/A')return;if(w.startsWith('TIE!'))w='Tie';counts[w]=(counts[w]||0)+1;});
+  allSessions.forEach(s=>{let w=s.winner;if (!w || w === 'N/A' || w === 'Win' || w === 'Loss' || w === 'Success' || w === 'Failure' || w === 'DNF') return;if(w.startsWith('TIE!'))w='Tie';counts[w]=(counts[w]||0)+1;});
   const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   if(entries.length===0){section.style.display='none';return;}
   const total=entries.reduce((s,[,v])=>s+v,0);
@@ -1969,7 +1969,7 @@ async function renderHomeChart() {
       if (game && game.excludeRandom) return;
      
       var w = s.winner;
-      if (!w || w === 'N/A') return;
+      if (!w || w === 'N/A' || w === 'Win' || w === 'Loss' || w === 'Success' || w === 'Failure' || w === 'DNF') return;
       if (w.startsWith('TIE!')) return;
       counts[w] = (counts[w] || 0) + 1;
     });
