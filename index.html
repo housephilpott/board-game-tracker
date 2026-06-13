@@ -1964,8 +1964,12 @@ async function renderHomeChart() {
     if (sessions.length === 0) { section.style.display = 'none'; return; }
     const counts = {};
     sessions.forEach(function(s) {
+      if (!s.game) return;
+      var game = allLibrary.find(g => g.name === s.game);
+      if (game && game.excludeRandom) return;
+     
       var w = s.winner;
-      if (!w || w === 'N/A' || w === 'Win' || w === 'Loss' || w === 'Success' || w === 'Failure') return;
+      if (!w || w === 'N/A') return;
       if (w.startsWith('TIE!')) return;
       counts[w] = (counts[w] || 0) + 1;
     });
@@ -2044,7 +2048,7 @@ async function renderTopGames() {
       if (!s.game) return;
       counts[s.game] = (counts[s.game] || 0) + 1;
     });
-    var top = Object.entries(counts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 3);
+    var top = Object.entries(counts).sort(function(a,b) { return b[1] - a[1]; }).slice(0, 10);
     if (top.length === 0) { section.style.display = 'none'; return; }
     var medals = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
     var html = '';
@@ -2177,6 +2181,9 @@ function renderDetailWinChart(gameName) {
   if (!detailSessions || detailSessions.length === 0) { section.style.display = 'none'; return; }
   var counts = {};
   detailSessions.forEach(function(s) {
+    var game = allLibrary.find(g => g.name === s.game);
+    if (game && game.excludeRandom) return;
+   
     var w = s.winner;
     if (!w || w === 'N/A') return;
     if (w.startsWith('TIE!')) w = 'Tie';
