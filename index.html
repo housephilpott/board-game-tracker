@@ -672,7 +672,7 @@
 <div class="pie-legend" id="detailPieLegend"></div>
 </div>
 <div class="section" id="detailRecentSection" style="display:none">
-<div class="section-title" id="detailRecentTitle" onclick="toggleDetailHistory()" style="cursor:pointer">Play History &#9654;</div>
+<div class="section-title" id="detailRecentTitle">Play History</div>
 <div id="detailRecentBody" style="display:none">
 <table id="detailRecentTable" style="width:100%;border-collapse:collapse"></table>
 <div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none"><a href="#" onclick="detailLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more&hellip;</a></div>
@@ -2171,9 +2171,12 @@ async function loadDetailHistory(gameName) {
   document.getElementById('detailWinChart').style.display = 'none';
   document.getElementById('detailRecentSection').style.display = 'none';
   try {
-    var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions&game=' + encodeURIComponent(gameName));
+    var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
     var data = await res.json();
-    detailSessions = (data.sessions || []).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
+    var allSess = data.sessions || [];
+    var versions = allLibrary.filter(function(g) { return g.baseGame === gameName && g.linkType === 'version'; }).map(function(g) { return g.name; });
+    var validNames = [gameName].concat(versions);
+    detailSessions = allSess.filter(function(s) { return validNames.indexOf(s.game) !== -1; }).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
     if (detailSessions.length === 0) return;
     renderDetailWinChart(gameName);
     detailShownCount = 0;
@@ -2260,8 +2263,8 @@ function renderDetailRecent() {
   var wrap = document.getElementById('detailLoadMoreWrap');
   if (detailSessions.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
-  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ') \u25B6';
-  document.getElementById('detailRecentBody').style.display = 'none';
+  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
+  document.getElementById('detailRecentBody').style.display = 'block';
   var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
   var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Winner</td><td style="text-align:right">Score</td></tr>' : table.innerHTML;
   for (var i = detailShownCount; i < end; i++) {
