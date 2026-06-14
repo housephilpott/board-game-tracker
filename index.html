@@ -2271,7 +2271,7 @@ function renderDetailRecent() {
     var s = detailSessions[i];
     var ws = getWinnerScore(s);
     html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td><td class="recent-score">' + ws + '</td></tr>';
-    html += '<tr class="detail-row"><td colspan="3">' + buildSessionDetail(s) + '</td></tr>';
+    html += '<tr class="detail-row"><td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td></tr>';
   }
   table.innerHTML = html;
   detailShownCount = end;
