@@ -1965,12 +1965,15 @@ async function renderHomeChart() {
     const counts = {};
     sessions.forEach(function(s) {
       if (!s.game) return;
-      var game = allLibrary.find(g => g.name === s.game);
+
+      const baseName = normaliseGameForStats(s.game);
+      const game = allLibrary.find(g => g.name === baseName);
       if (game && game.excludeRandom) return;
-     
-      var w = s.winner;
-      if (!w || w === 'N/A' || w === 'Win' || w === 'Lose' || w === 'Success' || w === 'Failure' || w === 'DNF') return;
+
+      const w = s.winner;
+      if (!w || w === 'N/A' || w === 'Win' || w === 'Loss' || w === 'Success' || w === 'Failure' || w === 'DNF') return;
       if (w.startsWith('TIE!')) return;
+
       counts[w] = (counts[w] || 0) + 1;
     });
     var entries = Object.entries(counts).filter(function(e) { return e[1] >= 2; }).sort(function(a,b) { return b[1] - a[1]; });
@@ -2184,12 +2187,15 @@ function renderDetailWinChart(gameName) {
   if (!detailSessions || detailSessions.length === 0) { section.style.display = 'none'; return; }
   var counts = {};
   detailSessions.forEach(function(s) {
-    var game = allLibrary.find(g => g.name === s.game);
-    if (game && game.excludeRandom) return;
-   
-    var w = s.winner;
+    if (!s.game) return;
+
+    const baseName = normaliseGameForStats(s.game);
+    if (baseName !== gameName) return;
+
+    const w = s.winner;
     if (!w || w === 'N/A') return;
-    if (w.startsWith('TIE!')) w = 'Tie';
+    if (w.startsWith('TIE!')) return;
+
     counts[w] = (counts[w] || 0) + 1;
   });
   var entries = Object.entries(counts).sort(function(a,b) { return b[1] - a[1]; });
@@ -2290,7 +2296,13 @@ function shortenGame(name) {
   if(!name) return ''; if(name.startsWith('SETI')) return 'SETI';
   return name.length>16?name.substring(0,15)+'\u2026':name;
 }
-
+function normaliseGameForStats(gameName) {
+  const g = allLibrary.find(x => x.name === gameName);
+  if (!g) return gameName;
+  if (g.baseGame && g.linkType === 'version') return g.baseGame;
+  return gameName;
+}
+ 
 // CHARACTERS
 function hasCharacters(gameName) {
   return allCharacters.some(c => c.game === gameName);
