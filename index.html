@@ -2195,7 +2195,7 @@ function renderDetailWinChart(gameName) {
     const baseName = normaliseGameForStats(s.game);
     if (baseName !== gameName) return;
 
-    const w = s.winner;
+    var w = s.winner;
     if (!w || w === 'N/A') return;
     if (w.startsWith('TIE!')) return;
 
