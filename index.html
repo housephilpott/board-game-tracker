@@ -1241,9 +1241,12 @@ async function loadRecentPlays() {
   const gameName=document.getElementById('fieldGame').value;
   if(!gameName){document.getElementById('recentSection').style.display='none';return;}
   try {
-    const res=await fetch(`${APPS_SCRIPT_URL}?action=getSessions&game=${encodeURIComponent(gameName)}`);
-    const data=await res.json();
-    allSessions=data.sessions.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
+    const data = await res.json();
+    const gameName = document.getElementById('fieldGame').value;
+    const versions = allLibrary.filter(function(g) { return g.baseGame === gameName && g.linkType === 'version'; }).map(function(g) { return g.name; });
+    const validNames = [gameName].concat(versions);
+    allSessions = (data.sessions || []).filter(function(s) { return validNames.indexOf(s.game) !== -1; }).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
     shownCount=0; renderRecentPlays(); renderWinChart();
   } catch(e){}
 }
@@ -1255,7 +1258,7 @@ function renderRecentPlays() {
   const toShow=allSessions.slice(0,shownCount+PAGE_SIZE); shownCount=toShow.length;
   table.innerHTML='';
   const hdr=document.createElement('tr'); hdr.className='recent-header';
-  hdr.innerHTML='<td>Date</td><td>Winner</td><td class="recent-score">Score</td>'; table.appendChild(hdr);
+  hdr.innerHTML='<td>Date</td><td>Version</td><td>Winner</td>'; table.appendChild(hdr);
   toShow.forEach((s,idx)=>{
     const row=document.createElement('tr'); row.className='recent-row';
     row.innerHTML=`<td class="recent-date">${s.date?formatDate(s.date):'\u2014'}</td><td class="recent-winner">${s.winner||'\u2014'}</td><td class="recent-score">${getWinnerScore(s)||'\u2014'}</td>`;
@@ -2266,12 +2269,14 @@ function renderDetailRecent() {
   document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
   document.getElementById('detailRecentBody').style.display = 'block';
   var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
-  var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Winner</td><td style="text-align:right">Score</td></tr>' : table.innerHTML;
+  var html = detailShownCount === 0 ? ''<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>'' : table.innerHTML;
   for (var i = detailShownCount; i < end; i++) {
     var s = detailSessions[i];
     var ws = getWinnerScore(s);
-    html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td><td class="recent-score">' + ws + '</td></tr>';
-    html += '<tr class="detail-row"><td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td></tr>';
+    var gameName = document.getElementById('headerTitle').textContent;
+var versionLabel = s.game === gameName ? 'Base' : s.game;
+html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + versionLabel + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td></tr>';
+html += '<tr class="detail-row"><td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td></tr>';
   }
   table.innerHTML = html;
   detailShownCount = end;
@@ -2291,9 +2296,14 @@ function detailLoadMore(e) { e.preventDefault(); renderDetailRecent(); }
 function sortName(name) {
   return name.replace(/^(A|An|The)\s+/i, '').trim();
 }
-function formatDate(dateStr) {
-  const d=new Date(dateStr); if(isNaN(d)) return dateStr;
-  return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'2-digit'});
+function formatDate(d) {
+  if (!d) return '\u2014';
+  var parts = d.split('-');
+  if (parts.length !== 3) return d;
+  var day = parseInt(parts[2], 10);
+  var month = parts[1];
+  var year = parts[0].slice(-2);
+  return day + '/' + month + '/' + year;
 }
 function shortenGame(name) {
   if(!name) return ''; if(name.startsWith('SETI')) return 'SETI';
