@@ -1260,7 +1260,7 @@ function renderRecentPlays() {
   const hdr=document.createElement('tr'); hdr.className='recent-header';
   hdr.innerHTML='<td>Date</td><td>Version</td><td>Winner</td>'; table.appendChild(hdr);
   toShow.forEach(function(s,idx){
-    var versionLabel = s.game === baseGame ? 'Base' : s.game;
+    var versionLabel = s.game;
     var row=document.createElement('tr'); row.className='recent-row';
     row.innerHTML='<td class="recent-date">'+formatDate(s.date)+'</td><td class="recent-winner">'+versionLabel+'</td><td class="recent-winner">'+(s.winner||'\u2014')+'</td>';
     var dr=document.createElement('tr'); dr.className='detail-row';
@@ -2275,7 +2275,7 @@ function renderDetailRecent() {
     var s = detailSessions[i];
     var ws = getWinnerScore(s);
     var gameName = document.getElementById('headerTitle').textContent;
-var versionLabel = s.game === gameName ? 'Base' : s.game;
+var versionLabel = s.game;
 html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + versionLabel + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td></tr>';
 html += '<tr class="detail-row"><td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td></tr>';
   }
