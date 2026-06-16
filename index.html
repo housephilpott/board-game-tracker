@@ -2270,7 +2270,7 @@ function renderDetailRecent() {
   document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
   document.getElementById('detailRecentBody').style.display = 'block';
   var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
-  var html = detailShownCount === 0 ? ''<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>'' : table.innerHTML;
+  var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>' : table.innerHTML;
   for (var i = detailShownCount; i < end; i++) {
     var s = detailSessions[i];
     var ws = getWinnerScore(s);
