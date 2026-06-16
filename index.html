@@ -1238,14 +1238,13 @@ function showStatus(msg,isError=false,isSuccess=false) {
 let allSessions=[], shownCount=0;
 const PAGE_SIZE=5;
 async function loadRecentPlays() {
-  const gameName=document.getElementById('fieldGame').value;
+  var gameName=document.getElementById('fieldGame').value;
   if(!gameName){document.getElementById('recentSection').style.display='none';return;}
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
-    const data = await res.json();
-    const gameName = document.getElementById('fieldGame').value;
-    const versions = allLibrary.filter(function(g) { return g.baseGame === gameName && g.linkType === 'version'; }).map(function(g) { return g.name; });
-    const validNames = [gameName].concat(versions);
+    var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
+    var data = await res.json();
+    var versions = allLibrary.filter(function(g) { return g.baseGame === gameName && g.linkType === 'version'; }).map(function(g) { return g.name; });
+    var validNames = [gameName].concat(versions);
     allSessions = (data.sessions || []).filter(function(s) { return validNames.indexOf(s.game) !== -1; }).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
     shownCount=0; renderRecentPlays(); renderWinChart();
   } catch(e){}
@@ -1254,19 +1253,21 @@ function renderRecentPlays() {
   const section=document.getElementById('recentSection'), table=document.getElementById('recentTable'), lmw=document.getElementById('loadMoreWrap');
   if(allSessions.length===0){section.style.display='none';return;}
   section.style.display='block';
-  document.getElementById('recentTitle').textContent=`Previous Plays \u2014 ${shortenGame(document.getElementById('fieldGame').value)}`;
+  const baseGame=document.getElementById('fieldGame').value;
+  document.getElementById('recentTitle').textContent='Previous Plays \u2014 '+shortenGame(baseGame);
   const toShow=allSessions.slice(0,shownCount+PAGE_SIZE); shownCount=toShow.length;
   table.innerHTML='';
   const hdr=document.createElement('tr'); hdr.className='recent-header';
   hdr.innerHTML='<td>Date</td><td>Version</td><td>Winner</td>'; table.appendChild(hdr);
-  toShow.forEach((s,idx)=>{
-    const row=document.createElement('tr'); row.className='recent-row';
-    row.innerHTML=`<td class="recent-date">${s.date?formatDate(s.date):'\u2014'}</td><td class="recent-winner">${s.winner||'\u2014'}</td><td class="recent-score">${getWinnerScore(s)||'\u2014'}</td>`;
-    const dr=document.createElement('tr'); dr.className='detail-row';
-    const dtd=document.createElement('td'); dtd.colSpan=3;
-    const di=document.createElement('div'); di.className='detail-inner'; di.id=`detail-${idx}`; di.innerHTML=buildSessionDetail(s);
+  toShow.forEach(function(s,idx){
+    var versionLabel = s.game === baseGame ? 'Base' : s.game;
+    var row=document.createElement('tr'); row.className='recent-row';
+    row.innerHTML='<td class="recent-date">'+formatDate(s.date)+'</td><td class="recent-winner">'+versionLabel+'</td><td class="recent-winner">'+(s.winner||'\u2014')+'</td>';
+    var dr=document.createElement('tr'); dr.className='detail-row';
+    var dtd=document.createElement('td'); dtd.colSpan=3;
+    var di=document.createElement('div'); di.className='detail-inner'; di.id='detail-'+idx; di.innerHTML=buildSessionDetail(s);
     dtd.appendChild(di); dr.appendChild(dtd);
-    row.onclick=()=>{const isOpen=di.classList.contains('open');document.querySelectorAll('.detail-inner.open').forEach(el=>el.classList.remove('open'));if(!isOpen)di.classList.add('open');};
+    row.onclick=function(){var isOpen=di.classList.contains('open');document.querySelectorAll('.detail-inner.open').forEach(function(el){el.classList.remove('open');});if(!isOpen)di.classList.add('open');};
     table.appendChild(row); table.appendChild(dr);
   });
   lmw.style.display=shownCount<allSessions.length?'block':'none';
