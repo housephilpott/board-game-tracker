@@ -325,6 +325,36 @@
  </div>
 </div>
 
+<div class="screen" id="screenGameDetail">
+  <div class="page-body">
+
+    <div id="gameDetailContent"></div>
+
+    <div class="section" id="detailWinChart" style="display:none"></div>
+
+    <div class="section" id="detailRecentSection" style="display:none">
+      <div id="detailRecentBody" style="display:block">
+        <table id="detailRecentTable"></table>
+        <div id="detailLoadMoreWrap" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div class="section" id="detailHowToPlay" style="display:none">
+      <div class="section-title">🎥 How To Play</div>
+      <div id="detailHowToPlayContent"></div>
+    </div>
+
+    <div class="section" id="detailReview" style="display:none">
+      <div class="section-title">🎬 Review</div>
+      <div id="detailReviewContent"></div>
+    </div>
+
+    <div id="gameDetailExpansions"></div>
+
+  </div>
+</div>
+ 
 <!-- LOG A PLAY -->
 <div class="screen" id="screenLog">
  <div class="page-body">
@@ -1867,7 +1897,7 @@ function populateExtraFieldsForm(prefix, extraFields) {
  
 function openGameDetail(game) {
   libraryScrollPos = window.scrollY;
- showScreen('screenGameDetail');
+  showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
   document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
   applyTheme(getGameTheme(game));
