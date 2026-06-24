@@ -664,7 +664,7 @@
 </div>
 
 <!-- Dropdown overlay -->
-<div class="screen" id="screenGameDetail"><div class="page-body">
+<div class="screen" id="screenGame"><div class="page-body">
 <div id="gameDetailContent"></div>
 <div class="section" id="detailWinChart" style="display:none">
 <div class="section-title" id="detailWinChartTitle">Win Distribution</div>
@@ -677,6 +677,14 @@
 <table id="detailRecentTable" style="width:100%;border-collapse:collapse"></table>
 <div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none"><a href="#" onclick="detailLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more&hellip;</a></div>
 </div></div>
+<div class="section" id="detailHowToPlay" style="display:none">
+  <div class="section-title">🎥 How To Play</div>
+  <div id="detailHowToPlayContent"></div>
+</div>
+<div class="section" id="detailReview" style="display:none">
+  <div class="section-title">🎬 Review</div>
+  <div id="detailReviewContent"></div>
+</div>
 <div id="gameDetailExpansions"></div>
 </div></div>
 <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdownIfOutside(event)">
@@ -1865,7 +1873,38 @@ function openGameDetail(game) {
   applyTheme(getGameTheme(game));
   setBackgroundImage(game.imageUrl || '');
   renderGameDetailContent(game);
+  renderGameVideos(game);
   loadDetailHistory(game.name);
+}
+function renderGameVideos(game) {
+  var howTo = document.getElementById('detailHowToPlay');
+  var howToContent = document.getElementById('detailHowToPlayContent');
+  var review = document.getElementById('detailReview');
+  var reviewContent = document.getElementById('detailReviewContent');
+
+  // How To Play
+  if (game.howToPlay) {
+    var src = getYouTubeEmbed(game.howToPlay);
+    howToContent.innerHTML =
+      '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px">' +
+      '' + src + '</iframe>' +
+      '</div>';
+    howTo.style.display = 'block';
+  } else {
+    howTo.style.display = 'none';
+  }
+
+  // Review
+  if (game.review) {
+    var src2 = getYouTubeEmbed(game.review);
+    reviewContent.innerHTML =
+      '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px">' +
+      '' + src2 + '</iframe>' +
+      '</div>';
+    review.style.display = 'block';
+  } else {
+    review.style.display = 'none';
+  }
 }
 function renderGameDetailContent(game) {
   const container = document.getElementById('gameDetailContent');
@@ -2316,6 +2355,13 @@ function normaliseGameForStats(gameName) {
   if (g.baseGame && g.linkType === 'version') return g.baseGame;
   return gameName;
 }
+function getYouTubeEmbed(url) {
+  if (!url) return '';
+  var match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+  if (!match) return '';
+  return 'https://www.youtube.com/embed/' + match[1];
+}
+
  
 // CHARACTERS
 function hasCharacters(gameName) {
