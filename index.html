@@ -1469,16 +1469,13 @@ function applyLibraryFilters() {
   renderLibraryCards(f);
 }
 function renderLibrary() {
-  ['filterPlayers','filterType','filterComplexity','filterBaseGame','filterSolo','filterDesigner','filterPublisher'].forEach(id=>document.getElementById(id).value='');
-  // Populate designer/publisher filters
-  const designers = [...new Set(allLibrary.map(g => g.designer).filter(Boolean))].sort();
-  const dSel = document.getElementById('filterDesigner');
-  while(dSel.options.length > 1) dSel.remove(1);
-  designers.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; dSel.appendChild(o); });
-  const publishers = [...new Set(allLibrary.map(g => g.publisher).filter(Boolean))].sort();
-  const pSel = document.getElementById('filterPublisher');
-  while(pSel.options.length > 1) pSel.remove(1);
-  publishers.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
+  if (!allLibrary || allLibrary.length === 0) {
+    document.getElementById('libraryCards').innerHTML =
+      '<div class="library-empty">No games found.</div>';
+    return;
+  }
+
+  // ✅ ignore filters temporarily (safe fallback)
   renderLibraryCards(allLibrary);
 }
 function renderLibraryCards(games) {
