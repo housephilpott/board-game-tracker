@@ -330,12 +330,24 @@
 
     <div id="gameDetailContent"></div>
 
-    <div class="section" id="detailWinChart" style="display:none"></div>
+<div class="section" id="detailWinChart" style="display:none">
+  <div class="section-title" id="detailWinChartTitle">Win Distribution</div>
+  <div class="pie-canvas-wrap">
+    <canvas id="detailPieCanvas" width="220" height="220"></canvas>
+  </div>
+  <div class="pie-legend" id="detailPieLegend"></div>
+</div>
+
 
     <div class="section" id="detailRecentSection" style="display:none">
       <div id="detailRecentBody" style="display:block">
         <table id="detailRecentTable"></table>
-        <div id="detailLoadMoreWrap" style="display:none"></div>
+        <div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none">
+        <a href="#" onclick="detailLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">
+        Load more…
+        </a>
+    </div
+
       </div>
     </div>
 
@@ -705,7 +717,12 @@
 <div class="section-title" id="detailRecentTitle">Play History</div>
 <div id="detailRecentBody" style="display:none">
 <table id="detailRecentTable" style="width:100%;border-collapse:collapse"></table>
-<div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none"><a href="#" onclick="detailLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">Load more&hellip;</a></div>
+<div id="detailLoadMoreWrap" style="text-align:center;margin-top:10px;display:none">
+  <a href="#" onclick="detailLoadMore(event)" style="color:var(--accent);font-size:13px;text-decoration:none">
+    Load more…
+  </a>
+</div
+
 </div></div>
 <div class="section" id="detailHowToPlay" style="display:none">
   <div class="section-title">🎥 How To Play</div>
@@ -1903,8 +1920,8 @@ function openGameDetail(game) {
   applyTheme(getGameTheme(game));
   setBackgroundImage(game.imageUrl || '');
   renderGameDetailContent(game);
-  renderGameVideos(game);
   loadDetailHistory(game.name);
+  renderGameVideos(game);
 }
 function renderGameVideos(game) {
   var howTo = document.getElementById('detailHowToPlay');
