@@ -247,7 +247,7 @@
 
 <!-- HOME -->
 <div class="screen active" id="screenHome">
- <div class="home-hero">console.log('Line 250');
+ <div class="home-hero">
  <div class="home-hero-icon">&#127922;</div>
  <h2>Board Game Tracker</h2>
  <p id="homeSubtitle">Loading your collection&hellip;</p>
@@ -297,7 +297,7 @@
  <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);white-space:nowrap;cursor:pointer"><input type="checkbox" id="randomExcludeRecent" checked style="accent-color:var(--accent)"> Skip recent</label>
  </div>
  <div id="randomGameDisplay" style="text-align:center;font-size:18px;font-weight:700;color:var(--accent);min-height:28px;margin:10px 0;transition:transform .15s ease,opacity .15s ease">&#8212;</div>
- <button class="secondary-btn" id="randomSpinBtn" onclick="spinRandomGame()" style="margin-top:0">Pick a random game!</button>console.log('Line 300');
+ <button class="secondary-btn" id="randomSpinBtn" onclick="spinRandomGame()" style="margin-top:0">Pick a random game!</button>
  </div>
  <button class="home-btn" onclick="showScreen('screenAddGame')">
  <span class="home-btn-icon">&#10133;</span>
@@ -347,7 +347,7 @@
         Load more…
         </a>
         </div>
-console.log('Line 350');
+
       </div>
     </div>
 
@@ -397,7 +397,7 @@ console.log('Line 350');
  <div id="modeContent"></div>
  </div>
  <div class="section" id="sectionStats" style="display:none">
- <div class="section-title">Game History</div>console.log('Line 400');
+ <div class="section-title">Game History</div>
  <div class="auto-field">
  <div class="stat-box"><div class="stat-label">Last Played</div><div class="stat-value" id="valLastPlayed">&mdash;</div></div>
  <div class="stat-box"><div class="stat-label">Total Plays</div><div class="stat-value" id="valTotalPlays">&mdash;</div></div>
@@ -447,7 +447,7 @@ console.log('Line 350');
  <option value="4">4 players</option>
  <option value="5">5+ players</option>
  </select>
- <select class="filter-select" id="filterType" onchange="applyLibraryFilters()">console.log('Line 450');
+ <select class="filter-select" id="filterType" onchange="applyLibraryFilters()">
  <option value="">Any type</option>
  </select>
  <select class="filter-select" id="filterComplexity" onchange="applyLibraryFilters()">
@@ -497,7 +497,7 @@ console.log('Line 350');
  <div class="section">
  <div class="section-title">Where to add?</div>
  <div class="field">
- <div class="dest-toggle">console.log('Line 500');
+ <div class="dest-toggle">
  <button class="dest-btn selected" id="destLibraryBtn" onclick="setDestination('library')">&#128218; Library</button>
  <button class="dest-btn" id="destWantBtn" onclick="setDestination('want')">&#128722; Want List</button>
  </div>
@@ -747,7 +747,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8
 const DEFAULT_GAME_TYPES = ['Abstract','Card Game','Co-operative','Deck Building','Engine Builder','Family','Party','Roll & Write','Strategy','Worker Placement'];
 let allPlayers = [], allGames = [], allLibrary = [], allWantList = [], allGameTypes = [], allCharacters = [];
 let selectedPlayers = [], selectedAddTypes = [], selectedEditTypes = [];
-let currentDropdown = null, currentDropdownField = null;console.log('Line 750');
+let currentDropdown = null, currentDropdownField = null;
 let currentGameData = null, extraMultiSelects = {};
 let selectedWeight = null, selectedEditWeight = null;
 let addDestination = 'library';
@@ -997,7 +997,7 @@ if (expansions.length > 0) {
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=getStats&game=${encodeURIComponent(gameName)}`);
     const stats = await res.json();
-    document.getElementById('valLastPlayed').textContent = stats.lastPlayed || '\u2014';console.log('Line 1000');
+    document.getElementById('valLastPlayed').textContent = stats.lastPlayed || '\u2014';
     document.getElementById('valTotalPlays').textContent = stats.totalPlays ?? '0';
     document.getElementById('valTopWinner').textContent = stats.topWinner || '\u2014';
   } catch(e) {
@@ -1247,7 +1247,7 @@ function autoWinner() {
   const wc=getWinCondition();
   if(wc==='winlose'||wc==='successfail'||wc==='manual') return;
   const scores={};
-  selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v!==''&&v!==undefined)scores[p]=parseFloat(v);});console.log('Line 1250');
+  selectedPlayers.forEach(p=>{const v=document.getElementById(`score-${p.replace(/\s/g,'_')}`)?.value;if(v!==''&&v!==undefined)scores[p]=parseFloat(v);});
   const filled=Object.entries(scores).filter(([,v])=>!isNaN(v));
   if(filled.length===0){document.getElementById('fieldWinner').value='';return;}
   const best=wc==='lowest'?Math.min(...filled.map(([,v])=>v)):Math.max(...filled.map(([,v])=>v));
@@ -1497,7 +1497,7 @@ function applyLibraryFilters() {
   const publisher=publisherEl?publisherEl.value:'';
   if(designer) f=f.filter(g=>g.designer===designer);
   if(publisher) f=f.filter(g=>g.publisher===publisher);
-  renderLibraryCards(f);console.log('Line 1500');
+  renderLibraryCards(f);
 }
 function renderLibrary() {
   if (!allLibrary || allLibrary.length === 0) {
@@ -1747,7 +1747,7 @@ function toggleMode(prefix, mode) {
 function renderModeButtons(prefix) {
   const arr = prefix === 'add' ? addSelectedModes : editSelectedModes;
   document.querySelectorAll(`#${prefix}ModesToggle .dest-btn`).forEach(btn => {
-    btn.classList.toggle('selected', arr.includes(btn.dataset.mode));console.log('Line 1750');
+    btn.classList.toggle('selected', arr.includes(btn.dataset.mode));
   });
 }
 function getGameModes(game) {
@@ -1997,7 +1997,7 @@ function renderGameDetailContent(game) {
     ? '<div class="card-art"><img src="' + game.imageUrl + '" alt="' + game.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
     : '<div class="card-art">\uD83C\uDFB2</div>';
   const fields = [
-    game.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',console.log('Line 2000'),
+    game.designer ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
     game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
     game.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
     players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
@@ -2247,7 +2247,7 @@ async function spinRandomGame() {
       var k = Math.floor(Math.random() * (games.length - 1));
       var t = games[games.length - 1]; games[games.length - 1] = games[k]; games[k] = t;
     }
-  }console.log('Line 2250');
+  }
 
   btn.disabled = true;
   btn.textContent = 'Spinning\u2026';
@@ -2500,7 +2500,7 @@ const PIP_LAYOUTS = {
   4: [1,0,1, 0,0,0, 1,0,1],
   5: [1,0,1, 0,1,0, 1,0,1],
   6: [1,0,1, 1,0,1, 1,0,1],
-};console.log('Line 2503');
+};
 function buildDice(filled, total) {
   let html = '';
   for (let i = 1; i <= total; i++) {
@@ -2555,7 +2555,7 @@ function applyTheme(primaryHex) {
   root.style.setProperty('--text-faint',rgb(clamp(120+r*.18),clamp(145+g*.18),clamp(145+b*.18)));
 }
 function getGameTheme(game){if(!game)return null;let fields=game.extraFields||[];if(typeof fields==='string'){try{fields=JSON.parse(fields);}catch(e){fields=[];}}const t=fields.find(f=>f.theme);return t?t.theme:null;}
-console.log('End');
+
 </script>
 </body>
 </html>
