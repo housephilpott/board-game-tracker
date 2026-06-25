@@ -846,10 +846,9 @@ function showScreen(id) {
   } else if (id === 'screenLog') {
     title.textContent = '\uD83D\uDCDD Log a Play'; sub.textContent = 'Record your session';
   } else if (id === 'screenLibrary') {
-    title.textContent = '\uD83D\uDCDA Library';
-    sub.textContent = `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''}`;
-    renderLibrary();
-     setTimeout(function() { window.scrollTo(0, libraryScrollPos); }, 50);
+  title.textContent = '\uD83D\uDCDA Library';
+  sub.textContent = `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''}`;
+  renderLibrary();   // ✅ THIS LINE IS CRITICAL
   } else if (id === 'screenWantList') {
     title.textContent = '\uD83D\uDED2 Want List';
     sub.textContent = `${allWantList.length} game${allWantList.length !== 1 ? 's' : ''}`;
