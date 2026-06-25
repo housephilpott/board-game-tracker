@@ -1499,12 +1499,7 @@ function renderLibraryCards(games) {
   container.innerHTML = '';
 
   
-baseGames.sort(function(a, b) {
-  return a.name.localeCompare(b.name);
-})
-
-    }
-    forEach(function(game) {
+baseGames.forEach(function(game) {
 
       const card = document.createElement('div');
       card.className = 'game-card';
