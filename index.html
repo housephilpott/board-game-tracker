@@ -297,7 +297,7 @@
  <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);white-space:nowrap;cursor:pointer"><input type="checkbox" id="randomExcludeRecent" checked style="accent-color:var(--accent)"> Skip recent</label>
  </div>
  <div id="randomGameDisplay" style="text-align:center;font-size:18px;font-weight:700;color:var(--accent);min-height:28px;margin:10px 0;transition:transform .15s ease,opacity .15s ease">&#8212;</div>
- <button class="secondary-btn" id="randomSpinBtn" onclick="spinRandomGame()" style="margin-top:0">Pick a random game!</button>
+ <button class="secondary-btn" id="randomSpinBtn" onclick="spinRandomGame()" style="margin-top:0">Pick a random game!</button>console.log('Line 300');
  </div>
  <button class="home-btn" onclick="showScreen('screenAddGame')">
  <span class="home-btn-icon">&#10133;</span>
@@ -347,7 +347,7 @@
         Load more…
         </a>
         </div>
-
+console.log('Line 350');
       </div>
     </div>
 
@@ -397,7 +397,7 @@
  <div id="modeContent"></div>
  </div>
  <div class="section" id="sectionStats" style="display:none">
- <div class="section-title">Game History</div>
+ <div class="section-title">Game History</div>console.log('Line 400');
  <div class="auto-field">
  <div class="stat-box"><div class="stat-label">Last Played</div><div class="stat-value" id="valLastPlayed">&mdash;</div></div>
  <div class="stat-box"><div class="stat-label">Total Plays</div><div class="stat-value" id="valTotalPlays">&mdash;</div></div>
@@ -447,7 +447,7 @@
  <option value="4">4 players</option>
  <option value="5">5+ players</option>
  </select>
- <select class="filter-select" id="filterType" onchange="applyLibraryFilters()">
+ <select class="filter-select" id="filterType" onchange="applyLibraryFilters()">console.log('Line 450');
  <option value="">Any type</option>
  </select>
  <select class="filter-select" id="filterComplexity" onchange="applyLibraryFilters()">
