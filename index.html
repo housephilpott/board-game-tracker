@@ -1482,44 +1482,51 @@ function renderLibrary() {
   renderLibraryCards(allLibrary);
 }
 function renderLibraryCards(games) {
-  const container=document.getElementById('libraryCards');
-  const countEl=document.getElementById('libraryCount');
-  const baseGames=[...games].filter(g=>!g.baseGame);
-  countEl.textContent=baseGames.length===0?'No games match your filters':`${baseGames.length} game${baseGames.length!==1?'s':''}`;
+  const container = document.getElementById('libraryCards');
+  const countEl = document.getElementById('libraryCount');
 
-  if(games.length===0){container.innerHTML=`<div class="library-empty">No games found.<br>Try adjusting your filters.</div>`;return;}
-  container.innerHTML='';
-  baseGames.sort((a,b)=>sortName(a.name).localeCompare(sortName(b.name))).forEach(game=>{
-    const card=document.createElement('div'); card.className='game-card';
-    const artHtml=game.imageUrl
-    ?`<div class="card-art"><img src="${game.imageUrl}" alt="${game.name}" onerror="this.parentElement.innerHTML='\\uD83C\\uDFB2'"></div>`
-      :`<div class="card-art">\uD83C\uDFB2</div>`;
-    const players=game.minPlayers&&game.maxPlayers
-      ?(game.minPlayers===game.maxPlayers?`${game.minPlayers}p`:`${game.minPlayers}\u2013${game.maxPlayers}p`)
-      :game.maxPlayers?`Up to ${game.maxPlayers}p`:'';
-    const complexity=game.complexity?parseFloat(game.complexity).toFixed(1):null;
-    const dots=complexity?Array.from({length:5},(_,i)=>`<div class="dot${i<Math.round(parseFloat(complexity))?' filled':''}"></div>`).join(''):'';
-    const lastPlayed=game.lastPlayed?`<div class="card-stat">\uD83D\uDD52 <span class="card-stat-accent">${game.lastPlayed}</span></div>`:'';
-    const theme=getGameTheme(game);
-    const typeTags=game.gameType?game.gameType.split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<div class="card-stat">${t}</div>`).join(''):'';
-    card.innerHTML=`
-      ${artHtml}
-      <div class="card-body">
-        ${game.baseGame?`<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ${game.baseGame}</div>`:''}
-        <div class="card-name">${game.name}</div>
-        <div class="card-stats">
-          ${players?`<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">${players}</span></div>`:''}
-          ${complexity?`<div class="card-stat">Weight <span class="card-stat-accent">${complexity}</span> <div class="complexity-dots">${dots}</div></div>`:''}
-          ${game.coop?`<div class="card-stat">\uD83E\uDD1D Co-op</div>`:''}
-          ${game.solo?`<div class="card-stat">\uD83E\uDDCD Solo</div>`:''}
-          ${lastPlayed}
-        </div>
-      </div>
-</div>`;
-      
-    card.querySelector('.card-body').onclick = () => { openGameDetail(game); };
-    container.appendChild(card);
+  if (!games || games.length === 0) {
+    countEl.textContent = 'No games match your filters';
+    container.innerHTML = '<div class="library-empty">No games found.<br>Try adjusting your filters.</div>';
+    return;
+  }
+
+  // ✅ Ensure baseGames is defined correctly
+  const baseGames = games.filter(function(g) {
+    return !g.baseGame;
   });
+
+  countEl.textContent = baseGames.length === 0
+    ? 'No games match your filters'
+    : baseGames.length + ' game' + (baseGames.length !== 1 ? 's' : '');
+
+  container.innerHTML = '';
+
+  baseGames
+    .sort(function(a, b) {
+      return sortName(a.name).localeCompare(sortName(b.name));
+    })
+    .forEach(function(game) {
+
+      const card = document.createElement('div');
+      card.className = 'game-card';
+
+      const artHtml = game.imageUrl
+        ? '<div class="card-art"><img src="' + game.imageUrl + '" alt="' + game.name + '"></div>'
+        : '<div class="card-art">\uD83C\uDFB2</div>';
+
+      card.innerHTML =
+        artHtml +
+        '<div class="card-body">' +
+        '<div class="card-name">' + game.name + '</div>' +
+        '</div>';
+
+      card.querySelector('.card-body').onclick = function() {
+        openGameDetail(game);
+      };
+
+      container.appendChild(card);
+    });
 }
 function card_id(name) { return name.replace(/[^a-zA-Z0-9]/g,'_'); }
 function libraryGameByName(name) { return allLibrary.find(g=>g.name===name)||{}; }
