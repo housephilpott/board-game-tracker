@@ -1498,9 +1498,11 @@ function renderLibraryCards(games) {
 
   container.innerHTML = '';
 
-  baseGames
-    .sort(function(a, b) {
-      return sortName(a.name).localeCompare(sortName(b.name));
+  
+baseGames.sort(function(a, b) {
+  return a.name.localeCompare(b.name);
+})
+
     })
     .forEach(function(game) {
 
