@@ -832,52 +832,83 @@ function updateHomeSubtitle() {
     wc > 0 ? `${wc} game${wc !== 1 ? 's' : ''} on your want list` : 'Games you want to buy';
 }
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  const back = document.getElementById('headerBack');
-  const title = document.getElementById('headerTitle');
-  const sub = document.getElementById('headerSub');
-  const isHome = id === 'screenHome';
-  back.classList.toggle('hidden', isHome);
-  if (isHome) {
-    title.textContent = '\uD83C\uDFB2 Board Game Tracker';
-    sub.textContent = 'Your collection & session log';
-    applyTheme(null); setBackgroundImage('');
-  } else if (id === 'screenLog') {
-    title.textContent = '\uD83D\uDCDD Log a Play'; sub.textContent = 'Record your session';
-  } else if (id === 'screenLibrary') {
-  title.textContent = '\uD83D\uDCDA Library';
-  sub.textContent = `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''}`;
-  renderLibrary();   // ✅ THIS LINE IS CRITICAL
-  } else if (id === 'screenWantList') {
-    title.textContent = '\uD83D\uDED2 Want List';
-    sub.textContent = `${allWantList.length} game${allWantList.length !== 1 ? 's' : ''}`;
-    renderWantList();
-  } else if (id === 'screenCharacters') {
-    back.classList.remove('hidden');
-  } else if (id === 'screenHistory') {
-    back.classList.remove('hidden');
-    title.textContent = '\uD83D\uDCD6 Play History';
-    sub.textContent = 'All recorded sessions';
-    loadHistory();
-  } else if (id === 'screenAddGame') {
-    title.textContent = '\u2795 Add a Game'; sub.textContent = 'Add to library or want list';
-    populateBaseGameDropdowns();
-  } else if (id === 'screenEditGame') {
-    title.textContent = '\u270F\uFE0F Edit Game'; sub.textContent = 'Update game details';
-  } else if (id === 'screenGameDetail') {
-    back.classList.remove('hidden');
-  }
-  window.scrollTo(0, 0);
-}
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+  });
 
-function goHome() {
-  const current = document.querySelector('.screen.active');
-  if (current && current.id === 'screenGameDetail') { showScreen('screenLibrary'); return; }
-  if (current && current.id === 'screenCharacters') { showScreen('screenLibrary'); return; }
-  showScreen('screenHome');
-}
+  var screen = document.getElementById(id);
+  if (!screen) {
+    console.error('Screen not found:', id);
+    return;
+  }
+
+  screen.classList.add('active');
+
+  var back = document.getElementById('headerBack');
+  var title = document.getElementById('headerTitle');
+  var sub = document.getElementById('headerSub');
+
+  var isHome = id === 'screenHome';
+  if (back) back.classList.toggle('hidden', isHome);
+
+  if (id === 'screenHome') {
+    if (title) title.textContent = '🎲 Board Game Tracker';
+    if (sub) sub.textContent = 'Your collection & session log';
+    if (typeof applyTheme === 'function') applyTheme(null);
+    if (typeof setBackgroundImage === 'function') setBackgroundImage('');
+
+  } else if (id === 'screenLog') {
+    if (title) title.textContent = '📝 Log a Play';
+    if (sub) sub.textContent = 'Record your session';
+
+  } else if (id === 'screenLibrary') {
+    if (title) title.textContent = '📚 Library';
+    if (sub) sub.textContent = allLibrary.length + ' game' + (allLibrary.length !== 1 ? 's' : '');
+    if (typeof renderLibrary === 'function') renderLibrary();
+
+  } else if (id === 'screenWantList') {
+    if (title) title.textContent = '🛒 Want List';
+    if (sub) sub.textContent = allWantList.length + ' game' + (allWantList.length !== 1 ? 's' : '');
+    if (typeof renderWantList === 'function') renderWantList();
+
+  } else if (id === 'screenHistory') {
+    if (back) back.classList.remove('hidden');
+    if (title) title.textContent = '📖 Play History';
+    if (sub) sub.textContent = 'All recorded sessions';
+    if (typeof loadHistory === 'function') loadHistory();
+
+  } else if (id === 'screenAddGame') {
+    if (title) title.textContent = '➕ Add a Game';
+    if (sub) sub.textContent = 'Add to library or want list';
+    if (typeof populateBaseGameDropdowns === 'function') populateBaseGameDropdowns();
+
+  } else if (id === 'screenEditGame') {
+    if (title) title.textContent = '✏️ Edit Game';
+    if (sub) sub.textContent = 'Update game details';
+
+  } else if (id === 'screenGameDetail') {
+    if (back) back.classList.remove('hidden');
+  }
+
+  window.scrollTo(0, 0);
+};
+
+window.goHome = function() {
+  var current = document.querySelector('.screen.active');
+
+  if (current && current.id === 'screenGameDetail') {
+    window.showScreen('screenLibrary');
+    return;
+  }
+
+  if (current && current.id === 'screenCharacters') {
+    window.showScreen('screenLibrary');
+    return;
+  }
+
+  window.showScreen('screenHome');
+};
 
 function setDestination(dest) {
   addDestination = dest;
