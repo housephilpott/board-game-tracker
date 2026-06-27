@@ -2369,25 +2369,41 @@ function renderDetailRecent() {
   var table = document.getElementById('detailRecentTable');
   var section = document.getElementById('detailRecentSection');
   var wrap = document.getElementById('detailLoadMoreWrap');
-  if (detailSessions.length === 0) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
-  document.getElementById('detailRecentBody').style.display = 'block';
-  var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
-  if (detailShownCount === 0) {
-  table.innerHTML = '<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>';
-}
 
-var html = table.innerHTML;
-  for (var i = detailShownCount; i < end; i++) {
-    var s = detailSessions[i];
-    var ws = getWinnerScore(s);
-    var gameName = document.getElementById('headerTitle').textContent;
-var versionLabel = s.game;
-html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')"><td class="recent-date">' + formatDate(s.date) + '</td><td class="recent-winner">' + versionLabel + '</td><td class="recent-winner">' + (s.winner || '\u2014') + '</td></tr>';
-html += '<tr class="detail-row"><td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td></tr>';
+  if (!detailSessions || detailSessions.length === 0) {
+    section.style.display = 'block';
+    table.innerHTML =
+      '<tr><td colspan="3" style="text-align:center;color:var(--text-faint)">No plays recorded</td></tr>';
+    return;
   }
+
+  section.style.display = 'block';
+  document.getElementById('detailRecentTitle').textContent =
+    'Play History (' + detailSessions.length + ')';
+  document.getElementById('detailRecentBody').style.display = 'block';
+
+  // ✅ Always build fresh header
+  var html = '<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>';
+
+  var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
+
+  for (var i = 0; i < end; i++) {
+    var s = detailSessions[i];
+    var versionLabel = s.game;
+
+    html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')">' +
+            '<td class="recent-date">' + formatDate(s.date) + '</td>' +
+            '<td class="recent-winner">' + versionLabel + '</td>' +
+            '<td class="recent-winner">' + (s.winner || '\u2014') + '</td>' +
+            '</tr>';
+
+    html += '<tr class="detail-row">' +
+            '<td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td>' +
+            '</tr>';
+  }
+
   table.innerHTML = html;
+
   detailShownCount = end;
   wrap.style.display = detailShownCount < detailSessions.length ? 'block' : 'none';
 }
