@@ -1311,6 +1311,10 @@ function renderRecentPlays() {
   const section=document.getElementById('recentSection'), table=document.getElementById('recentTable'), lmw=document.getElementById('loadMoreWrap');
   if(allSessions.length===0){section.style.display='none';return;}
   section.style.display='block';
+  if (!detailSessions || detailSessions.length === 0) {
+  table.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-faint)">No plays recorded</td></tr>';
+  return;
+}
   const baseGame=document.getElementById('fieldGame').value;
   document.getElementById('recentTitle').textContent='Previous Plays \u2014 '+shortenGame(baseGame);
   const toShow=allSessions.slice(0,shownCount+PAGE_SIZE); shownCount=toShow.length;
@@ -2370,7 +2374,11 @@ function renderDetailRecent() {
   document.getElementById('detailRecentTitle').textContent = 'Play History (' + detailSessions.length + ')';
   document.getElementById('detailRecentBody').style.display = 'block';
   var end = Math.min(detailShownCount + PAGE_SIZE, detailSessions.length);
-  var html = detailShownCount === 0 ? '<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>' : table.innerHTML;
+  if (detailShownCount === 0) {
+  table.innerHTML = '<tr class="recent-header"><td>Date</td><td>Version</td><td>Winner</td></tr>';
+}
+
+var html = table.innerHTML;
   for (var i = detailShownCount; i < end; i++) {
     var s = detailSessions[i];
     var ws = getWinnerScore(s);
