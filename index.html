@@ -2268,9 +2268,15 @@ async function loadDetailHistory(gameName) {
     var res = await fetch(APPS_SCRIPT_URL + '?action=getSessions');
     var data = await res.json();
     var allSess = data.sessions || [];
-    var versions = allLibrary.filter(function(g) { return g.baseGame === gameName && g.linkType === 'version'; }).map(function(g) { return g.name; });
+    var versions = allLibrary
+       .filter(function(g) {
+       return g.baseGame === gameName && g.linkType === 'version';
+       })
+       .map(function(g) { return g.name; });
     var validNames = [gameName].concat(versions);
-    detailSessions = allSess.filter(function(s) { return validNames.indexOf(s.game) !== -1; }).sort(function(a,b) { return (b.date||'').localeCompare(a.date||''); });
+    detailSessions = allSess.filter(function(s) {
+     return s.game && validNames.includes(s.game);
+});
     if (detailSessions.length === 0) return;
     renderDetailWinChart(gameName);
     detailShownCount = 0;
