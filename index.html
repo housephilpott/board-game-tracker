@@ -2391,19 +2391,32 @@ function renderDetailRecent() {
     var s = detailSessions[i];
     var versionLabel = s.game;
 
-    html += '<tr class="recent-row" onclick="this.nextElementSibling.querySelector(\'.detail-inner\').classList.toggle(\'open\')">' +
-            '<td class="recent-date">' + formatDate(s.date) + '</td>' +
-            '<td class="recent-winner">' + versionLabel + '</td>' +
-            '<td class="recent-winner">' + (s.winner || '\u2014') + '</td>' +
-            '</tr>';
+    html += '<tr class="recent-row">' +
+        '<td class="recent-date">' + formatDate(s.date) + '</td>' +
+        '<td class="recent-winner">' + versionLabel + '</td>' +
+        '<td class="recent-winner">' + (s.winner || '\u2014') + '</td>' +
+        '</tr>';
 
-    html += '<tr class="detail-row">' +
-            '<td colspan="3"><div class="detail-inner">' + buildSessionDetail(s) + '</div></td>' +
-            '</tr>';
+    
+html += '<tr class="detail-row">' +
+        '<td colspan="3">' +
+        '<div class="detail-inner">' + buildSessionDetail(s) + '</div>' +
+        '</td>' +
+        '</tr>';
+
   }
 
   table.innerHTML = html;
-
+  var rows = table.querySelectorAll('.recent-row');
+rows.forEach(function(row) {
+  row.onclick = function() {
+    var next = row.nextElementSibling;
+    if (!next) return;
+    var inner = next.querySelector('.detail-inner');
+    if (!inner) return;
+    inner.classList.toggle('open');
+  };
+});
   detailShownCount = end;
   wrap.style.display = detailShownCount < detailSessions.length ? 'block' : 'none';
 }
