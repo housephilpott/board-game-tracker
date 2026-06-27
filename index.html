@@ -2274,9 +2274,13 @@ async function loadDetailHistory(gameName) {
        })
        .map(function(g) { return g.name; });
     var validNames = [gameName].concat(versions);
+    
     detailSessions = allSess.filter(function(s) {
-     return s.game && validNames.includes(s.game);
-});
+     return s.game && validNames.some(function(name) {
+     return name && name.trim().toLowerCase() === s.game.trim().toLowerCase();
+     });
+    });
+
     if (detailSessions.length === 0) return;
     renderDetailWinChart(gameName);
     detailShownCount = 0;
