@@ -732,7 +732,7 @@ let addSelectedModes = [], editSelectedModes = [];
 let selectedMode = '';
 let selectedExpansions = [];
 let selectedVersion = '';
-let libraryScrollPos = 0; 
+let libraryScrollTop = 0; 
 let randomSpinTimer = null;
 let randomSpinIndex = 0;
 let lastRandomResult = null;
@@ -839,6 +839,11 @@ window.showScreen = function(id) {
     if (title) title.textContent = '📚 Library';
     if (sub) sub.textContent = allLibrary.length + ' game' + (allLibrary.length !== 1 ? 's' : '');
     if (typeof renderLibrary === 'function') renderLibrary();
+
+  setTimeout(function() {
+    window.scrollTo(0, libraryScrollTop || 0);
+  }, 0);
+
 
   } else if (id === 'screenWantList') {
     if (title) title.textContent = '🛒 Want List';
@@ -1922,7 +1927,7 @@ function populateExtraFieldsForm(prefix, extraFields) {
 // GAME DETAIL SCREEN
  
 function openGameDetail(game) {
-  libraryScrollPos = window.scrollY;
+  libraryScrollTop = window.scrollY || document.documentElement.scrollTop;
   showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
   document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
