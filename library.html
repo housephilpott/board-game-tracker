@@ -156,11 +156,6 @@
     <select class="filter-select" id="filterType" onchange="applyFilters()">
       <option value="">Any type</option>
     </select>
-    <select class="filter-select" id="filterBaseGame" onchange="applyFilters()">
-      <option value="">All games &amp; expansions</option>
-      <option value="__base__">Base games only</option>
-      <option value="__expansions__">Expansions only</option>
-    </select>
   </div>
   <div class="filter-row">
     <select class="filter-select" id="filterDesigner" onchange="applyFilters()">
@@ -200,9 +195,11 @@ async function loadLibrary() {
   try {
     const res  = await fetch(`${APPS_SCRIPT_URL}?action=getConfig`);
     const data = await res.json();
-    allLibrary = data.library || [];
+    allLibrary = (data.library || []).filter(game => !game.baseGame);
+
     document.getElementById('headerSub').textContent =
-      `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''} in the collection`;
+    `${allLibrary.length} game${allLibrary.length !== 1 ? 's' : ''} in the collection`;
+
     populateFilters();
     renderCards(allLibrary);
   } catch(e) {
@@ -234,7 +231,6 @@ function applyFilters() {
   const complexity = document.getElementById('filterComplexity').value;
   const solo       = document.getElementById('filterSolo').value;
   const type       = document.getElementById('filterType').value;
-  const baseGame   = document.getElementById('filterBaseGame').value;
   const designer   = document.getElementById('filterDesigner').value;
   const publisher  = document.getElementById('filterPublisher').value;
 
@@ -265,8 +261,6 @@ function applyFilters() {
     if (!g.gameType) return false;
     return g.gameType.split(',').map(t => t.trim()).includes(type);
   });
-  if (baseGame === '__base__')        f = f.filter(g => !g.baseGame);
-  if (baseGame === '__expansions__')  f = f.filter(g => !!g.baseGame);
   if (designer)  f = f.filter(g => g.designer === designer);
   if (publisher) f = f.filter(g => g.publisher === publisher);
 
