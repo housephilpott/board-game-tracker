@@ -829,8 +829,15 @@ function applyLibraryFilters() {
   if(complexity){const c=parseInt(complexity);f=f.filter(g=>{const w=parseFloat(g.complexity)||0;if(c===1)return w>0&&w<=2;if(c===2)return w>2&&w<=3;if(c===3)return w>3;return true;});}
   if(baseGame==='__base__') f=f.filter(g=>!g.baseGame);
   else if(baseGame==='__expansions__') f=f.filter(g=>!!g.baseGame);
-  if(solo==='solo') f=f.filter(g=>g.solo);
-  if(solo==='coop') f=f.filter(g=>g.coop);
+  if (solo === 'solo') {
+  f = f.filter(g => g.solo);
+  }
+  else if (solo === 'coop') {
+  f = f.filter(g => g.coop);
+  }
+  else if (solo === 'competitive') {
+  f = f.filter(g => !g.solo && !g.coop);
+  }
   const designerEl=document.getElementById('filterDesigner');
   const publisherEl=document.getElementById('filterPublisher');
   const designer=designerEl?designerEl.value:'';
