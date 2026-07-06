@@ -1,1 +1,0 @@
-Move: openGameDetail, renderGameVideos, renderGameDetailContent, loadDetailHistory, renderDetailWinChart, renderDetailRecent, toggleDetailHistory, detailLoadMore.

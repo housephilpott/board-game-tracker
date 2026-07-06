@@ -1,1 +1,0 @@
-Move: applyLibraryFilters, renderLibrary, renderLibraryCards, card_id, libraryGameByName.
