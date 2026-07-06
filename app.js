@@ -1,3 +1,8 @@
+
+// ==================================================
+// APP INITIALISATION
+// ==================================================
+
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIqye5UJq_gaz8RVFQaQxiozN4t5LAjYOgoh_m2AlP3R7yzUOS0Msmn_KxVD-_2V4l/exec';
 const DEFAULT_GAME_TYPES = ['Abstract','Card Game','Co-operative','Deck Building','Engine Builder','Family','Party','Roll & Write','Strategy','Worker Placement'];
 let allPlayers = [], allGames = [], allLibrary = [], allWantList = [], allGameTypes = [], allCharacters = [];
@@ -43,6 +48,10 @@ function getLogoHtml(logoKey) {
   return `<img src="${LOGO_MAP[logoKey]}" alt="${logoKey}" class="char-logo" onerror="this.style.display='none'">`;
 }
 
+// ==================================================
+// APP STARTUP & CONFIG LOADING
+// ==================================================
+
 document.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
   document.getElementById('fieldDate').value =
@@ -86,6 +95,10 @@ function updateHomeSubtitle() {
   document.getElementById('wantListSub').textContent =
     wc > 0 ? `${wc} game${wc !== 1 ? 's' : ''} on your want list` : 'Games you want to buy';
 }
+
+// ==================================================
+// NAVIGATION
+// ==================================================
 
 window.showScreen = function(id) {
   document.querySelectorAll('.screen').forEach(function(s) {
@@ -214,6 +227,10 @@ function populateTypeFilter() {
   });
 }
 
+// ==================================================
+// GAME SELECTION & SESSION SETUP
+// ==================================================
+
 async function onGameChange() {
   const gameName = document.getElementById('fieldGame').value;
   document.getElementById('sectionStats').style.display = 'none';
@@ -294,7 +311,10 @@ function buildExtraFields(game) {
 }
 function fieldKey(label) { return label.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase(); }
 
-// MULTI-SELECTS
+// ==================================================
+// MULTI-SELECT DROPDOWNS
+// ==================================================
+
 function openMultiSelect(type) {
   currentDropdown = type; currentDropdownField = null;
   if (type === 'expansions') {
@@ -411,7 +431,10 @@ function removePlayer(e,v) { e.stopPropagation(); selectedPlayers=selectedPlayer
 function removeTypeChip(e,v,ctx) { e.stopPropagation(); if(ctx==='addType') selectedAddTypes=selectedAddTypes.filter(t=>t!==v); else selectedEditTypes=selectedEditTypes.filter(t=>t!==v); renderTypeChips(ctx==='addType'?'addTypeContainer':'editTypeContainer', ctx==='addType'?'addTypePlaceholder':'editTypePlaceholder', ctx==='addType'?selectedAddTypes:selectedEditTypes, ctx); }
 function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(extraMultiSelects[sk]||[]).filter(x=>x!==v); renderExtraChips(sk); }
 
-// WIN CONDITIONS - FIXED: no coop override
+// ==================================================
+// WIN CONDITIONS & SCORING
+// ==================================================
+
 function getWinCondition() {
   const fields = currentGameData?.extraFields || [];
   const wc = fields.find(f => f.winCondition);
@@ -423,7 +446,6 @@ function getScorepad() {
   return sp ? sp.scorepad : null;
 }
 
-// SCORES
 function updateScores() {
   const rs = document.getElementById('resultSection');
   const c = document.getElementById('scoresContainer');
@@ -530,7 +552,10 @@ function autoWinnerScorepad() {
   document.getElementById('fieldWinner').value=winners.length===1?winners[0]:`TIE! ${winners.join(', ')}`;
 }
 
-// SUBMIT SESSION
+// ==================================================
+// LOG A PLAY
+// ==================================================
+
 async function submitForm() {
   const game=document.getElementById('fieldGame').value;
   if(!game){showStatus('Please select a game.',true);return;}
@@ -580,7 +605,10 @@ function showStatus(msg,isError=false,isSuccess=false) {
   if(!isError) setTimeout(()=>el.classList.remove('visible'),4000);
 }
 
+// ==================================================
 // RECENT PLAYS
+// ==================================================
+
 let allSessions=[], shownCount=0;
 const PAGE_SIZE=5;
 async function loadRecentPlays() {
@@ -679,7 +707,10 @@ function renderWinChart(){
     legend.appendChild(item);});
 }
 
+// ==================================================
 // PLAY HISTORY
+// ==================================================
+
 let allHistory = [], historyShown = 0;
 const HISTORY_PAGE = 20;
 async function loadHistory() {
@@ -740,7 +771,10 @@ function renderHistory() {
 }
 function historyLoadMore(e) { e.preventDefault(); renderHistory(); }
 
+// ==================================================
 // LIBRARY
+// ==================================================
+
 function applyLibraryFilters() {
   const players=document.getElementById('filterPlayers').value;
   const type=document.getElementById('filterType').value;
@@ -831,7 +865,10 @@ function darken(hex,factor) {
   return `rgb(${c(r)},${c(g)},${c(b)})`;
 }
 
+// ==================================================
 // WANT LIST
+// ==================================================
+
 function renderWantList() {
   const container=document.getElementById('wantListItems');
   if(allWantList.length===0){container.innerHTML=`<div class="library-empty">Your want list is empty.<br>Add games using the \u2795 button.</div>`;return;}
@@ -862,7 +899,10 @@ function showWantStatus(msg,isError=false,isSuccess=false) {
   if(!isError) setTimeout(()=>el.classList.remove('visible'),4000);
 }
 
-// WEIGHT
+// ==================================================
+// ADD GAME
+// ==================================================
+
 function setWeight(n) {
   selectedWeight=n; document.getElementById('addComplexity').value=n;
   document.querySelectorAll('#weightInput .weight-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
@@ -872,7 +912,6 @@ function setEditWeight(n) {
   document.querySelectorAll('#editWeightInput .weight-btn').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
 }
 
-// ADD GAME
 async function submitAddGame() {
   const name=document.getElementById('addName').value.trim();
   if(!name){showAddStatus('Please enter a game name.',true);return;}
@@ -922,7 +961,10 @@ function showAddStatus(msg,isError=false,isSuccess=false) {
   if(!isError) setTimeout(()=>el.classList.remove('visible'),4000);
 }
 
+// ==================================================
 // EDIT GAME
+// ==================================================
+
 function openEditGame(game) {
   editingGame=game;
   document.getElementById('editRowIndex').value=game.name;
@@ -1002,7 +1044,10 @@ function showEditStatus(msg,isError=false,isSuccess=false) {
   if(!isError) setTimeout(()=>el.classList.remove('visible'),4000);
 }
 
-// GAME MODES
+// ==================================================
+// GAME MODES & EXTRA FIELDS
+// ==================================================
+
 function toggleMode(prefix, mode) {
   const arr = prefix === 'add' ? addSelectedModes : editSelectedModes;
   const idx = arr.indexOf(mode);
@@ -1052,7 +1097,6 @@ function selectMode(mode) {
   });
 }
 
-// EXTRAFIELDS FORM BUILDER
 function onThemeChange(prefix) {
   const hex = document.getElementById(prefix + 'ThemeColor').value;
   document.getElementById(prefix + 'ThemeHex').value = hex;
@@ -1206,8 +1250,10 @@ function populateExtraFieldsForm(prefix, extraFields) {
   renderCustomFieldRows(prefix);
 }
 
+// ==================================================
 // GAME DETAIL SCREEN
- 
+// ==================================================
+
 function openGameDetail(game) {
   libraryScrollTop = window.scrollY || document.documentElement.scrollTop;
   showScreen('screenGameDetail');
@@ -1340,7 +1386,10 @@ function renderGameDetailContent(game) {
 });     
 }
 
-// HOME PIE CHART
+// ==================================================
+// HOME SCREEN ANALYTICS
+// ==================================================
+
 async function renderHomeChart() {
   const section = document.getElementById('sectionHomeChart');
   try {
@@ -1456,7 +1505,10 @@ async function renderTopGames() {
   } catch(e) { section.style.display = 'none'; }
 }
 
+// ==================================================
 // RANDOM GAME PICKER
+// ==================================================
+
 async function spinRandomGame() {
   var display = document.getElementById('randomGameDisplay');
   var btn = document.getElementById('randomSpinBtn');
@@ -1718,7 +1770,10 @@ function toggleDetailHistory() {
 }
 function detailLoadMore(e) { e.preventDefault(); renderDetailRecent(); }
  
+// ==================================================
 // HELPERS
+// ==================================================
+
 function sortName(name) {
   return name.replace(/^(A|An|The)\s+/i, '').trim();
 }
@@ -1749,7 +1804,10 @@ function getYouTubeEmbed(url) {
 }
 
  
+// ==================================================
 // CHARACTERS
+// ==================================================
+
 function hasCharacters(gameName) {
   return allCharacters.some(c => c.game === gameName);
 }
@@ -1823,7 +1881,10 @@ function buildDice(filled, total) {
   return html;
 }
 
-// BACKGROUND ART
+// ==================================================
+// THEMING
+// ==================================================
+
 function setBackgroundImage(url) {
   const el=document.getElementById('bgArt');
   if(!url){el.classList.remove('visible');setTimeout(()=>{el.style.backgroundImage='';},800);return;}
