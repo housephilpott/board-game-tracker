@@ -80,6 +80,7 @@ async function loadFromSheet() {
     renderHomeChart();
     renderTopGames();
     populateTypeFilter();
+    populateLibraryFilters();
     populateBaseGameDropdowns();
   } catch(e) {
     sub.textContent = 'Error: ' + e.message;
@@ -226,6 +227,47 @@ function populateTypeFilter() {
     opt.value = t; opt.textContent = t; sel.appendChild(opt);
   });
 }
+
+function populateLibraryFilters() {
+  // Designers
+  const designerSel = document.getElementById('filterDesigner');
+  if (designerSel) {
+    while (designerSel.options.length > 1) designerSel.remove(1);
+
+    [...new Set(
+      allLibrary
+        .map(g => g.designer)
+        .filter(Boolean)
+    )]
+      .sort()
+      .forEach(designer => {
+        const opt = document.createElement('option');
+        opt.value = designer;
+        opt.textContent = designer;
+        designerSel.appendChild(opt);
+      });
+  }
+
+  // Publishers
+  const publisherSel = document.getElementById('filterPublisher');
+  if (publisherSel) {
+    while (publisherSel.options.length > 1) publisherSel.remove(1);
+
+    [...new Set(
+      allLibrary
+        .map(g => g.publisher)
+        .filter(Boolean)
+    )]
+      .sort()
+      .forEach(publisher => {
+        const opt = document.createElement('option');
+        opt.value = publisher;
+        opt.textContent = publisher;
+        publisherSel.appendChild(opt);
+      });
+  }
+}
+`
 
 // ==================================================
 // GAME SELECTION & SESSION SETUP
