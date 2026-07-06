@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="styles.css">
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2583,5 +2584,6 @@ function applyTheme(primaryHex) {
 function getGameTheme(game){if(!game)return null;let fields=game.extraFields||[];if(typeof fields==='string'){try{fields=JSON.parse(fields);}catch(e){fields=[];}}const t=fields.find(f=>f.theme);return t?t.theme:null;}
 
 </script>
+<script src="app.js"></script>
 </body>
 </html>
