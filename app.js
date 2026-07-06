@@ -267,7 +267,7 @@ function populateLibraryFilters() {
       });
   }
 }
-`
+
 
 // ==================================================
 // GAME SELECTION & SESSION SETUP
