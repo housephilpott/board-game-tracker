@@ -1,0 +1,1 @@
+Move: loadHistory, renderHistory, historyLoadMore, buildSessionDetail.
