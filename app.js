@@ -1,1 +1,0 @@
-Keep all existing JavaScript here initially EXCEPT the blocks moved to the files below.
