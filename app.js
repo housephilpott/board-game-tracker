@@ -669,7 +669,7 @@ function renderRecentPlays() {
   const section=document.getElementById('recentSection'), table=document.getElementById('recentTable'), lmw=document.getElementById('loadMoreWrap');
   if(allSessions.length===0){section.style.display='none';return;}
   section.style.display='block';
-  if (!detailSessions || detailSessions.length === 0) {
+  if (!allSessions || allSessions.length === 0) {
   table.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-faint)">No plays recorded</td></tr>';
   return;
 }
@@ -1759,7 +1759,7 @@ function renderDetailRecent() {
   var table = document.getElementById('detailRecentTable');
   var section = document.getElementById('detailRecentSection');
   var wrap = document.getElementById('detailLoadMoreWrap');
-  console.log('renderDetailRecent', detailSessions.length, detailSessions);
+  
   if (!detailSessions || detailSessions.length === 0) {
     section.style.display = 'block';
     table.innerHTML =
