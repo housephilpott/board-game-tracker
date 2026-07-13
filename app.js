@@ -1755,6 +1755,7 @@ function renderDetailWinChart(gameName) {
   });
 }
 function renderDetailRecent() {
+  console.log('renderDetailRecent', detailSessions.length, detailSessions);
   var table = document.getElementById('detailRecentTable');
   var section = document.getElementById('detailRecentSection');
   var wrap = document.getElementById('detailLoadMoreWrap');
