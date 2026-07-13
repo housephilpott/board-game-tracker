@@ -1755,11 +1755,11 @@ function renderDetailWinChart(gameName) {
   });
 }
 function renderDetailRecent() {
-  console.log('renderDetailRecent', detailSessions.length, detailSessions);
+  
   var table = document.getElementById('detailRecentTable');
   var section = document.getElementById('detailRecentSection');
   var wrap = document.getElementById('detailLoadMoreWrap');
-
+  console.log('renderDetailRecent', detailSessions.length, detailSessions);
   if (!detailSessions || detailSessions.length === 0) {
     section.style.display = 'block';
     table.innerHTML =
