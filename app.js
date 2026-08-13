@@ -980,6 +980,8 @@ async function submitAddGame() {
     baseGame:document.getElementById('addBaseGame').value,
     linkType:document.getElementById('addBaseGame').value ? document.getElementById('addLinkType').value : '',
     notes:document.getElementById('addNotes').value||'',
+    howToPlay:document.getElementById('addHowToPlay').value.trim()||'',
+    review:document.getElementById('addReview').value.trim()||'',
     excludeRandom:document.getElementById('addExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('add'),
   };
@@ -997,6 +999,7 @@ async function submitAddGame() {
 function resetAddForm() {
   ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';document.getElementById('addNotes').value='';document.getElementById('addExcludeRandom').checked=false;
+  document.getElementById('addHowToPlay').value=''; document.getElementById('addReview').value='';
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
   renderTypeChips('addTypeContainer','addTypePlaceholder',selectedAddTypes,'addType');
@@ -1029,6 +1032,8 @@ function openEditGame(game) {
   document.getElementById('editBaseGame').value=game.baseGame||'';
   document.getElementById('editLinkType').value=game.linkType||'expansion';
   document.getElementById('editNotes').value=game.notes||'';
+  document.getElementById('editHowToPlay').value=game.howToPlay||'';
+  document.getElementById('editReview').value=game.review||'';
   document.getElementById('editExcludeRandom').checked=!!game.excludeRandom;
   // Weight buttons
   const w=parseInt(game.complexity)||0; selectedEditWeight=w||null;
@@ -1073,6 +1078,8 @@ async function submitEditGame() {
     baseGame:document.getElementById('editBaseGame').value,
     linkType:document.getElementById('editBaseGame').value ? document.getElementById('editLinkType').value : '',
     notes:document.getElementById('editNotes').value||'',
+    howToPlay:document.getElementById('editHowToPlay').value.trim()||'',
+    review:document.getElementById('editReview').value.trim()||'',
     excludeRandom:document.getElementById('editExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('edit'),
   };
