@@ -145,7 +145,7 @@ window.showScreen = function(id) {
   } else if (id === 'screenWantList') {
     if (title) title.textContent = '🛒 Want List';
     if (sub) sub.textContent = allWantList.length + ' game' + (allWantList.length !== 1 ? 's' : '');
-    if (typeof  === 'function') ();
+    if (typeof renderWantList === 'function') renderWantList();
 
   } else if (id === 'screenHistory') {
     if (back) back.classList.remove('hidden');
