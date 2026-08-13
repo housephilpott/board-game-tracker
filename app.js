@@ -25,6 +25,7 @@ let randomSpinIndex = 0;
 let lastRandomResult = null;
 let detailSessions = [];
 let detailShownCount = 0;
+let editingFromWantList = false;
 
 
 const LOGO_MAP = {
@@ -1090,10 +1091,10 @@ function showAddStatus(msg,isError=false,isSuccess=false) {
 // ==================================================
 
 function openEditGame(game) {
-  window._editSource = editingFromWantList ? 'want' : 'library';
-  editingFromWantList = false;
-  editingGame=game;
-  document.getElementById('editRowIndex').value=game.name;
+window._editSource = editingFromWantList ? 'want' : 'library';
+editingFromWantList = false;
+editingGame = game;
+document.getElementById('editRowIndex').value = game.name;
   document.getElementById('editName').value=game.name||'';
   document.getElementById('editYear').value=game.year||'';
   document.getElementById('editDesigner').value=game.designer||'';
