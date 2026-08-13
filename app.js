@@ -1135,8 +1135,6 @@ document.getElementById('editRowIndex').value = game.name;
   showScreen('screenEditGame');
 }
 
-let editingFromWantList = false;
-
 function openEditWantGame(idx) {
   var game = allWantList[idx];
   if (!game) return;
