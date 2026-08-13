@@ -919,17 +919,82 @@ function darken(hex,factor) {
 // ==================================================
 
 function renderWantList() {
-  const container=document.getElementById('wantListItems');
-  if(allWantList.length===0){container.innerHTML=`<div class="library-empty">Your want list is empty.<br>Add games using the \u2795 button.</div>`;return;}
-  container.innerHTML='';
-  const sorted=[...allWantList].map((g,i)=>({...g,_idx:i})).sort((a,b)=>sortName(a.name).localeCompare(sortName(b.name)));
-  sorted.forEach((game)=>{
-    const idx=game._idx;
-    const div=document.createElement('div'); div.className='want-item';
-    const meta=[game.year,game.gameType].filter(Boolean).join(' \u00b7 ');
-    div.innerHTML=`<div class="want-item-name">${game.name}</div>${meta?`<div class="want-item-meta">${meta}</div>`:''} ${game.baseGame?`<div class="want-item-expansion">\uD83D\uDCE6 Expansion for ${game.baseGame}</div>`:''}<div class="want-item-actions"><button class="want-move-btn" onclick="moveToLibrary(' + idx + ')">📚 Move to Library</button><button class="want-move-btn" style="background:#3a0f1e;border:1px solid #e94560;color:#ff8080" onclick="deleteWantItem(' + idx + ')">🗑️</button></div>`;
-    container.appendChild(div);
-  });
+  const container = document.getElementById('wantListItems');
+
+  if (allWantList.length === 0) {
+    container.innerHTML = '<div class="library-empty">Your want list is empty.<br>Add games using the ➕ button.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  [...allWantList]
+    .map(function(g, i) { return Object.assign({}, g, { _idx: i }); })
+    .sort(function(a, b) { return sortName(a.name).localeCompare(sortName(b.name)); })
+    .forEach(function(game) {
+      const idx = game._idx;
+      const card = document.createElement('div');
+      card.className = 'game-card';
+
+      const artHtml = game.imageUrl
+        ? '<div class="card-art">' + game.imageUrl + ' game.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
+        : '<div class="card-art">\uD83C\uDFB2</div>';
+
+      const players = game.minPlayers && game.maxPlayers
+        ? (game.minPlayers === game.maxPlayers ? game.minPlayers + 'p' : game.minPlayers + '\u2013' + game.maxPlayers + 'p')
+        : game.maxPlayers ? 'Up to ' + game.maxPlayers + 'p' : '';
+      const complexity = game.complexity ? parseFloat(game.complexity).toFixed(1) : null;
+      const dots = complexity
+        ? Array.from({length:5}, function(_,i){ return '<div class="dot' + (i < Math.round(parseFloat(complexity)) ? ' filled' : '') + '"></div>'; }).join('')
+        : '';
+
+      const typeTags = game.gameType
+        ? game.gameType.split(',').map(function(t){ return t.trim(); }).filter(Boolean).map(function(t){ return '<div class="card-stat">' + t + '</div>'; }).join('')
+        : '';
+
+      const detailFields = [
+        game.designer  ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
+        game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
+        game.year      ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
+        players        ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
+        complexity     ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
+        game.baseGame  ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCE6 Expansion</span><span class="card-detail-field-value">for ' + game.baseGame + '</span></div>' : '',
+      ].filter(Boolean).join('');
+
+      const bgStyle = game.imageUrl ? "background-image:url('" + game.imageUrl + "')" : '';
+
+      card.innerHTML =
+        artHtml +
+        '<div class="card-body">' +
+          (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
+          '<div class="card-name">' + game.name + (game.year ? ' <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(' + game.year + ')</span>' : '') + '</div>' +
+          '<div class="card-stats">' +
+            (players ? '<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">' + players + '</span></div>' : '') +
+            (complexity ? '<div class="card-stat">Weight <span class="card-stat-accent">' + complexity + '</span> <div class="complexity-dots">' + dots + '</div></div>' : '') +
+            (game.coop ? '<div class="card-stat">\uD83E\uDD1D Co-op</div>' : '') +
+            (game.solo ? '<div class="card-stat">\uD83E\uDDCD Solo</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="card-detail">' +
+          '<div class="card-detail-bg" style="' + bgStyle + '"></div>' +
+          '<div class="card-detail-content">' +
+            (game.description ? '<div class="card-detail-desc">' + game.description + '</div>' : '') +
+            detailFields +
+            (typeTags ? '<div class="card-detail-badges">' + typeTags + '</div>' : '') +
+            '<button class="card-edit-btn" onclick="event.stopPropagation();moveToLibrary(' + idx + ')">\uD83D\uDCDA Move to Library</button>' +
+            '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-top:8px" onclick="event.stopPropagation();openEditWantGame(' + idx + ')">\u270E Edit</button>' +
+          '</div>' +
+        '</div>';
+
+      card.querySelector('.card-body').onclick = function() {
+        const detail = card.querySelector('.card-detail');
+        const isOpen = detail.classList.contains('open');
+        document.querySelectorAll('.card-detail.open').forEach(function(d){ d.classList.remove('open'); });
+        if (!isOpen) detail.classList.add('open');
+      };
+
+      container.appendChild(card);
+    });
 }
 function deleteWantItem(idx) {
   var game = allWantList[idx];
@@ -1024,6 +1089,8 @@ function showAddStatus(msg,isError=false,isSuccess=false) {
 // ==================================================
 
 function openEditGame(game) {
+  window._editSource = editingFromWantList ? 'want' : 'library';
+  editingFromWantList = false;
   editingGame=game;
   document.getElementById('editRowIndex').value=game.name;
   document.getElementById('editName').value=game.name||'';
@@ -1065,10 +1132,20 @@ function openEditGame(game) {
   populateBaseGameDropdowns();
   showScreen('screenEditGame');
 }
+
+let editingFromWantList = false;
+
+function openEditWantGame(idx) {
+  var game = allWantList[idx];
+  if (!game) return;
+  editingFromWantList = true;
+  openEditGame(game);
+}
+
 async function submitEditGame() {
   const originalName=document.getElementById('editRowIndex').value;
   const payload={
-    action:'editGame', originalName,
+    action: window._editSource === 'want' ? 'editWantGame' : 'editGame', originalName,
     name:document.getElementById('editName').value.trim(),
     year:document.getElementById('editYear').value,
     gameType:selectedEditTypes.join(', '),
@@ -1095,7 +1172,7 @@ async function submitEditGame() {
     const result=await res.json();
     if(result.status==='success'){
       await loadFromSheet(); currentGameData=null; populateTypeFilter(); populateBaseGameDropdowns();
-      showScreen(fromWantList ? 'screenWantList' : 'screenLibrary');
+      showScreen(window._editSource === 'want' ? 'screenWantList' : 'screenLibrary');
     }else throw new Error(result.message);
   }catch(e){showEditStatus(`Error: ${e.message}`,true);}
   finally{btn.disabled=false;btn.textContent='Save Changes';}
