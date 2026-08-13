@@ -938,7 +938,7 @@ function renderWantList() {
       card.className = 'game-card';
 
       const artHtml = game.imageUrl
-        ? '<div class="card-art">' + game.imageUrl + ' game.name + '" onerror="this.parentElement.innerHTML=\'\\uD83C\\uDFB2\'"></div>'
+        ? '<div class="card-art">' + game.imageUrl + '</div>'
         : '<div class="card-art">\uD83C\uDFB2</div>';
 
       const players = game.minPlayers && game.maxPlayers
