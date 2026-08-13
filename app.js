@@ -927,9 +927,15 @@ function renderWantList() {
     const idx=game._idx;
     const div=document.createElement('div'); div.className='want-item';
     const meta=[game.year,game.gameType].filter(Boolean).join(' \u00b7 ');
-    div.innerHTML=`<div class="want-item-name">${game.name}</div>${meta?`<div class="want-item-meta">${meta}</div>`:''} ${game.baseGame?`<div class="want-item-expansion">\uD83D\uDCE6 Expansion for ${game.baseGame}</div>`:''}<div class="want-item-actions"><button class="want-move-btn" onclick="moveToLibrary(${idx})">\uD83D\uDCDA Move to Library</button></div>`;
+    div.innerHTML=`<div class="want-item-name">${game.name}</div>${meta?`<div class="want-item-meta">${meta}</div>`:''} ${game.baseGame?`<div class="want-item-expansion">\uD83D\uDCE6 Expansion for ${game.baseGame}</div>`:''}<div class="want-item-actions"><button class="want-move-btn" onclick="moveToLibrary(' + idx + ')">📚 Move to Library</button><button class="want-move-btn" style="background:#3a0f1e;border:1px solid #e94560;color:#ff8080" onclick="deleteWantItem(' + idx + ')">🗑️</button></div>`;
     container.appendChild(div);
   });
+}
+function deleteWantItem(idx) {
+  var game = allWantList[idx];
+  if (!game) return;
+  if (!confirm('Delete "' + game.name + '" from your want list?')) return;
+  doDeleteGame(game.name, true);
 }
 async function moveToLibrary(idx) {
   const game=allWantList[idx];
@@ -1089,7 +1095,7 @@ async function submitEditGame() {
     const result=await res.json();
     if(result.status==='success'){
       await loadFromSheet(); currentGameData=null; populateTypeFilter(); populateBaseGameDropdowns();
-      showScreen('screenLibrary');
+      showScreen(fromWantList ? 'screenWantList' : 'screenLibrary');
     }else throw new Error(result.message);
   }catch(e){showEditStatus(`Error: ${e.message}`,true);}
   finally{btn.disabled=false;btn.textContent='Save Changes';}
@@ -1098,6 +1104,57 @@ function showEditStatus(msg,isError=false,isSuccess=false) {
   const el=document.getElementById('editGameStatus');
   el.textContent=msg; el.className='status-banner visible'+(isError?' error':'')+(isSuccess?' success':'');
   if(!isError) setTimeout(()=>el.classList.remove('visible'),4000);
+}
+function deleteGameConfirm() {
+  var name = document.getElementById('editRowIndex').value;
+  if (!name) return;
+
+  // Check for attached versions/expansions
+  var children = allLibrary.filter(function(g) { return g.baseGame === name; });
+
+  if (children.length > 0) {
+    var versions = children.filter(function(g) { return g.linkType === 'version'; }).length;
+    var expansions = children.filter(function(g) { return !g.linkType || g.linkType === 'expansion'; }).length;
+
+    var parts = [];
+    if (versions > 0) parts.push(versions + ' version' + (versions !== 1 ? 's' : ''));
+    if (expansions > 0) parts.push(expansions + ' expansion' + (expansions !== 1 ? 's' : ''));
+
+    var msg = '"' + name + '" has ' + parts.join(' and ') + ' attached.\n\n' +
+              'Deleting the base game will orphan ' + (children.length === 1 ? 'it' : 'them') +
+              ' (they will no longer appear under any game).\n\n' +
+              'Delete anyway?';
+
+    if (!confirm(msg)) return;
+  } else {
+    if (!confirm('Delete "' + name + '" permanently? This cannot be undone.')) return;
+  }
+
+  doDeleteGame(name, false);
+}
+
+async function doDeleteGame(name, fromWantList) {
+  var btn = document.getElementById('editSaveBtn');
+  if (btn) { btn.disabled = true; }
+  try {
+    var res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteGame', name: name, fromWantList: fromWantList })
+    });
+    var result = await res.json();
+    if (result.status === 'success') {
+      await loadFromSheet();
+      populateTypeFilter();
+      populateBaseGameDropdowns();
+      showScreen('screenLibrary');
+    } else {
+      throw new Error(result.message);
+    }
+  } catch(e) {
+    showEditStatus('Error: ' + e.message, true);
+  } finally {
+    if (btn) { btn.disabled = false; }
+  }
 }
 
 // ==================================================
