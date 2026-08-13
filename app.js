@@ -144,7 +144,7 @@ window.showScreen = function(id) {
   } else if (id === 'screenWantList') {
     if (title) title.textContent = '🛒 Want List';
     if (sub) sub.textContent = allWantList.length + ' game' + (allWantList.length !== 1 ? 's' : '');
-    if (typeof renderWantList === 'function') renderWantList();
+    if (typeof  === 'function') ();
 
   } else if (id === 'screenHistory') {
     if (back) back.classList.remove('hidden');
@@ -983,6 +983,7 @@ function renderWantList() {
             (typeTags ? '<div class="card-detail-badges">' + typeTags + '</div>' : '') +
             '<button class="card-edit-btn" onclick="event.stopPropagation();moveToLibrary(' + idx + ')">\uD83D\uDCDA Move to Library</button>' +
             '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-top:8px" onclick="event.stopPropagation();openEditWantGame(' + idx + ')">\u270E Edit</button>' +
+            '<button class="card-edit-btn danger-btn" style="margin-top:8px" onclick="event.stopPropagation();deleteWantItem(' + idx + ')">\uD83D\uDDD1\uFE0F Delete</button>' +
           '</div>' +
         '</div>';
 
@@ -1223,7 +1224,7 @@ async function doDeleteGame(name, fromWantList) {
       await loadFromSheet();
       populateTypeFilter();
       populateBaseGameDropdowns();
-      showScreen('screenLibrary');
+      showScreen(fromWantList ? 'screenWantList' : 'screenLibrary');
     } else {
       throw new Error(result.message);
     }
