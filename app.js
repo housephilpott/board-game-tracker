@@ -1483,7 +1483,7 @@ function populateExtraFieldsForm(prefix, extraFields) {
 // ==================================================
 
 function openGameDetail(game) {
-   = window.scrollY || document.documentElement.scrollTop;
+  libraryScrollTop = window.scrollY || document.documentElement.scrollTop;
   showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
   document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
