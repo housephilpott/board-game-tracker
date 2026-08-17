@@ -857,6 +857,7 @@ function renderLibrary() {
   // ✅ ignore filters temporarily (safe fallback)
   renderLibraryCards(allLibrary);
 }
+
 function renderLibraryCards(games) {
   const container = document.getElementById('libraryCards');
   const countEl = document.getElementById('libraryCount');
@@ -867,7 +868,6 @@ function renderLibraryCards(games) {
     return;
   }
 
-  // ✅ Ensure baseGames is defined correctly
   const baseGames = games.filter(function(g) {
     return !g.baseGame;
   });
@@ -878,35 +878,37 @@ function renderLibraryCards(games) {
 
   container.innerHTML = '';
 
-        const artHtml = '<div class="card-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
-baseGames.forEach(function(game) {
+  baseGames.forEach(function(game) {
+    const card = document.createElement('div');
+    card.className = 'game-card';
 
-      const card = document.createElement('div');
-      card.className = 'game-card';
+    const artHtml = '<div class="card-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
 
-      
-      card.innerHTML =
-        var artEl = card.querySelector('.card-art');
-        if (artEl && artEl.dataset.img) {
-        var im = document.createElement('img');
-        im.src = artEl.dataset.img;
-        im.alt = game.name;
-        im.onerror = function() { artEl.textContent = '\uD83C\uDFB2'; };
-        artEl.textContent = '';
-        artEl.appendChild(im);
-      }
-        artHtml +
-        '<div class="card-body">' +
-        '<div class="card-name">' + game.name + '</div>' +
-        '</div>';
+    card.innerHTML =
+      artHtml +
+      '<div class="card-body">' +
+      '<div class="card-name">' + game.name + '</div>' +
+      '</div>';
 
-      card.querySelector('.card-body').onclick = function() {
-        openGameDetail(game);
-      };
+    // Build the image via DOM (avoids tag-stripping issues)
+    var artEl = card.querySelector('.card-art');
+    if (artEl && artEl.dataset.img) {
+      var im = document.createElement('img');
+      im.src = artEl.dataset.img;
+      im.alt = game.name;
+      im.onerror = function() { artEl.textContent = '\uD83C\uDFB2'; };
+      artEl.textContent = '';
+      artEl.appendChild(im);
+    }
 
-      container.appendChild(card);
-    });
-} 
+    card.querySelector('.card-body').onclick = function() {
+      openGameDetail(game);
+    };
+
+    container.appendChild(card);
+  });
+}
+
 function card_id(name) { return name.replace(/[^a-zA-Z0-9]/g,'_'); }
 function libraryGameByName(name) { return allLibrary.find(g=>g.name===name)||{}; }
 function lighten(hex) {
@@ -961,56 +963,7 @@ function renderWantList() {
         game.designer  ? '<div class="card-detail-field"><span class="card-detail-field-label">\u270F\uFE0F Designer</span><span class="card-detail-field-value">' + game.designer + '</span></div>' : '',
         game.publisher ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83C\uDFE2 Publisher</span><span class="card-detail-field-value">' + game.publisher + '</span></div>' : '',
         game.year      ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
-        players        ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
-        complexity     ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
-        game.baseGame  ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCE6 Expansion</span><span class="card-detail-field-value">for ' + game.baseGame + '</span></div>' : '',
-      ].filter(Boolean).join('');
-
-      const bgStyle = game.imageUrl ? "background-image:url('" + game.imageUrl + "')" : '';
-
-      card.innerHTML =
-      var artEl = card.querySelector('.card-art');
-      if (artEl && artEl.dataset.img) {
-        var im = document.createElement('img');
-        im.src = artEl.dataset.img;
-        im.alt = game.name;
-        im.onerror = function() { artEl.textContent = '\uD83C\uDFB2'; };
-        artEl.textContent = '';
-        artEl.appendChild(im);
-      }
-        artHtml +
-        '<div class="card-body">' +
-          (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
-          '<div class="card-name">' + game.name + (game.year ? ' <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(' + game.year + ')</span>' : '') + '</div>' +
-          '<div class="card-stats">' +
-            (players ? '<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">' + players + '</span></div>' : '') +
-            (complexity ? '<div class="card-stat">Weight <span class="card-stat-accent">' + complexity + '</span> <div class="complexity-dots">' + dots + '</div></div>' : '') +
-            (game.coop ? '<div class="card-stat">\uD83E\uDD1D Co-op</div>' : '') +
-            (game.solo ? '<div class="card-stat">\uD83E\uDDCD Solo</div>' : '') +
-          '</div>' +
-        '</div>' +
-        '<div class="card-detail">' +
-          '<div class="card-detail-bg" style="' + bgStyle + '"></div>' +
-          '<div class="card-detail-content">' +
-            (game.description ? '<div class="card-detail-desc">' + game.description + '</div>' : '') +
-            detailFields +
-            (typeTags ? '<div class="card-detail-badges">' + typeTags + '</div>' : '') +
-            '<button class="card-edit-btn" onclick="event.stopPropagation();moveToLibrary(' + idx + ')">\uD83D\uDCDA Move to Library</button>' +
-            '<button class="card-edit-btn" style="background:var(--bg-input);border:1px solid var(--border);color:var(--accent);margin-top:8px" onclick="event.stopPropagation();openEditWantGame(' + idx + ')">\u270E Edit</button>' +
-            '<button class="card-edit-btn danger-btn" style="margin-top:8px" onclick="event.stopPropagation();deleteWantItem(' + idx + ')">\uD83D\uDDD1\uFE0F Delete</button>' +
-          '</div>' +
-        '</div>';
-
-      card.querySelector('.card-body').onclick = function() {
-        const detail = card.querySelector('.card-detail');
-        const isOpen = detail.classList.contains('open');
-        document.querySelectorAll('.card-detail.open').forEach(function(d){ d.classList.remove('open'); });
-        if (!isOpen) detail.classList.add('open');
-      };
-
-      container.appendChild(card);
-    });
-}
+        players        ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field
 function deleteWantItem(idx) {
   var game = allWantList[idx];
   if (!game) return;
