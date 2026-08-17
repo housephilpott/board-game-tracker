@@ -1055,6 +1055,8 @@ async function submitAddGame() {
     notes:document.getElementById('addNotes').value||'',
     howToPlay:document.getElementById('addHowToPlay').value.trim()||'',
     review:document.getElementById('addReview').value.trim()||'',
+    retailer:document.getElementById('addRetailer').value.trim()||'',
+    price:formatPrice(document.getElementById('addPrice').value),
     excludeRandom:document.getElementById('addExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('add'),
   };
@@ -1072,7 +1074,7 @@ async function submitAddGame() {
 function resetAddForm() {
   ['addName','addYear','addDesigner','addPublisher','addDesc','addMinPlayers','addMaxPlayers','addImageUrl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('addComplexity').value=''; document.getElementById('addBaseGame').value='';document.getElementById('addNotes').value='';document.getElementById('addExcludeRandom').checked=false;
-  document.getElementById('addHowToPlay').value=''; document.getElementById('addReview').value='';
+  document.getElementById('addHowToPlay').value=''; document.getElementById('addReview').value='';document.getElementById('addRetailer').value='';document.getElementById('addPrice').value='';
   selectedAddTypes=[]; selectedWeight=null;
   document.querySelectorAll('#weightInput .weight-btn').forEach(b=>b.classList.remove('selected'));
   renderTypeChips('addTypeContainer','addTypePlaceholder',selectedAddTypes,'addType');
@@ -1109,6 +1111,8 @@ document.getElementById('editRowIndex').value = game.name;
   document.getElementById('editNotes').value=game.notes||'';
   document.getElementById('editHowToPlay').value=game.howToPlay||'';
   document.getElementById('editReview').value=game.review||'';
+  document.getElementById('editRetailer').value=game.retailer||'';
+  document.getElementById('editPrice').value=game.price||'';
   document.getElementById('editExcludeRandom').checked=!!game.excludeRandom;
   // Weight buttons
   const w=parseInt(game.complexity)||0; selectedEditWeight=w||null;
@@ -1163,6 +1167,8 @@ async function submitEditGame() {
     notes:document.getElementById('editNotes').value||'',
     howToPlay:document.getElementById('editHowToPlay').value.trim()||'',
     review:document.getElementById('editReview').value.trim()||'',
+    retailer:document.getElementById('editRetailer').value.trim()||'',
+    price:formatPrice(document.getElementById('editPrice').value),
     excludeRandom:document.getElementById('editExcludeRandom').checked?'TRUE':'FALSE',
     extraFields: buildExtraFieldsJSON('edit'),
   };
@@ -1993,7 +1999,12 @@ function getYouTubeEmbed(url) {
   if (!match) return '';
   return 'https://www.youtube.com/embed/' + match[1];
 }
-
+function formatPrice(val) {
+  if (!val) return '';
+  var num = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+  if (isNaN(num)) return '';
+  return '$' + num.toFixed(2);
+}
  
 // ==================================================
 // CHARACTERS
