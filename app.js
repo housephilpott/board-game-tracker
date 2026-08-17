@@ -965,22 +965,33 @@ function renderWantList() {
         game.year      ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
         players        ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
         complexity     ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
-        game.baseGame  ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCE6 Expansion</span><span class="card-detail-field-value">for ' + game.baseGame + '</span></div>' : '',
+        (game.retailer || game.price) ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDED2 Purchase</span><span class="card-detail-field-value">' + (game.retailer || '') + (game.price ? (game.retailer ? ' (' + formatPrice(game.price) + ')' : formatPrice(game.price)) : '') + '</span></div>' : '',
       ].filter(Boolean).join('');
 
       const bgStyle = game.imageUrl ? "background-image:url('" + game.imageUrl + "')" : '';
 
+      // Relationship tag: expansion vs version
+      var relTag = '';
+      if (game.baseGame) {
+        if (game.linkType === 'version') {
+          relTag = '<div class="card-expansion-tag">\uD83D\uDD04 Version of ' + game.baseGame + '</div>';
+        } else {
+          relTag = '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>';
+        }
+      }
+
+      // Two-line summary
+      var summaryLine2parts = [];
+      summaryLine2parts.push('Available from: ' + (game.retailer || '\u2014'));
+      summaryLine2parts.push('Price: ' + (game.price ? formatPrice(game.price) : '\u2014'));
+      var summaryLine2 = summaryLine2parts.join(' | ');
+
       card.innerHTML =
         artHtml +
         '<div class="card-body">' +
-          (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
+          relTag +
           '<div class="card-name">' + game.name + (game.year ? ' <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(' + game.year + ')</span>' : '') + '</div>' +
-          '<div class="card-stats">' +
-            (players ? '<div class="card-stat">\uD83D\uDC65 <span class="card-stat-accent">' + players + '</span></div>' : '') +
-            (complexity ? '<div class="card-stat">Weight <span class="card-stat-accent">' + complexity + '</span> <div class="complexity-dots">' + dots + '</div></div>' : '') +
-            (game.coop ? '<div class="card-stat">\uD83E\uDD1D Co-op</div>' : '') +
-            (game.solo ? '<div class="card-stat">\uD83E\uDDCD Solo</div>' : '') +
-          '</div>' +
+          '<div style="font-size:12px;color:var(--text-muted);margin-top:4px">' + summaryLine2 + '</div>' +
         '</div>' +
         '<div class="card-detail">' +
           '<div class="card-detail-bg" style="' + bgStyle + '"></div>' +
@@ -994,7 +1005,7 @@ function renderWantList() {
           '</div>' +
         '</div>';
 
-      // Build the image via DOM (after innerHTML is set)
+      // Build the image via DOM
       var artEl = card.querySelector('.card-art');
       if (artEl && artEl.dataset.img) {
         var im = document.createElement('img');
