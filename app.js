@@ -884,9 +884,13 @@ baseGames.forEach(function(game) {
       const card = document.createElement('div');
       card.className = 'game-card';
 
-      const artHtml = game.imageUrl
-        ? '<div class="card-art"><img src="' + game.imageUrl + '" alt="' + game.name + '"></div>'
-        : '<div class="card-art">\uD83C\uDFB2</div>';
+      var artHtml;
+      if (game.imageUrl) {
+        artHtml = '<div class="card-art">' + game.imageUrl + '\\uDFB2\'"></div>';
+      } else {
+        artHtml = '<div class="card-art">\uD83C\uDFB2</div>';
+      }
+
 
       card.innerHTML =
         artHtml +
