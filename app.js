@@ -995,7 +995,6 @@ function renderWantList() {
         '<div class="card-detail">' +
           '<div class="card-detail-bg" style="' + bgStyle + '"></div>' +
           '<div class="card-detail-content">' +
-            artHtml +
             (game.description ? '<div class="card-detail-desc">' + game.description + '</div>' : '') +
             detailFields +
             (typeTags ? '<div class="card-detail-badges">' + typeTags + '</div>' : '') +
