@@ -945,7 +945,7 @@ function renderWantList() {
       const card = document.createElement('div');
       card.className = 'game-card';
 
-      const artHtml = '<div class="want-detail-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
+            const artHtml = '<div class="want-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
 
       const players = game.minPlayers && game.maxPlayers
         ? (game.minPlayers === game.maxPlayers ? game.minPlayers + 'p' : game.minPlayers + '\u2013' + game.maxPlayers + 'p')
@@ -987,6 +987,7 @@ function renderWantList() {
       var summaryLine2 = summaryLine2parts.join(' | ');
 
       card.innerHTML =
+        artHtml +
         '<div class="card-body">' +
           relTag +
           '<div class="card-name">' + game.name + (game.year ? ' <span style="font-size:12px;font-weight:400;color:var(--text-faint)">(' + game.year + ')</span>' : '') + '</div>' +
@@ -995,7 +996,6 @@ function renderWantList() {
         '<div class="card-detail">' +
           '<div class="card-detail-bg" style="' + bgStyle + '"></div>' +
           '<div class="card-detail-content">' +
-          artHtml +
             (game.description ? '<div class="card-detail-desc">' + game.description + '</div>' : '') +
             detailFields +
             (typeTags ? '<div class="card-detail-badges">' + typeTags + '</div>' : '') +
@@ -1006,7 +1006,7 @@ function renderWantList() {
         '</div>';
 
       // Build the image via DOM
-      var artEl = card.querySelector('.want-detail-art');
+      var artEl = card.querySelector('.want-art');
       if (artEl && artEl.dataset.img) {
         var im = document.createElement('img');
         im.src = artEl.dataset.img;
