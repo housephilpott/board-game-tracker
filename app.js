@@ -139,7 +139,7 @@ window.showScreen = function(id) {
     if (typeof renderLibrary === 'function') renderLibrary();
 
   setTimeout(function() {
-    window.scrollTo(0,  || 0);
+    window.scrollTo(0, wantListScrollTop || 0);
   }, 0);
 
 
