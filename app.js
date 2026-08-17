@@ -20,6 +20,7 @@ let selectedMode = '';
 let selectedExpansions = [];
 let selectedVersion = '';
 let libraryScrollTop = 0; 
+let wantListScrollTop = 0;
 let randomSpinTimer = null;
 let randomSpinIndex = 0;
 let lastRandomResult = null;
@@ -138,16 +139,17 @@ window.showScreen = function(id) {
     if (typeof renderLibrary === 'function') renderLibrary();
 
   setTimeout(function() {
-    window.scrollTo(0, libraryScrollTop || 0);
+    window.scrollTo(0,  || 0);
   }, 0);
 
 
   } else if (id === 'screenWantList') {
-    if (title) title.textContent = '🛒 Want List';
-    if (sub) sub.textContent = allWantList.length + ' game' + (allWantList.length !== 1 ? 's' : '');
-    if (typeof renderWantList === 'function') renderWantList();
-
-  } else if (id === 'screenHistory') {
+  if (title) title.textContent = '🛒 Want List';
+  if (sub) sub.textContent = allWantList.length + ' game' + (allWantList.length !== 1 ? 's' : '');
+  if (typeof renderWantList === 'function') renderWantList();
+  setTimeout(function() { window.scrollTo(0, wantListScrollTop || 0); }, 50);
+    
+} else if (id === 'screenHistory') {
     if (back) back.classList.remove('hidden');
     if (title) title.textContent = '📖 Play History';
     if (sub) sub.textContent = 'All recorded sessions';
@@ -1171,6 +1173,7 @@ document.getElementById('editRowIndex').value = game.name;
 function openEditWantGame(idx) {
   var game = allWantList[idx];
   if (!game) return;
+  wantListScrollTop = window.scrollY || document.documentElement.scrollTop;
   editingFromWantList = true;
   openEditGame(game);
 }
@@ -1480,7 +1483,7 @@ function populateExtraFieldsForm(prefix, extraFields) {
 // ==================================================
 
 function openGameDetail(game) {
-  libraryScrollTop = window.scrollY || document.documentElement.scrollTop;
+   = window.scrollY || document.documentElement.scrollTop;
   showScreen('screenGameDetail');
   document.getElementById('headerTitle').textContent = game.name;
   document.getElementById('headerSub').textContent = game.gameType || 'Game Details';
