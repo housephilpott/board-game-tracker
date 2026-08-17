@@ -878,21 +878,23 @@ function renderLibraryCards(games) {
 
   container.innerHTML = '';
 
-  
+        const artHtml = '<div class="card-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
 baseGames.forEach(function(game) {
 
       const card = document.createElement('div');
       card.className = 'game-card';
 
-      var artHtml;
-      if (game.imageUrl) {
-        artHtml = '<div class="card-art">' + game.imageUrl + '\\uDFB2\'"></div>';
-      } else {
-        artHtml = '<div class="card-art">\uD83C\uDFB2</div>';
-      }
-
-
+      
       card.innerHTML =
+        var artEl = card.querySelector('.card-art');
+        if (artEl && artEl.dataset.img) {
+        var im = document.createElement('img');
+        im.src = artEl.dataset.img;
+        im.alt = game.name;
+        im.onerror = function() { artEl.textContent = '\uD83C\uDFB2'; };
+        artEl.textContent = '';
+        artEl.appendChild(im);
+      }
         artHtml +
         '<div class="card-body">' +
         '<div class="card-name">' + game.name + '</div>' +
@@ -941,9 +943,7 @@ function renderWantList() {
       const card = document.createElement('div');
       card.className = 'game-card';
 
-      const artHtml = game.imageUrl
-        ? '<div class="card-art">' + game.imageUrl + '</div>'
-        : '<div class="card-art">\uD83C\uDFB2</div>';
+      const artHtml = '<div class="card-art" data-img="' + (game.imageUrl || '') + '">\uD83C\uDFB2</div>';
 
       const players = game.minPlayers && game.maxPlayers
         ? (game.minPlayers === game.maxPlayers ? game.minPlayers + 'p' : game.minPlayers + '\u2013' + game.maxPlayers + 'p')
@@ -969,6 +969,15 @@ function renderWantList() {
       const bgStyle = game.imageUrl ? "background-image:url('" + game.imageUrl + "')" : '';
 
       card.innerHTML =
+      var artEl = card.querySelector('.card-art');
+      if (artEl && artEl.dataset.img) {
+        var im = document.createElement('img');
+        im.src = artEl.dataset.img;
+        im.alt = game.name;
+        im.onerror = function() { artEl.textContent = '\uD83C\uDFB2'; };
+        artEl.textContent = '';
+        artEl.appendChild(im);
+      }
         artHtml +
         '<div class="card-body">' +
           (game.baseGame ? '<div class="card-expansion-tag">\uD83D\uDCE6 Expansion for ' + game.baseGame + '</div>' : '') +
