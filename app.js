@@ -1527,6 +1527,7 @@ function renderGameDetailContent(game) {
     game.year ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDCC5 Year</span><span class="card-detail-field-value">' + game.year + '</span></div>' : '',
     players ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDC65 Players</span><span class="card-detail-field-value">' + players + '</span></div>' : '',
     complexity ? '<div class="card-detail-field"><span class="card-detail-field-label">\u2696\uFE0F Weight</span><span class="card-detail-field-value">' + complexity + ' / 5</span></div>' : '',
+    (game.retailer || game.price) ? '<div class="card-detail-field"><span class="card-detail-field-label">\uD83D\uDED2 Purchase</span><span class="card-detail-field-value">' + (game.retailer || '') + (game.price ? (game.retailer ? ' (' + game.price + ')' : game.price) : '') + '</span></div>' : '',
   ].filter(Boolean).join('');
   var btns = '';
   if (hasCharacters(game.name)) {
