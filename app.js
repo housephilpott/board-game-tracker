@@ -1714,7 +1714,6 @@ async function renderTopGames() {
     sessions.forEach(function(s) {
       if (!s.game) return;
       var game = allLibrary.find(function(g) { return g.name === s.game; });
-      if (game && game.excludeRandom) return;
       counts[s.game] = (counts[s.game] || 0) + 1;
     });
 
