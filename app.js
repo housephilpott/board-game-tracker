@@ -623,7 +623,7 @@ async function submitForm() {
   if (selectedExpansions.length > 0 && !(selectedExpansions.length === 1 && selectedExpansions[0] === 'Base Game')) {
   extras['Expansions'] = selectedExpansions.filter(e => e !== 'Base Game').join(', ');
 }
-  const payload={date:document.getElementById('fieldDate').value,game: selectedVersion || game,players:selectedPlayers.join(', '),scores:JSON.stringify(scores),winner,extras:JSON.stringify(extras),lastPlayed:document.getElementById('valLastPlayed').textContent,totalPlays:document.getElementById('valTotalPlays').textContent,topWinner:document.getElementById('valTopWinner').textContent};
+  const payload={date:document.getElementById('fieldDate').value,game: selectedVersion || game,externalGame: source === 'external',players:selectedPlayers.join(', '),scores:JSON.stringify(scores),winner,extras:JSON.stringify(extras),lastPlayed:document.getElementById('valLastPlayed').textContent,totalPlays:document.getElementById('valTotalPlays').textContent,topWinner:document.getElementById('valTopWinner').textContent};
   const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='Submitting\u2026';
   try {
     const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
