@@ -179,6 +179,31 @@
     placeholder="Enter game name"
   >
 </div>
+<div id="externalResultWrap" style="display:none">
+  <div class="section-title">Result Method</div>
+
+  <label style="display:block;margin-bottom:6px">
+    <input type="radio" name="externalResultType"
+           value="score"
+           checked
+           onchange="updateExternalResultMethod()">
+    Score Based
+  </label>
+
+  <label style="display:block;margin-bottom:6px">
+    <input type="radio" name="externalResultType"
+           value="winloss"
+           onchange="updateExternalResultMethod()">
+    Win / Loss
+  </label>
+
+  <label style="display:block">
+    <input type="radio" name="externalResultType"
+           value="manual"
+           onchange="updateExternalResultMethod()">
+    Manual Winner
+  </label>
+</div>
  </div>
  </div>
   
