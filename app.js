@@ -2031,12 +2031,42 @@ function toggleGameSource() {
   document.getElementById('externalGameWrap').style.display =
     source === 'external' ? 'block' : 'none';
 
+  document.getElementById('externalResultWrap').style.display =
+  source === 'external' ? 'block' : 'none';
+
   if (source === 'external') {
     document.getElementById('sectionVersion').style.display = 'none';
     document.getElementById('sectionExpansions').style.display = 'none';
     document.getElementById('sectionMode').style.display = 'none';
     document.getElementById('sectionStats').style.display = 'none';
     document.getElementById('sectionExtra').style.display = 'none';
+  }
+}
+
+function updateExternalResultMethod() {
+
+  if (
+    document.querySelector('input[name="gameSource"]:checked').value
+      !== 'external'
+  ) {
+    return;
+  }
+
+  const mode =
+    document.querySelector(
+      'input[name="externalResultType"]:checked'
+    ).value;
+
+  document.getElementById('resultSection').style.display = 'block';
+
+  if (mode === 'score') {
+    buildScoreFields();
+  }
+  else if (mode === 'winloss') {
+    buildWinLossFields();
+  }
+  else {
+    buildManualWinnerField();
   }
 }
 
