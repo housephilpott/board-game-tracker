@@ -2063,7 +2063,7 @@ function toggleGameSource() {
 
 function getExternalResultMethod() {
   const selected = document.querySelector(
-    'input[name="externalResultMethod"]:checked'
+    'input[name="externalResultType"]:checked'
   );
 
   return selected ? selected.value : 'manual';
