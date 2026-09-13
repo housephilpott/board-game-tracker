@@ -164,8 +164,21 @@
     External Game
   </label>
  </div>
- <label>Board Game</label>
- <select id="fieldGame" onchange="onGameChange()"><option value="">Select a game&hellip;</option></select>
+ <div id="libraryGameWrap">
+  <label>Board Game</label>
+  <select id="fieldGame" onchange="onGameChange()">
+    <option value="">Select a game…</option>
+  </select>
+</div>
+
+<div id="externalGameWrap" style="display:none">
+  <label>Game Name</label>
+  <input
+    type="text"
+    id="fieldExternalGame"
+    placeholder="Enter game name"
+  >
+</div>
  </div>
  </div>
   
