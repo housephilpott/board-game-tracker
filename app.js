@@ -481,6 +481,17 @@ function removeExtraChip(e,sk,v) { e.stopPropagation(); extraMultiSelects[sk]=(e
 // ==================================================
 
 function getWinCondition() {
+    const source = document.querySelector(
+    'input[name="gameSource"]:checked'
+  )?.value;
+
+  if (source === 'external') {
+    const method = getExternalResultMethod();
+
+    if (method === 'manual') return 'manual';
+    if (method === 'score') return 'highest';
+    if (method === 'winloss') return 'winlose';
+  }
   const fields = currentGameData?.extraFields || [];
   const wc = fields.find(f => f.winCondition);
   if (wc) return wc.winCondition;
@@ -489,6 +500,16 @@ function getWinCondition() {
 function getScorepad() {
   const sp = (currentGameData?.extraFields||[]).find(f => f.scorepad);
   return sp ? sp.scorepad : null;
+}
+
+function updateExternalResultMethod() {
+  const source = document.querySelector(
+    'input[name="gameSource"]:checked'
+  )?.value;
+
+  if (source !== 'external') return;
+
+  updateScores();
 }
 
 function updateScores() {
@@ -2024,6 +2045,10 @@ function toggleGameSource() {
   document.getElementById('externalResultWrap').style.display =
   source === 'external' ? 'block' : 'none';
 
+  if (source === 'external' && selectedPlayers.length > 0) {
+  updateScores();
+  }
+
   if (source === 'external') {
     selectedVersion = '';
     selectedExpansions = [];
@@ -2034,6 +2059,14 @@ function toggleGameSource() {
     document.getElementById('sectionStats').style.display = 'none';
     document.getElementById('sectionExtra').style.display = 'none';
   }
+}
+
+function getExternalResultMethod() {
+  const selected = document.querySelector(
+    'input[name="externalResultMethod"]:checked'
+  );
+
+  return selected ? selected.value : 'manual';
 }
 
 function updateExternalResultMethod() {
