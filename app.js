@@ -2070,17 +2070,6 @@ function getExternalResultMethod() {
   return selected ? selected.value : 'manual';
 }
 
-function updateExternalResultMethod() {
-
-  const source = document.querySelector(
-    'input[name="gameSource"]:checked'
-  )?.value;
-
-  if (source !== 'external') return;
-
-  updateScores();
-}
-
 function sortName(name) {
   return name.replace(/^(A|An|The)\s+/i, '').trim();
 }
