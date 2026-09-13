@@ -602,7 +602,12 @@ function autoWinnerScorepad() {
 // ==================================================
 
 async function submitForm() {
-  const game=document.getElementById('fieldGame').value;
+  const source =
+  document.querySelector('input[name="gameSource"]:checked').value;
+  const gameName =
+  source === 'library'
+    ? document.getElementById('fieldGame').value
+    : document.getElementById('fieldExternalGame').value.trim();
   if(!game){showStatus('Please select a game.',true);return;}
   if(selectedPlayers.length===0){showStatus('Please select at least one player.',true);return;}
   if(getGameModes(currentGameData).length > 1 && !selectedMode){showStatus('Please select a game mode.',true);return;}
@@ -642,6 +647,9 @@ function resetLogForm() {
   selectedVersion = '';
   document.getElementById('sectionVersion').style.display = 'none';
   document.getElementById('sectionWinChart').style.display = 'none';
+  document.querySelector('input[name="gameSource"][value="library"]').checked = true;
+      toggleGameSource();
+  document.getElementById('fieldExternalGame').value = '';
 }
 
 function showStatus(msg,isError=false,isSuccess=false) {
@@ -2002,6 +2010,25 @@ function detailLoadMore(e) { e.preventDefault(); renderDetailRecent(); }
 // ==================================================
 // HELPERS
 // ==================================================
+
+function toggleGameSource() {
+  const source =
+    document.querySelector('input[name="gameSource"]:checked').value;
+
+  document.getElementById('libraryGameWrap').style.display =
+    source === 'library' ? 'block' : 'none';
+
+  document.getElementById('externalGameWrap').style.display =
+    source === 'external' ? 'block' : 'none';
+
+  if (source === 'external') {
+    document.getElementById('sectionVersion').style.display = 'none';
+    document.getElementById('sectionExpansions').style.display = 'none';
+    document.getElementById('sectionMode').style.display = 'none';
+    document.getElementById('sectionStats').style.display = 'none';
+    document.getElementById('sectionExtra').style.display = 'none';
+  }
+}
 
 function sortName(name) {
   return name.replace(/^(A|An|The)\s+/i, '').trim();
