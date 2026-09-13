@@ -630,7 +630,15 @@ async function submitForm() {
   source === 'library'
     ? document.getElementById('fieldGame').value
     : document.getElementById('fieldExternalGame').value.trim();
-  if(!game){showStatus('Please select a game.',true);return;}
+  if (!gameName) {
+  showStatus(
+    source === 'library'
+      ? 'Please select a game.'
+      : 'Please enter a game name.',
+    true
+  );
+  return;
+  }
   if(selectedPlayers.length===0){showStatus('Please select at least one player.',true);return;}
   if(getGameModes(currentGameData).length > 1 && !selectedMode){showStatus('Please select a game mode.',true);return;}
   const winner=document.getElementById('fieldWinner').value;
