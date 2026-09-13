@@ -153,6 +153,17 @@
  <div class="section-title">Session</div>
  <div class="field"><label>Date</label><input type="date" id="fieldDate"></div>
  <div class="field">
+ <div class="section">
+ <div class="section-title">Game Source</div>
+  <label style="display:block;margin-bottom:8px">
+    <input type="radio" name="gameSource" value="library" checked onchange="toggleGameSource()">
+    Library Game
+  </label>
+  <label style="display:block">
+    <input type="radio" name="gameSource" value="external" onchange="toggleGameSource()">
+    External Game
+  </label>
+ </div>
  <label>Board Game</label>
  <select id="fieldGame" onchange="onGameChange()"><option value="">Select a game&hellip;</option></select>
  </div>
