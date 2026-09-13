@@ -19,6 +19,16 @@ let addSelectedModes = [], editSelectedModes = [];
 let selectedMode = '';
 let selectedExpansions = [];
 let selectedVersion = '';
+if (source === 'external') {
+  selectedVersion = '';
+  selectedExpansions = [];
+
+  document.getElementById('sectionVersion').style.display = 'none';
+  document.getElementById('sectionExpansions').style.display = 'none';
+  document.getElementById('sectionMode').style.display = 'none';
+  document.getElementById('sectionStats').style.display = 'none';
+  document.getElementById('sectionExtra').style.display = 'none';
+}
 let libraryScrollTop = 0; 
 let wantListScrollTop = 0;
 let randomSpinTimer = null;
