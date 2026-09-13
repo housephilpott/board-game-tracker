@@ -2021,6 +2021,9 @@ function toggleGameSource() {
   document.getElementById('externalGameWrap').style.display =
     source === 'external' ? 'block' : 'none';
 
+  document.getElementById('externalResultWrap').style.display =
+  source === 'external' ? 'block' : 'none';
+
   if (source === 'external') {
     selectedVersion = '';
     selectedExpansions = [];
