@@ -648,7 +648,7 @@ function resetLogForm() {
   document.getElementById('sectionVersion').style.display = 'none';
   document.getElementById('sectionWinChart').style.display = 'none';
   document.querySelector('input[name="gameSource"][value="library"]').checked = true;
-      ();
+      toggleGameSource();
   document.getElementById('fieldExternalGame').value = '';
 }
 
