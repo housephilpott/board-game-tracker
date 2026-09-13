@@ -503,6 +503,7 @@ function getScorepad() {
 }
 
 function updateExternalResultMethod() {
+
   const source = document.querySelector(
     'input[name="gameSource"]:checked'
   )?.value;
@@ -2071,29 +2072,13 @@ function getExternalResultMethod() {
 
 function updateExternalResultMethod() {
 
-  if (
-    document.querySelector('input[name="gameSource"]:checked').value
-      !== 'external'
-  ) {
-    return;
-  }
+  const source = document.querySelector(
+    'input[name="gameSource"]:checked'
+  )?.value;
 
-  const mode =
-    document.querySelector(
-      'input[name="externalResultType"]:checked'
-    ).value;
+  if (source !== 'external') return;
 
-  document.getElementById('resultSection').style.display = 'block';
-
-  if (mode === 'score') {
-    buildScoreFields();
-  }
-  else if (mode === 'winloss') {
-    buildWinLossFields();
-  }
-  else {
-    buildManualWinnerField();
-  }
+  updateScores();
 }
 
 function sortName(name) {
